@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>똥싸개 슬롯머신</title>
+  <style>
+    /* ===== 기본 리셋 & 배경 ===== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1a0533, #3b0764, #1a0533);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Segoe UI', sans-serif;
+      padding: 20px;
+    }
+
+    /* ===== 전체 컨테이너 ===== */
+    .container {
+      text-align: center;
+      max-width: 480px;
+      width: 100%;
+    }
+
+    /* ===== 타이틀 ===== */
+    .title {
+      font-size: 2rem;
+      color: #ffd700;
+      text-shadow: 0 0 20px #ffd700, 0 0 40px #ff8c00;
+      margin-bottom: 20px;
+      letter-spacing: 2px;
+    }
+
+    /* ===== 슬롯 머신 본체 ===== */
+    .machine {
+      background: linear-gradient(180deg, #2d1154, #1a0533);
+      border: 3px solid #ffd700;
+      border-radius: 20px;
+      padding: 30px 24px;
+      box-shadow: 0 0 40px rgba(255, 215, 0, 0.3), inset 0 0 30px rgba(0,0,0,0.4);
+      margin-bottom: 20px;
+    }
+
+    /* ===== 릴 영역 ===== */
+    .reels {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    /* ===== 릴 하나 ===== */
+    .reel {
+      width: clamp(80px, 26vw, 110px);
+      height: clamp(80px, 26vw, 110px);
+      background: #0d001a;
+      border: 3px solid #ffd700;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.6), 0 0 10px rgba(255,215,0,0.2);
+      position: relative;
+    }
+
+    /* 릴 안 이모지 */
+    .reel-symbol {
+      font-size: clamp(2rem, 8vw, 3.2rem);
+      transition: transform 0.1s;
+      user-select: none;
+    }
+
+    /* 스핀 중 릴 흔들림 애니메이션 */
+    .reel.spinning .reel-symbol {
+      animation: reelSpin 0.1s linear infinite;
+    }
+
+    @keyframes reelSpin {
+      0%   { transform: translateY(-6px) scale(1.05); }
+      50%  { transform: translateY(6px)  scale(0.95); }
+      100% { transform: translateY(-6px) scale(1.05); }
+    }
+
+    /* 당첨 시 릴 반짝임 */
+    .reel.winner {
+      border-color: #ff4444;
+      animation: winnerGlow 0.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes winnerGlow {
+      from { box-shadow: inset 0 0 20px rgba(0,0,0,0.6), 0 0 10px #ff4444; }
+      to   { box-shadow: inset 0 0 20px rgba(0,0,0,0.6), 0 0 30px #ff4444, 0 0 60px #ff8800; }
+    }
+
+    /* 잭팟 릴 특수 효과 */
+    .reel.jackpot {
+      border-color: #ffd700;
+      animation: jackpotGlow 0.3s ease-in-out infinite alternate;
+    }
+
+    @keyframes jackpotGlow {
+      from { box-shadow: 0 0 10px #ffd700; }
+      to   { box-shadow: 0 0 40px #ffd700, 0 0 80px #ff8c00; }
+    }
+
+    /* ===== 결과 메시지 박스 ===== */
+    .result-box {
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .result-text {
+      font-size: 1.2rem;
+      color: #f0e6ff;
+      font-weight: bold;
+      letter-spacing: 1px;
+      transition: all 0.3s ease;
+    }
+
+    .result-text.win       { color: #ffd700; text-shadow: 0 0 10px #ffd700; }
+    .result-text.bigwin    { color: #ff4444; text-shadow: 0 0 16px #ff4444, 0 0 32px #ff8800; }
+    .result-text.small-win { color: #aaffaa; }
+    .result-text.jackpot-msg {
+      color: #ffd700;
+      text-shadow: 0 0 20px #ffd700, 0 0 40px #ff8c00;
+      animation: jackpotPulse 0.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes jackpotPulse {
+      from { transform: scale(1); }
+      to   { transform: scale(1.08); }
+    }
+
+    .result-text.lose { color: #9966cc; }
+
+    /* ===== SPIN 버튼 ===== */
+    .spin-btn {
+      width: 100%;
+      padding: 16px;
+      font-size: 1.3rem;
+      font-weight: bold;
+      letter-spacing: 2px;
+      color: #1a0533;
+      background: linear-gradient(135deg, #ffd700, #ff8c00);
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+      box-shadow: 0 4px 20px rgba(255, 215, 0, 0.5);
+    }
+
+    .spin-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(255, 215, 0, 0.7);
+    }
+
+    .spin-btn:active:not(:disabled) {
+      transform: translateY(1px);
+      box-shadow: 0 2px 10px rgba(255, 215, 0, 0.4);
+    }
+
+    .spin-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* ===== 운세 카드 (3hit 당첨 시에만 표시) ===== */
+    .fortune-card {
+      display: none;
+      background: rgba(255, 215, 0, 0.07);
+      border: 1px solid rgba(255, 215, 0, 0.4);
+      border-radius: 14px;
+      padding: 18px 20px;
+      margin-bottom: 20px;
+      backdrop-filter: blur(6px);
+      text-align: left;
+    }
+
+    .fortune-card.visible {
+      display: block;
+      animation: fortuneFadeIn 0.5s ease forwards;
+    }
+
+    @keyframes fortuneFadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .fortune-card-title {
+      font-size: 0.75rem;
+      color: #ffd700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      text-align: center;
+    }
+
+    .fortune-luck-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .fortune-luck-label {
+      color: #d0b0ff;
+      font-size: 0.9rem;
+    }
+
+    .fortune-luck-value {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #ffd700;
+      text-shadow: 0 0 12px #ffd700;
+    }
+
+    .fortune-msg {
+      color: #f0e6ff;
+      font-size: 0.95rem;
+      line-height: 1.7;
+    }
+
+    /* ===== 당첨 안내표 ===== */
+    .payTable {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 215, 0, 0.2);
+      border-radius: 12px;
+      padding: 16px 20px;
+      text-align: left;
+      backdrop-filter: blur(6px);
+    }
+
+    .payTable h3 {
+      color: #ffd700;
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+      text-align: center;
+      letter-spacing: 1px;
+    }
+
+    .payTable ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .payTable li {
+      color: #d0b0ff;
+      font-size: 0.88rem;
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .payTable li strong {
+      color: #ffd700;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 전체 게임 컨테이너 -->
+  <div class="container">
+
+    <!-- 타이틀 -->
+    <h1 class="title">🎰 똥싸개 슬롯머신</h1>
+
+    <!-- 슬롯 머신 본체 -->
+    <div class="machine">
+
+      <!-- 릴 3개 -->
+      <div class="reels">
+        <div class="reel" id="reel1">
+          <div class="reel-symbol" id="symbol1">🍒</div>
+        </div>
+        <div class="reel" id="reel2">
+          <div class="reel-symbol" id="symbol2">🍋</div>
+        </div>
+        <div class="reel" id="reel3">
+          <div class="reel-symbol" id="symbol3">🍇</div>
+        </div>
+      </div>
+
+      <!-- 결과 메시지 -->
+      <div class="result-box">
+        <p class="result-text" id="resultText">SPIN을 눌러보세요!</p>
+      </div>
+
+      <!-- 스핀 버튼 -->
+      <button class="spin-btn" id="spinBtn">
+        🎲 SPIN!
+      </button>
+
+    </div>
+
+    <!-- 운세 카드: 3hit 당첨 시에만 표시 -->
+    <div class="fortune-card" id="fortuneCard">
+      <p class="fortune-card-title">✨ 오늘의 운세</p>
+      <div class="fortune-luck-row">
+        <span class="fortune-luck-label">행운지수</span>
+        <span class="fortune-luck-value" id="luckIndex">--</span>
+      </div>
+      <p class="fortune-msg" id="fortuneMsg"></p>
+    </div>
+
+    <!-- 당첨 안내표 -->
+    <div class="payTable">
+      <h3>💰 당첨 안내</h3>
+      <ul>
+        <li>🍒🍒🍒 / 🍋🍋🍋 / 🍇🍇🍇 → <strong>대박!</strong></li>
+        <li>🔔🔔🔔 / ⭐⭐⭐ → <strong>초대박!!</strong></li>
+        <li>7️⃣7️⃣7️⃣ → <strong>잭팟!!!</strong></li>
+        <li>2개 일치 → <strong>아쉬운 당첨~</strong></li>
+        <li>전부 다름 → <strong>꽝 😢</strong></li>
+      </ul>
+    </div>
+
+  </div>
+
+  <script>
+    // =============================================
+    // 운세 문장 목록 (추가/수정은 이 배열에서)
+    // =============================================
+    const FORTUNE_LIST = [
+      '오늘은 오랫동안 기다리던 소식이 들려올 거예요. 기대해도 좋아요!',
+      '작은 친절이 큰 행운으로 돌아오는 날이에요. 주변에 따뜻하게 대해보세요.',
+      '오늘의 직감을 믿으세요. 당신의 선택이 빛을 발할 거예요.',
+      '뜻밖의 만남에서 귀한 인연이 시작될 수 있어요. 마음을 열어두세요.',
+      '꾸준히 해온 일이 오늘 드디어 결실을 맺을 조짐이 보여요.',
+      '오늘은 유난히 에너지가 넘치는 날! 하고 싶었던 일에 도전해보세요.',
+      '하늘이 당신의 편인 날이에요. 망설였던 일을 시작하기 딱 좋아요.',
+      '평소보다 운이 두 배! 오늘 계획한 일들이 술술 풀릴 거예요.',
+      '소소한 즐거움이 가득한 하루가 될 거예요. 작은 것에 감사해보세요.',
+      '오늘 만나는 사람마다 당신에게 호감을 느낄 거예요. 자신감을 가져요!',
+      '잊고 있던 복이 갑자기 찾아오는 날이에요. 열린 마음으로 받아들여요.',
+      '재물운이 상승하는 날이에요. 오늘 산 것들이 기쁨을 줄 거예요.',
+      '오랜 고민의 해답이 오늘 떠오를 거예요. 여유롭게 생각해보세요.',
+      '주변 사람들에게 좋은 에너지를 전파하는 날이에요. 당신이 분위기 메이커!',
+      '오늘은 특별히 별이 당신을 응원하고 있어요. 무엇이든 해낼 수 있어요.',
+      '예상치 못한 선물이나 기쁜 소식이 찾아올 수 있어요. 하루를 기대해요.',
+      '오늘의 당신은 무엇을 해도 멋있어 보여요. 자신을 마음껏 표현해보세요.',
+      '막혔던 일들이 오늘을 기점으로 순조롭게 풀려나갈 거예요.',
+      '오늘 하루 유독 운이 따르는 날이에요. 조금 더 용감하게 도전해봐요!',
+      '기분 좋은 우연이 연속으로 일어나는 날이에요. 하루를 즐겨보세요.',
+    ];
+
+    // =============================================
+    // 슬롯 아이템: 이모지와 가중치를 하나의 객체로 관리
+    // =============================================
+    const SLOT_ITEMS = [
+      { symbol: '🍒', weight: 30 },
+      { symbol: '🍋', weight: 25 },
+      { symbol: '🍇', weight: 20 },
+      { symbol: '🔔', weight: 15 },
+      { symbol: '⭐', weight: 7  },
+      { symbol: '7️⃣', weight: 3  },
+    ];
+
+    // =============================================
+    // 가중치 기반 랜덤 이모지 선택
+    // =============================================
+    function getRandomSymbol() {
+      const total = SLOT_ITEMS.reduce((sum, item) => sum + item.weight, 0);
+      let rand = Math.random() * total;
+      for (const item of SLOT_ITEMS) {
+        rand -= item.weight;
+        if (rand <= 0) return item.symbol;
+      }
+      return SLOT_ITEMS[0].symbol;
+    }
+
+    // =============================================
+    // 릴 스핀 애니메이션
+    // =============================================
+    function animateReel(symbolEl, reelEl, duration, callback) {
+      reelEl.classList.add('spinning');
+
+      const interval = setInterval(() => {
+        symbolEl.textContent = getRandomSymbol();
+      }, 80);
+
+      setTimeout(() => {
+        clearInterval(interval);
+        reelEl.classList.remove('spinning');
+        const finalSymbol = getRandomSymbol();
+        symbolEl.textContent = finalSymbol;
+        if (callback) callback(finalSymbol);
+      }, duration);
+    }
+
+    // =============================================
+    // 당첨 결과 판정
+    // =============================================
+    function judgeResult(s1, s2, s3) {
+      if (s1 === s2 && s2 === s3) {
+        if (s1 === '7️⃣') return 'jackpot';
+        if (s1 === '⭐' || s1 === '🔔') return 'bigwin';
+        return 'win';
+      }
+      if (s1 === s2 || s2 === s3 || s1 === s3) return 'small';
+      return 'lose';
+    }
+
+    // =============================================
+    // 결과 메시지 & 스타일 적용
+    // =============================================
+    function showResult(grade) {
+      const el = document.getElementById('resultText');
+      const reels = [
+        document.getElementById('reel1'),
+        document.getElementById('reel2'),
+        document.getElementById('reel3'),
+      ];
+
+      el.className = 'result-text';
+      reels.forEach(r => r.classList.remove('winner', 'jackpot'));
+
+      const messages = {
+        jackpot: '🎊 JACKPOT!!! 7️⃣7️⃣7️⃣ 대단해요!!!',
+        bigwin:  '🔥 초대박! 엄청난 행운이에요!',
+        win:     '🎉 대박! 3개 모두 일치!',
+        small:   '😊 아쉬운 당첨~ 2개 일치!',
+        lose:    '😢 꽝... 다음엔 행운이 있을 거예요!',
+      };
+
+      el.textContent = messages[grade];
+
+      if (grade === 'jackpot') {
+        el.classList.add('jackpot-msg');
+        reels.forEach(r => r.classList.add('jackpot'));
+      } else if (grade === 'bigwin') {
+        el.classList.add('bigwin');
+        reels.forEach(r => r.classList.add('winner'));
+      } else if (grade === 'win') {
+        el.classList.add('win');
+        reels.forEach(r => r.classList.add('winner'));
+      } else if (grade === 'small') {
+        el.classList.add('small-win');
+      } else {
+        el.classList.add('lose');
+      }
+
+      const fortuneCard = document.getElementById('fortuneCard');
+      if (grade === 'win' || grade === 'bigwin' || grade === 'jackpot') {
+        const luckScore = Math.floor(Math.random() * 21) + 80;
+        const fortune = FORTUNE_LIST[Math.floor(Math.random() * FORTUNE_LIST.length)];
+        document.getElementById('luckIndex').textContent = luckScore;
+        document.getElementById('fortuneMsg').textContent = fortune;
+        setTimeout(() => fortuneCard.classList.add('visible'), 300);
+      } else {
+        fortuneCard.classList.remove('visible');
+      }
+    }
+
+    // =============================================
+    // SPIN 메인 함수
+    // =============================================
+    function spin() {
+      const btn = document.getElementById('spinBtn');
+      const resultEl = document.getElementById('resultText');
+
+      btn.disabled = true;
+      resultEl.className = 'result-text';
+      resultEl.textContent = '두근두근... 🎰';
+      document.getElementById('fortuneCard').classList.remove('visible');
+
+      const symbol1 = document.getElementById('symbol1');
+      const symbol2 = document.getElementById('symbol2');
+      const symbol3 = document.getElementById('symbol3');
+      const reel1   = document.getElementById('reel1');
+      const reel2   = document.getElementById('reel2');
+      const reel3   = document.getElementById('reel3');
+
+      [reel1, reel2, reel3].forEach(r => r.classList.remove('winner', 'jackpot'));
+
+      const results = {};
+      let stoppedCount = 0;
+
+      function onReelStop(index, val) {
+        results[index] = val;
+        stoppedCount++;
+        if (stoppedCount === 3) {
+          const grade = judgeResult(results[0], results[1], results[2]);
+          showResult(grade);
+          btn.disabled = false;
+        }
+      }
+
+      animateReel(symbol1, reel1, 1000, (val) => onReelStop(0, val));
+      animateReel(symbol2, reel2, 1500, (val) => onReelStop(1, val));
+      animateReel(symbol3, reel3, 2000, (val) => onReelStop(2, val));
+    }
+
+    // 버튼 이벤트 연결
+    document.getElementById('spinBtn').addEventListener('click', spin);
+  </script>
+</body>
+</html>
