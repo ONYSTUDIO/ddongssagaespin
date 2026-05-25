@@ -1,0 +1,263 @@
+/* ===== 기본 리셋 & 배경 ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a0533, #3b0764, #1a0533);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Segoe UI', sans-serif;
+  padding: 20px;
+}
+
+/* ===== 전체 컨테이너 ===== */
+.container {
+  text-align: center;
+  max-width: 480px;
+  width: 100%;
+}
+
+/* ===== 타이틀 ===== */
+.title {
+  font-size: 2rem;
+  color: #ffd700;
+  text-shadow: 0 0 20px #ffd700, 0 0 40px #ff8c00;
+  margin-bottom: 20px;
+  letter-spacing: 2px;
+}
+
+/* ===== 슬롯 머신 본체 ===== */
+.machine {
+  background: linear-gradient(180deg, #2d1154, #1a0533);
+  border: 3px solid #ffd700;
+  border-radius: 20px;
+  padding: 30px 24px;
+  box-shadow: 0 0 40px rgba(255, 215, 0, 0.3), inset 0 0 30px rgba(0,0,0,0.4);
+  margin-bottom: 20px;
+}
+
+/* ===== 릴 영역 ===== */
+.reels {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+/* ===== 릴 하나 ===== */
+.reel {
+  width: clamp(80px, 26vw, 110px);
+  height: clamp(80px, 26vw, 110px);
+  background: #0d001a;
+  border: 3px solid #ffd700;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.6), 0 0 10px rgba(255,215,0,0.2);
+  position: relative;
+}
+
+/* 릴 안 이모지 */
+.reel-symbol {
+  font-size: clamp(2rem, 8vw, 3.2rem);
+  transition: transform 0.1s;
+  user-select: none;
+}
+
+/* 스핀 중 릴 흔들림 애니메이션 */
+.reel.spinning .reel-symbol {
+  animation: reelSpin 0.1s linear infinite;
+}
+
+@keyframes reelSpin {
+  0%   { transform: translateY(-6px) scale(1.05); }
+  50%  { transform: translateY(6px)  scale(0.95); }
+  100% { transform: translateY(-6px) scale(1.05); }
+}
+
+/* 당첨 시 릴 반짝임 */
+.reel.winner {
+  border-color: #ff4444;
+  animation: winnerGlow 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes winnerGlow {
+  from { box-shadow: inset 0 0 20px rgba(0,0,0,0.6), 0 0 10px #ff4444; }
+  to   { box-shadow: inset 0 0 20px rgba(0,0,0,0.6), 0 0 30px #ff4444, 0 0 60px #ff8800; }
+}
+
+/* 잭팟 릴 특수 효과 */
+.reel.jackpot {
+  border-color: #ffd700;
+  animation: jackpotGlow 0.3s ease-in-out infinite alternate;
+}
+
+@keyframes jackpotGlow {
+  from { box-shadow: 0 0 10px #ffd700; }
+  to   { box-shadow: 0 0 40px #ffd700, 0 0 80px #ff8c00; }
+}
+
+/* ===== 결과 메시지 박스 ===== */
+.result-box {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.result-text {
+  font-size: 1.2rem;
+  color: #f0e6ff;
+  font-weight: bold;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+}
+
+.result-text.win       { color: #ffd700; text-shadow: 0 0 10px #ffd700; }
+.result-text.bigwin    { color: #ff4444; text-shadow: 0 0 16px #ff4444, 0 0 32px #ff8800; }
+.result-text.small-win { color: #aaffaa; }
+.result-text.jackpot-msg {
+  color: #ffd700;
+  text-shadow: 0 0 20px #ffd700, 0 0 40px #ff8c00;
+  animation: jackpotPulse 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes jackpotPulse {
+  from { transform: scale(1); }
+  to   { transform: scale(1.08); }
+}
+
+.result-text.lose { color: #9966cc; }
+
+/* ===== SPIN 버튼 ===== */
+.spin-btn {
+  width: 100%;
+  padding: 16px;
+  font-size: 1.3rem;
+  font-weight: bold;
+  letter-spacing: 2px;
+  color: #1a0533;
+  background: linear-gradient(135deg, #ffd700, #ff8c00);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+  box-shadow: 0 4px 20px rgba(255, 215, 0, 0.5);
+}
+
+.spin-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(255, 215, 0, 0.7);
+}
+
+.spin-btn:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: 0 2px 10px rgba(255, 215, 0, 0.4);
+}
+
+.spin-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ===== 운세 카드 (3hit 당첨 시에만 표시) ===== */
+.fortune-card {
+  display: none;
+  background: rgba(255, 215, 0, 0.07);
+  border: 1px solid rgba(255, 215, 0, 0.4);
+  border-radius: 14px;
+  padding: 18px 20px;
+  margin-bottom: 20px;
+  backdrop-filter: blur(6px);
+  text-align: left;
+}
+
+.fortune-card.visible {
+  display: block;
+  animation: fortuneFadeIn 0.5s ease forwards;
+}
+
+@keyframes fortuneFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.fortune-card-title {
+  font-size: 0.75rem;
+  color: #ffd700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  text-align: center;
+}
+
+.fortune-luck-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.fortune-luck-label {
+  color: #d0b0ff;
+  font-size: 0.9rem;
+}
+
+.fortune-luck-value {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #ffd700;
+  text-shadow: 0 0 12px #ffd700;
+}
+
+.fortune-msg {
+  color: #f0e6ff;
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+/* ===== 당첨 안내표 ===== */
+.payTable {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  border-radius: 12px;
+  padding: 16px 20px;
+  text-align: left;
+  backdrop-filter: blur(6px);
+}
+
+.payTable h3 {
+  color: #ffd700;
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+  text-align: center;
+  letter-spacing: 1px;
+}
+
+.payTable ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.payTable li {
+  color: #d0b0ff;
+  font-size: 0.88rem;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.payTable li strong {
+  color: #ffd700;
+}

@@ -1,0 +1,16 @@
+{
+  "name": "ddongssagaespin",
+  "version": "1.0.0",
+  "description": "",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"테스트 없음 — 브라우저에서 index.html을 직접 열어 확인하세요.\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "playwright": "^1.60.0"
+  }
+}
