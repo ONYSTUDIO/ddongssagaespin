@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>똥싸개 슬롯머신</title>
+</head>
+<body>
+
+  <!-- 전체 게임 컨테이너 -->
+  <div class="container">
+
+    <!-- 타이틀 -->
+    <h1 class="title">🎰 똥싸개 슬롯머신</h1>
+
+    <!-- 슬롯 머신 본체 -->
+    <div class="machine">
+
+      <!-- 릴 3개 -->
+      <div class="reels">
+        <div class="reel" id="reel1">
+          <div class="reel-symbol" id="symbol1">🍒</div>
+        </div>
+        <div class="reel" id="reel2">
+          <div class="reel-symbol" id="symbol2">🍋</div>
+        </div>
+        <div class="reel" id="reel3">
+          <div class="reel-symbol" id="symbol3">🍇</div>
+        </div>
+      </div>
+
+      <!-- 결과 메시지 -->
+      <div class="result-box">
+        <p class="result-text" id="resultText">SPIN을 눌러보세요!</p>
+      </div>
+
+      <!-- 스핀 버튼 -->
+      <button class="spin-btn" id="spinBtn">
+        🎲 SPIN!
+      </button>
+
+    </div>
+
+    <!-- 운세 카드: 3hit 당첨 시에만 표시 -->
+    <div class="fortune-card" id="fortuneCard">
+      <p class="fortune-card-title">✨ 오늘의 운세</p>
+      <div class="fortune-luck-row">
+        <span class="fortune-luck-label">행운지수</span>
+        <span class="fortune-luck-value" id="luckIndex">--</span>
+      </div>
+      <p class="fortune-msg" id="fortuneMsg"></p>
+    </div>
+
+    <!-- 당첨 안내표 -->
+    <div class="payTable">
+      <h3>💰 당첨 안내</h3>
+      <ul>
+        <li>🍒🍒🍒 / 🍋🍋🍋 / 🍇🍇🍇 → <strong>대박!</strong></li>
+        <li>🔔🔔🔔 / ⭐⭐⭐ → <strong>초대박!!</strong></li>
+        <li>7️⃣7️⃣7️⃣ → <strong>잭팟!!!</strong></li>
+        <li>2개 일치 → <strong>아쉬운 당첨~</strong></li>
+        <li>전부 다름 → <strong>꽝 😢</strong></li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- CSS는 main.ts에서 import -->
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
