@@ -1,44 +1,77 @@
 import './styles/main.css';
-import { judgeResult } from './scripts/game';
-import { animateReel } from './scripts/reel';
+import { judgeResult, getRandomItem, SlotItem } from './scripts/game';
+import { initReel, animateReel } from './scripts/reel';
 import { showResult } from './scripts/effects';
 import { hideFortuneCard } from './scripts/fortune';
 
-function spin(): void {
-  const btn = document.getElementById('spinBtn') as HTMLButtonElement;
-  const resultEl = document.getElementById('resultText') as HTMLElement;
+import spinOnSrc       from './assets/images/buttons/btn_spin_on.png';
+import spinOffSrc      from './assets/images/buttons/btn_spin_off.png';
+import spinFocusSrc    from './assets/images/buttons/btn_spin_focus.png';
+import machineFrameSrc from './assets/images/machine/machine_frame.png';
 
+const btn            = document.getElementById('spinBtn')        as HTMLButtonElement;
+const btnImg         = document.getElementById('btnSpinImg')     as HTMLImageElement;
+const machineFrameEl = document.getElementById('machineFrameImg') as HTMLImageElement;
+const reel1          = document.getElementById('reel1')          as HTMLElement;
+const reel2          = document.getElementById('reel2')          as HTMLElement;
+const reel3          = document.getElementById('reel3')          as HTMLElement;
+const resultEl       = document.getElementById('resultText')     as HTMLElement;
+
+// ── 버튼 이미지 상태 전환 ──
+function setBtnState(state: 'on' | 'off' | 'focus'): void {
+  const map = { on: spinOnSrc, off: spinOffSrc, focus: spinFocusSrc };
+  btnImg.src = map[state];
+}
+
+// ── 머신 프레임 로드 후 릴 초기화 ──
+function initAllReels(): void {
+  initReel(reel1);
+  initReel(reel2);
+  initReel(reel3);
+}
+
+machineFrameEl.onload = initAllReels;
+machineFrameEl.src = machineFrameSrc;
+if (machineFrameEl.complete && machineFrameEl.naturalWidth > 0) initAllReels();
+
+setBtnState('on');
+
+// ── 호버 이벤트 ──
+btn.addEventListener('mouseenter', () => { if (!btn.disabled) setBtnState('focus'); });
+btn.addEventListener('mouseleave', () => { if (!btn.disabled) setBtnState('on');    });
+
+// ── SPIN 함수 ──
+function spin(): void {
   btn.disabled = true;
+  setBtnState('off');
   resultEl.className = 'result-text';
   resultEl.textContent = '두근두근... 🎰';
   hideFortuneCard();
 
-  const symbol1 = document.getElementById('symbol1') as HTMLElement;
-  const symbol2 = document.getElementById('symbol2') as HTMLElement;
-  const symbol3 = document.getElementById('symbol3') as HTMLElement;
-  const reel1   = document.getElementById('reel1') as HTMLElement;
-  const reel2   = document.getElementById('reel2') as HTMLElement;
-  const reel3   = document.getElementById('reel3') as HTMLElement;
-
   [reel1, reel2, reel3].forEach(r => r.classList.remove('winner', 'jackpot'));
 
-  // 3개 릴 동시에 시작, 멈추는 시간만 다르게 (1초 / 1.5초 / 2초)
-  const results: Record<number, string> = {};
+  // 당첨 심볼 사전 결정 (스트립 구성에 필요)
+  const final0 = getRandomItem();
+  const final1 = getRandomItem();
+  const final2 = getRandomItem();
+
+  const results: Record<number, SlotItem> = {};
   let stoppedCount = 0;
 
-  function onReelStop(index: number, val: string): void {
-    results[index] = val;
+  function onReelStop(index: number, item: SlotItem): void {
+    results[index] = item;
     stoppedCount++;
     if (stoppedCount === 3) {
-      const grade = judgeResult(results[0], results[1], results[2]);
+      const grade = judgeResult(results[0].id, results[1].id, results[2].id);
       showResult(grade);
       btn.disabled = false;
+      setBtnState('on');
     }
   }
 
-  animateReel(symbol1, reel1, 1000, (val) => onReelStop(0, val));
-  animateReel(symbol2, reel2, 1500, (val) => onReelStop(1, val));
-  animateReel(symbol3, reel3, 2000, (val) => onReelStop(2, val));
+  animateReel(reel1, 1000, final0, (item) => onReelStop(0, item));
+  animateReel(reel2, 1500, final1, (item) => onReelStop(1, item));
+  animateReel(reel3, 2000, final2, (item) => onReelStop(2, item));
 }
 
-document.getElementById('spinBtn')!.addEventListener('click', spin);
+btn.addEventListener('click', spin);

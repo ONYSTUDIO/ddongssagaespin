@@ -5,14 +5,26 @@
   box-sizing: border-box;
 }
 
+/* 배경을 html에 고정: 콘텐츠 스크롤·iOS Safari 모두 안정적 */
+html {
+  min-height: 100%;
+  background-image: url('../assets/images/background/bg_ingame_main.png');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-color: #1a0533;
+}
+
 body {
   min-height: 100vh;
-  background: linear-gradient(135deg, #1a0533, #3b0764, #1a0533);
+  min-height: 100dvh;
+  background: transparent;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   font-family: 'Segoe UI', sans-serif;
-  padding: 20px;
+  padding: 16px 20px;
 }
 
 /* ===== 전체 컨테이너 ===== */
@@ -33,100 +45,139 @@ body {
 
 /* ===== 슬롯 머신 본체 ===== */
 .machine {
-  background: linear-gradient(180deg, #2d1154, #1a0533);
-  border: 3px solid #ffd700;
-  border-radius: 20px;
-  padding: 30px 24px;
-  box-shadow: 0 0 40px rgba(255, 215, 0, 0.3), inset 0 0 30px rgba(0,0,0,0.4);
-  margin-bottom: 20px;
-}
-
-/* ===== 릴 영역 ===== */
-.reels {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-/* ===== 릴 하나 ===== */
-.reel {
-  width: clamp(80px, 26vw, 110px);
-  height: clamp(80px, 26vw, 110px);
-  background: #0d001a;
-  border: 3px solid #ffd700;
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  box-shadow: inset 0 0 20px rgba(0,0,0,0.6), 0 0 10px rgba(255,215,0,0.2);
   position: relative;
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto 12px;
+  background: none;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
 }
 
-/* 릴 안 이모지 */
-.reel-symbol {
-  font-size: clamp(2rem, 8vw, 3.2rem);
-  transition: transform 0.1s;
+/* 프레임 이미지: 비율 기준 레이어 */
+.machine-frame {
+  width: 100%;
+  height: auto;
+  display: block;
+  pointer-events: none;
   user-select: none;
 }
 
-/* 스핀 중 릴 흔들림 애니메이션 */
-.reel.spinning .reel-symbol {
-  animation: reelSpin 0.1s linear infinite;
+/* ===== 릴 영역: 프레임 이미지 위에 절대 위치 ===== */
+/* 측정값(1024×1536): top=22.33%, left=17.1%, width=65.4%, height=34% */
+.reels {
+  position: absolute;
+  top: 22.33%;
+  left: 17.1%;
+  width: 65.4%;
+  height: 34%;
+  display: flex;
+  align-items: stretch;
+  gap: 1.5%;
+  margin: 0;
 }
 
-@keyframes reelSpin {
-  0%   { transform: translateY(-6px) scale(1.05); }
-  50%  { transform: translateY(6px)  scale(0.95); }
-  100% { transform: translateY(-6px) scale(1.05); }
+/* ===== 릴 하나: 3행 가시 영역 클리핑 컨테이너 ===== */
+.reel {
+  flex: 1;
+  height: 100%;
+  overflow: hidden;   /* 스트립을 3행만 보이게 클리핑 */
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  position: relative;
 }
 
-/* 당첨 시 릴 반짝임 */
+/* 릴 스트립: 심볼을 세로로 쌓는 컨테이너 */
+.reel-strip {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  will-change: transform;
+}
+
+/* 스트립 내 각 심볼 이미지 (높이는 JS에서 cellH로 설정) */
+.reel-symbol {
+  width: 100%;
+  flex-shrink: 0;
+  object-fit: contain;
+  padding: 6px;
+  display: block;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* 스핀 중 스트립에 미세 blur 효과 */
+.reel.spinning .reel-strip {
+  filter: blur(0.5px);
+}
+
+/* 당첨 시 릴 오버레이 반짝임 */
 .reel.winner {
-  border-color: #ff4444;
   animation: winnerGlow 0.5s ease-in-out infinite alternate;
 }
 
 @keyframes winnerGlow {
-  from { box-shadow: inset 0 0 20px rgba(0,0,0,0.6), 0 0 10px #ff4444; }
-  to   { box-shadow: inset 0 0 20px rgba(0,0,0,0.6), 0 0 30px #ff4444, 0 0 60px #ff8800; }
+  from { background: rgba(255, 68, 68, 0); }
+  to   { background: rgba(255, 68, 68, 0.28); }
 }
 
-/* 잭팟 릴 특수 효과 */
+/* 잭팟 릴 황금 오버레이 */
 .reel.jackpot {
-  border-color: #ffd700;
   animation: jackpotGlow 0.3s ease-in-out infinite alternate;
 }
 
 @keyframes jackpotGlow {
-  from { box-shadow: 0 0 10px #ffd700; }
-  to   { box-shadow: 0 0 40px #ffd700, 0 0 80px #ff8c00; }
+  from { background: rgba(255, 215, 0, 0); }
+  to   { background: rgba(255, 215, 0, 0.35); }
 }
 
-/* ===== 결과 메시지 박스 ===== */
+/* ===== 히트 라인: 가운데 행 (판정 기준) ===== */
+/* 릴 영역: top=22.33%, height=34% → 가운데 행: 33.66%~45% */
+.hit-line {
+  position: absolute;
+  top: 33.66%;
+  left: 17.1%;
+  width: 65.4%;
+  height: 11.33%;
+  border-top: 2px solid rgba(255, 220, 40, 0.85);
+  border-bottom: 2px solid rgba(255, 220, 40, 0.85);
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* ===== 결과 메시지 박스: 프레임 어두운 결과 표시 바 (y=920~1060, 59.9%~69%) ===== */
 .result-box {
-  min-height: 48px;
+  position: absolute;
+  top: 60%;
+  left: 10%;
+  width: 80%;
+  height: 9%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 20px;
+  margin: 0;
 }
 
 .result-text {
-  font-size: 1.2rem;
-  color: #f0e6ff;
+  font-size: clamp(0.8rem, 4vw, 1.05rem);
+  color: #ffd700;
   font-weight: bold;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
+  text-align: center;
   transition: all 0.3s ease;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
 }
 
-.result-text.win       { color: #ffd700; text-shadow: 0 0 10px #ffd700; }
-.result-text.bigwin    { color: #ff4444; text-shadow: 0 0 16px #ff4444, 0 0 32px #ff8800; }
-.result-text.small-win { color: #aaffaa; }
+.result-text.win       { color: #ffd700; text-shadow: 0 0 8px rgba(255,215,0,0.6); }
+.result-text.bigwin    { color: #ff8844; text-shadow: 0 0 10px rgba(255,100,0,0.7); }
+.result-text.small-win { color: #aaffaa; text-shadow: 0 1px 4px rgba(0,0,0,0.9); }
 .result-text.jackpot-msg {
-  color: #ffd700;
-  text-shadow: 0 0 20px #ffd700, 0 0 40px #ff8c00;
+  color: #fff700;
+  text-shadow: 0 0 12px rgba(255,230,0,0.9);
   animation: jackpotPulse 0.5s ease-in-out infinite alternate;
 }
 
@@ -135,36 +186,38 @@ body {
   to   { transform: scale(1.08); }
 }
 
-.result-text.lose { color: #9966cc; }
+.result-text.lose { color: #c0966e; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
 
-/* ===== SPIN 버튼 ===== */
+/* ===== SPIN 버튼: 머신 프레임 하단 내부 절대 위치 ===== */
+/* 하단 장식 영역(69%~100%) 내 배치: bottom=8%, width=48% */
 .spin-btn {
-  width: 100%;
-  padding: 16px;
-  font-size: 1.3rem;
-  font-weight: bold;
-  letter-spacing: 2px;
-  color: #1a0533;
-  background: linear-gradient(135deg, #ffd700, #ff8c00);
+  position: absolute;
+  bottom: 8%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 48%;
+  background: transparent;
   border: none;
-  border-radius: 12px;
+  padding: 0;
   cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
-  box-shadow: 0 4px 20px rgba(255, 215, 0, 0.5);
+  touch-action: manipulation;
+  transition: transform 0.12s ease;
+  -webkit-tap-highlight-color: transparent;
+  z-index: 2;
 }
 
-.spin-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(255, 215, 0, 0.7);
+.spin-btn img {
+  width: 100%;
+  height: auto;
+  display: block;
+  pointer-events: none;
 }
 
 .spin-btn:active:not(:disabled) {
-  transform: translateY(1px);
-  box-shadow: 0 2px 10px rgba(255, 215, 0, 0.4);
+  transform: translateX(-50%) scale(0.95);
 }
 
 .spin-btn:disabled {
-  opacity: 0.5;
   cursor: not-allowed;
 }
 
