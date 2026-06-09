@@ -1,8 +1,10 @@
 import './styles/main.css';
-import { judgeResult, getRandomItem, SlotItem } from './scripts/game';
+import { getRandomItem, SlotItem } from './scripts/game';
+import { judgeResult } from './scripts/rules';
 import { initReel, animateReel } from './scripts/reel';
 import { showResult } from './scripts/effects';
-import { hideFortuneCard } from './scripts/fortune';
+import { buildFortuneResult, hideFortuneCard } from './scripts/fortune';
+import { initPopup, showResultPopup, hideResultPopup } from './scripts/popup';
 
 import spinOnSrc       from './assets/images/buttons/btn_spin_on.png';
 import spinOffSrc      from './assets/images/buttons/btn_spin_off.png';
@@ -35,6 +37,7 @@ machineFrameEl.src = machineFrameSrc;
 if (machineFrameEl.complete && machineFrameEl.naturalWidth > 0) initAllReels();
 
 setBtnState('on');
+initPopup();
 
 // ── 호버 이벤트 ──
 btn.addEventListener('mouseenter', () => { if (!btn.disabled) setBtnState('focus'); });
@@ -47,6 +50,7 @@ function spin(): void {
   resultEl.className = 'result-text';
   resultEl.textContent = '두근두근... 🎰';
   hideFortuneCard();
+  hideResultPopup();
 
   [reel1, reel2, reel3].forEach(r => r.classList.remove('winner', 'jackpot'));
 
@@ -62,8 +66,10 @@ function spin(): void {
     results[index] = item;
     stoppedCount++;
     if (stoppedCount === 3) {
-      const grade = judgeResult(results[0].id, results[1].id, results[2].id);
-      showResult(grade);
+      const grade        = judgeResult(results[0].id, results[1].id, results[2].id);
+      const fortuneResult = buildFortuneResult(grade, results[0].id, results[1].id, results[2].id);
+      showResult(fortuneResult);
+      showResultPopup(fortuneResult);
       btn.disabled = false;
       setBtnState('on');
     }

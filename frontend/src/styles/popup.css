@@ -1,0 +1,220 @@
+/* ===== 오버레이: 반투명 배경 ===== */
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 0, 20, 0.82);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.popup-overlay.popup-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ===== 스테이지: 복주머니 / 코기 (오버레이 중앙 절대 위치) ===== */
+/* translate(-50%,-50%)로 중앙 고정, scale로 등장/퇴장 */
+.popup-stage {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(44vw, 170px);
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.45);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.popup-stage.popup-visible {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.popup-stage.popup-hiding {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.72);
+}
+
+.popup-stage-img {
+  width: 100%;
+  height: auto;
+  max-height: min(44vw, 170px);
+  object-fit: contain;
+  display: block;
+  user-select: none;
+  pointer-events: none;
+  transition: transform 0.25s ease;
+}
+
+.popup-stage-img.popup-flipping {
+  transform: scaleX(0);
+}
+
+/* ===== 카드 래퍼: flex 자식 → 부모가 중앙 정렬 ===== */
+.popup-card-wrap {
+  position: relative;   /* popup-close 기준점 */
+  opacity: 0;
+  transform: scale(0.55);
+  transition: opacity 0.4s ease, transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+.popup-card-wrap.popup-visible {
+  opacity: 1;
+  transform: scale(1);
+  /* pointer-events는 항상 none 유지.
+     닫기 버튼(button)은 브라우저 기본값 auto라 부모 none에도 독립 동작. */
+}
+
+/* ===== 닫기 버튼: 카드 우측 상단 바깥 ===== */
+.popup-close {
+  position: absolute;
+  top: -14px;
+  right: -14px;
+  z-index: 10;
+  width: 32px;
+  height: 32px;
+  background: rgba(20, 0, 40, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.popup-close:hover {
+  background: rgba(60, 0, 100, 0.95);
+  color: #fff;
+}
+
+/* ===== 카드: 이미지와 텍스트 오버레이의 공통 컨테이너 ===== */
+.popup-card {
+  position: relative;
+  width: min(72vw, 290px);
+  pointer-events: none; /* 카드 div 자체는 이벤트 차단 — 닫기는 버튼이 담당 */
+}
+
+/* 카드 이미지 자체 */
+.popup-card-img {
+  width: 100%;
+  height: auto;
+  max-height: calc(88dvh - 48px); /* 닫기 버튼 여백 제외 */
+  object-fit: contain;
+  display: block;
+  user-select: none;
+  pointer-events: none;
+  transition: transform 0.26s ease;
+}
+
+.popup-card-img.popup-flipping {
+  transform: scaleX(0);
+}
+
+/* ===== 카드 앞면 위 텍스트 오버레이 ===== */
+/* 카드 이미지 위에 절대 배치, flip 후 fade-in */
+.popup-card-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* 카드 테두리/장식 영역 제외한 텍스트 영역 */
+  padding: 22% 10% 18%;
+  gap: 7px;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none; /* 클릭은 오버레이에서 처리 */
+  overflow: hidden;
+}
+
+.popup-card-content.popup-visible {
+  opacity: 1;
+}
+
+/* 등급 뱃지: 반투명 어두운 pill (모든 카드 색상에 가독성) */
+.popup-grade-badge {
+  display: inline-block;
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  letter-spacing: 2px;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  backdrop-filter: blur(4px);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+  flex-shrink: 0;
+}
+
+/* 결과 메시지 */
+.popup-result-msg {
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 500;
+  line-height: 1.55;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.95), 0 0 12px rgba(0, 0, 0, 0.6);
+  margin: 0;
+}
+
+/* 행운지수 */
+.popup-luck-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.38);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 10px;
+  padding: 4px 14px;
+  backdrop-filter: blur(4px);
+  flex-shrink: 0;
+}
+
+.popup-luck-label {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.68rem;
+  letter-spacing: 1px;
+}
+
+.popup-luck-score {
+  font-size: 1.7rem;
+  font-weight: bold;
+  color: #ffd700;
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.75), 0 1px 4px rgba(0, 0, 0, 0.7);
+  line-height: 1;
+}
+
+/* 운세 메시지 */
+.popup-fortune-msg {
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 0.72rem;
+  line-height: 1.62;
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.9);
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  padding-top: 7px;
+  width: 100%;
+  margin: 0;
+}
+
+.popup-fortune-msg:empty {
+  display: none;
+  padding: 0;
+  border: none;
+}

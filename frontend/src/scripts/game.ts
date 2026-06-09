@@ -11,7 +11,7 @@ export interface SlotItem {
   weight: number;
 }
 
-export type Grade = 'jackpot' | 'bigwin' | 'win' | 'small' | 'lose';
+export type Grade = 'SUPER_LUCK' | 'GREAT_LUCK' | 'GOOD_LUCK' | 'SMALL_LUCK' | 'MISS';
 
 // 가중치 기준 등급:
 //   talisman(3)         → jackpot
@@ -37,13 +37,3 @@ export function getRandomItem(): SlotItem {
   return SLOT_ITEMS[0];
 }
 
-// 당첨 결과 판정 (id 문자열로 비교)
-export function judgeResult(id1: string, id2: string, id3: string): Grade {
-  if (id1 === id2 && id2 === id3) {
-    if (id1 === 'talisman')                           return 'jackpot';
-    if (id1 === 'poop_gold' || id1 === 'sweetpotato') return 'bigwin';
-    return 'win';
-  }
-  if (id1 === id2 || id2 === id3 || id1 === id3) return 'small';
-  return 'lose';
-}

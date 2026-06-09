@@ -71,6 +71,37 @@
 
   </div>
 
+  <!-- 결과 팝업 오버레이: 카드 자체가 팝업 -->
+  <div id="resultPopup" class="popup-overlay" aria-hidden="true" role="dialog" aria-modal="true">
+
+    <!-- 복주머니 / 코기: 오버레이 정중앙에 독립 레이어 -->
+    <div class="popup-stage" id="popupStage">
+      <img id="popupStageImg" class="popup-stage-img" src="" alt="">
+    </div>
+
+    <!-- 카드 래퍼: 닫기 버튼 포함, 카드 자체가 팝업 -->
+    <div class="popup-card-wrap" id="popupCardWrap">
+      <!-- 닫기 버튼: 카드 우측 상단 바깥 -->
+      <button class="popup-close" id="popupCloseBtn" aria-label="닫기">✕</button>
+
+      <!-- 카드: 이미지 + 텍스트 오버레이 -->
+      <div class="popup-card">
+        <img class="popup-card-img" id="popupCardImg" src="" alt="카드">
+        <!-- 카드 앞면 위 텍스트: flip 후 fade-in -->
+        <div class="popup-card-content" id="popupCardContent">
+          <span class="popup-grade-badge" id="popupGradeBadge" data-grade=""></span>
+          <p class="popup-result-msg" id="popupResultMsg"></p>
+          <div class="popup-luck-row">
+            <span class="popup-luck-label">행운지수</span>
+            <span class="popup-luck-score" id="popupLuckScore"></span>
+          </div>
+          <p class="popup-fortune-msg" id="popupFortuneMsg"></p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
   <!-- CSS는 main.ts에서 import -->
   <script type="module" src="/src/main.ts"></script>
 </body>
