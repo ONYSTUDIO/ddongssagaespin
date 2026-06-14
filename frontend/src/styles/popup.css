@@ -24,7 +24,7 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  width: min(44vw, 170px);
+  width: min(72vw, 290px);
   opacity: 0;
   transform: translate(-50%, -50%) scale(0.45);
   transition: opacity 0.35s ease, transform 0.35s ease;
@@ -47,7 +47,7 @@
 .popup-stage-img {
   width: 100%;
   height: auto;
-  max-height: min(44vw, 170px);
+  max-height: calc(88dvh - 48px);
   object-fit: contain;
   display: block;
   user-select: none;
@@ -217,4 +217,54 @@
   display: none;
   padding: 0;
   border: none;
+}
+
+/* ===== SUPER_LUCK 이펙트: 파티클 + 황금똥 ===== */
+
+@keyframes superluck-particle {
+  0%   { transform: translate(-50%, -50%) scale(0.1); opacity: 0; }
+  40%  { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1.8); opacity: 0; }
+}
+
+@keyframes superluck-poop {
+  /* 시작: 엉덩이 위치(중앙 아래 ~25%) → 중앙으로 부드럽게 bounce 이동 */
+  0%   { transform: translate(-50%, 25%)  scale(0.1);  opacity: 0; }
+  50%  { transform: translate(-50%, -58%) scale(1.1);  opacity: 1; }
+  70%  { transform: translate(-50%, -44%) scale(0.95); opacity: 1; }
+  85%  { transform: translate(-50%, -52%) scale(1.03); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1);    opacity: 1; }
+}
+
+.popup-effect-particle {
+  position: absolute;
+  width: min(72vw, 290px);
+  height: min(72vw, 290px);
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) scale(0.1);
+  opacity: 0;
+  pointer-events: none;
+  object-fit: contain;
+}
+
+.popup-effect-particle.playing {
+  animation: superluck-particle 0.9s ease-out forwards;
+}
+
+.popup-effect-poop {
+  position: absolute;
+  width: min(72vw, 270px);
+  height: min(72vw, 270px);
+  left: 50%;
+  top: 50%;
+  /* 초기값: 0% keyframe과 동일하게 엉덩이 위치에서 숨김 */
+  transform: translate(-50%, 25%) scale(0.1);
+  opacity: 0;
+  pointer-events: none;
+  object-fit: contain;
+}
+
+.popup-effect-poop.playing {
+  animation: superluck-poop 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }

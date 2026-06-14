@@ -7,6 +7,51 @@
 </head>
 <body>
 
+  <!-- 로그인 화면 -->
+  <div id="loginScreen" class="login-screen" role="dialog" aria-modal="true" aria-label="로그인">
+    <div class="login-popup">
+      <!-- 팝업 배경 프레임 (1024×1536 캔버스) -->
+      <img id="loginPopupBg" class="login-popup-bg-img" src="" alt="">
+
+      <!-- 콘텐츠: 프레임 내부 영역 -->
+      <div class="login-popup-content">
+        <h2 class="login-title">로그인하고 운세를 확인하세요</h2>
+
+        <!-- 아이디 입력창 -->
+        <div class="login-input-wrap">
+          <img class="login-input-bg-img" src="" alt="">
+          <span class="login-icon login-icon-user" aria-hidden="true"></span>
+          <input
+            type="text"
+            id="loginId"
+            class="login-input"
+            placeholder="아이디를 입력하세요"
+            autocomplete="username"
+          >
+        </div>
+
+        <!-- 비밀번호 입력창 -->
+        <div class="login-input-wrap">
+          <img class="login-input-bg-img" src="" alt="">
+          <span class="login-icon login-icon-lock" aria-hidden="true"></span>
+          <input
+            type="password"
+            id="loginPw"
+            class="login-input"
+            placeholder="비밀번호를 입력하세요"
+            autocomplete="current-password"
+          >
+        </div>
+
+        <!-- 로그인 버튼 (1024×1536 캔버스, y≈50% 위치) -->
+        <div class="login-btn-wrap">
+          <img id="loginBtnImg" class="login-btn-img" src="" alt="로그인">
+          <button class="login-btn" id="loginBtn" type="button" aria-label="로그인"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- 전체 게임 컨테이너 -->
   <div class="container">
 

@@ -1,4 +1,5 @@
 import './styles/main.css';
+import { initLogin } from './scripts/login';
 import { getRandomItem, SlotItem } from './scripts/game';
 import { judgeResult } from './scripts/rules';
 import { initReel, animateReel } from './scripts/reel';
@@ -37,6 +38,7 @@ machineFrameEl.src = machineFrameSrc;
 if (machineFrameEl.complete && machineFrameEl.naturalWidth > 0) initAllReels();
 
 setBtnState('on');
+initLogin();
 initPopup();
 
 // ── 호버 이벤트 ──
