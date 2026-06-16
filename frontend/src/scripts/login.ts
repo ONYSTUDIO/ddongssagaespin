@@ -1,8 +1,9 @@
 import '../styles/login.css';
 
-import popupBgSrc  from '../assets/images/popup/login/pop_login_bg.png';
+import popupBgSrc  from '../assets/images/popup/login/pop_login_bg_2.png';
 import inputBgSrc  from '../assets/images/popup/login/input_bg.png';
 import loginBtnSrc from '../assets/images/popup/login/login_button.png';
+import corgiSrc    from '../assets/images/popup/login/main_corgi.png';
 import { supabase } from './supabase';
 
 function getEl<T extends HTMLElement>(id: string): T {
@@ -54,6 +55,7 @@ export function initLogin(): void {
 
   // Vite 해시 URL 이미지 설정
   getEl<HTMLImageElement>('loginPopupBg').src = popupBgSrc;
+  getEl<HTMLImageElement>('loginCorgiImg').src = corgiSrc;
   document.querySelectorAll<HTMLImageElement>('.login-input-bg-img').forEach(el => {
     el.src = inputBgSrc;
   });
