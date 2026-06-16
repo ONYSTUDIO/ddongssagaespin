@@ -6,7 +6,8 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "useDefineForClassFields": true
+    "useDefineForClassFields": true,
+    "skipLibCheck": true
   },
   "include": ["src"]
 }

@@ -6,6 +6,8 @@ import { initReel, animateReel } from './scripts/reel';
 import { showResult } from './scripts/effects';
 import { buildFortuneResult, hideFortuneCard } from './scripts/fortune';
 import { initPopup, showResultPopup, hideResultPopup } from './scripts/popup';
+import { saveScore } from './scripts/ranking';
+import { initMeta } from './scripts/meta';
 
 import spinOnSrc       from './assets/images/buttons/btn_spin_on.png';
 import spinOffSrc      from './assets/images/buttons/btn_spin_off.png';
@@ -40,6 +42,7 @@ if (machineFrameEl.complete && machineFrameEl.naturalWidth > 0) initAllReels();
 setBtnState('on');
 initLogin();
 initPopup();
+initMeta();
 
 // ── 호버 이벤트 ──
 btn.addEventListener('mouseenter', () => { if (!btn.disabled) setBtnState('focus'); });
@@ -72,6 +75,7 @@ function spin(): void {
       const fortuneResult = buildFortuneResult(grade, results[0].id, results[1].id, results[2].id);
       showResult(fortuneResult);
       showResultPopup(fortuneResult);
+      saveScore(grade, fortuneResult.luckScore);
       btn.disabled = false;
       setBtnState('on');
     }

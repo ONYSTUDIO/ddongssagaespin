@@ -1,9 +1,9 @@
 import '../styles/login.css';
 
-import bgMainSrc   from '../assets/images/background/bg_main.png';
 import popupBgSrc  from '../assets/images/popup/login/pop_login_bg.png';
 import inputBgSrc  from '../assets/images/popup/login/input_bg.png';
 import loginBtnSrc from '../assets/images/popup/login/login_button.png';
+import { supabase } from './supabase';
 
 function getEl<T extends HTMLElement>(id: string): T {
   return document.getElementById(id) as T;
@@ -27,29 +27,68 @@ export function hideLoginScreen(): void {
   }, { once: true });
 }
 
-// 추후 Node.js API 연동 시 이 함수만 수정
-export async function handleLoginSubmit(_id: string, _pw: string): Promise<void> {
-  // TODO: const res = await fetch('/api/login', { method: 'POST', ... });
-  return Promise.resolve();
+export async function handleLoginSubmit(id: string, pw: string): Promise<string | null> {
+  const email = `${id.trim()}@ddongssagae.app`;
+
+  // 로그인 시도 (Rule 2: 기존 아이디 비밀번호 체크)
+  const { error: signInErr } = await supabase.auth.signInWithPassword({ email, password: pw });
+  if (!signInErr) return null;
+
+  // 로그인 실패 → 신규 유저면 자동 회원가입 (Rule 1)
+  // signUp 성공 시 신규 유저는 session 반환, 기존 유저는 session null
+  const { data: signUpData, error: signUpErr } = await supabase.auth.signUp({ email, password: pw });
+  if (!signUpErr && signUpData.session) return null;
+
+  // 기존 아이디인데 비밀번호 불일치
+  return '비밀번호가 올바르지 않습니다.';
 }
+
+const MIN_PW_LENGTH = 6;
 
 export function initLogin(): void {
   const screen   = getEl('loginScreen');
   const loginBtn = getEl<HTMLButtonElement>('loginBtn');
   const idInput  = getEl<HTMLInputElement>('loginId');
   const pwInput  = getEl<HTMLInputElement>('loginPw');
+  const errorEl  = document.getElementById('loginError');
 
   // Vite 해시 URL 이미지 설정
-  screen.style.backgroundImage = `url('${bgMainSrc}')`;
   getEl<HTMLImageElement>('loginPopupBg').src = popupBgSrc;
   document.querySelectorAll<HTMLImageElement>('.login-input-bg-img').forEach(el => {
     el.src = inputBgSrc;
   });
   getEl<HTMLImageElement>('loginBtnImg').src = loginBtnSrc;
 
+  // 기존 세션 확인 → 있으면 바로 게임 화면으로
+  supabase.auth.getSession().then(({ data: { session } }) => {
+    if (session) hideLoginScreen();
+  });
+
   loginBtn.addEventListener('click', async () => {
+    const id = idInput.value.trim();
+    const pw = pwInput.value;
+
+    // Rule 3: 미입력 체크
+    if (!id || !pw) {
+      if (errorEl) errorEl.textContent = !id ? '아이디를 입력해주세요.' : '비밀번호를 입력해주세요.';
+      return;
+    }
+
+    // 비밀번호 최소 길이 체크
+    if (pw.length < MIN_PW_LENGTH) {
+      if (errorEl) errorEl.textContent = `비밀번호는 ${MIN_PW_LENGTH}자 이상이어야 합니다.`;
+      return;
+    }
+
     loginBtn.disabled = true;
-    await handleLoginSubmit(idInput.value, pwInput.value);
+    if (errorEl) errorEl.textContent = '';
+
+    const err = await handleLoginSubmit(id, pw);
+    if (err) {
+      if (errorEl) errorEl.textContent = err;
+      loginBtn.disabled = false;
+      return;
+    }
     hideLoginScreen();
   });
 
