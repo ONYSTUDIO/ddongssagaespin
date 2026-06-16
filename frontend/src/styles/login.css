@@ -9,10 +9,10 @@
   background-repeat: no-repeat;
   background-color: #1a0533;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
   overflow-y: auto;
-  padding: 24px 0;
+  padding: 24px 0 0px;
   opacity: 1;
   transition: opacity 0.4s ease;
 }
@@ -35,6 +35,7 @@
   width: min(88vw, 380px);
   aspect-ratio: 1024 / 1536;
   flex-shrink: 0;
+  margin-bottom: -40px;
 }
 
 /* 팝업 배경 (프레임): 캔버스 전체를 container 크기에 맞게 표시 */
@@ -46,6 +47,7 @@
   object-fit: contain;
   pointer-events: none;
   user-select: none;
+  opacity: 0.8;
 }
 
 /* ===== 팝업 내부 콘텐츠 영역 ===== */
