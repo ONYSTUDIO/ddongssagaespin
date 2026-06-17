@@ -66,13 +66,13 @@ body {
 }
 
 /* ===== 릴 영역: 프레임 이미지 위에 절대 위치 ===== */
-/* 측정값(1024×1536): top=22.33%, left=17.1%, width=65.4%, height=34% */
+/* 측정값(1024×1536): top=17.5%, left=14.5%, width=71%, height=47% */
 .reels {
   position: absolute;
-  top: 22.33%;
-  left: 17.1%;
-  width: 65.4%;
-  height: 34%;
+  top: 19.3%;
+  left: 14.5%;
+  width: 71%;
+  height: 40%;
   display: flex;
   align-items: stretch;
   gap: 1.5%;
