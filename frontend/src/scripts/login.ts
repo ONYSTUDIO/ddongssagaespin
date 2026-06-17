@@ -46,7 +46,7 @@ export async function handleLoginSubmit(id: string, pw: string): Promise<string 
 
 const MIN_PW_LENGTH = 6;
 
-export function initLogin(): void {
+export function initLogin(onLoginSuccess?: () => void): void {
   const screen   = getEl('loginScreen');
   const loginBtn = getEl<HTMLButtonElement>('loginBtn');
   const idInput  = getEl<HTMLInputElement>('loginId');
@@ -63,7 +63,7 @@ export function initLogin(): void {
 
   // 기존 세션 확인 → 있으면 바로 게임 화면으로
   supabase.auth.getSession().then(({ data: { session } }) => {
-    if (session) hideLoginScreen();
+    if (session) { hideLoginScreen(); onLoginSuccess?.(); }
   });
 
   loginBtn.addEventListener('click', async () => {
@@ -92,6 +92,7 @@ export function initLogin(): void {
       return;
     }
     hideLoginScreen();
+    onLoginSuccess?.();
   });
 
   // Enter 키로도 로그인

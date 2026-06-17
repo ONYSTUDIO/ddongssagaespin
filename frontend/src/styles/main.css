@@ -152,7 +152,7 @@ body {
 /* ===== 결과 메시지 박스: 프레임 어두운 결과 표시 바 (y=920~1060, 59.9%~69%) ===== */
 .result-box {
   position: absolute;
-  top: 60%;
+  top: 63%;
   left: 10%;
   width: 80%;
   height: 9%;
@@ -163,13 +163,7 @@ body {
 }
 
 .result-text {
-  font-size: clamp(0.8rem, 4vw, 1.05rem);
-  color: #ffd700;
-  font-weight: bold;
-  letter-spacing: 0.5px;
-  text-align: center;
-  transition: all 0.3s ease;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+  display: none;
 }
 
 .result-text.win       { color: #ffd700; text-shadow: 0 0 8px rgba(255,215,0,0.6); }

@@ -57,7 +57,8 @@
         <div class="hit-line" id="hitLine"></div>
 
         <div class="result-box">
-          <p class="result-text" id="resultText">SPIN을 눌러보세요!</p>
+          <p class="spin-count-text spin-normal" id="spinCountText">보유 스핀 : --</p>
+          <p class="result-text" id="resultText"></p>
         </div>
 
         <button class="spin-btn" id="spinBtn">
@@ -122,6 +123,23 @@
       <ul class="ranking-popup-list" id="rankingPopupList">
         <li class="ranking-popup-empty">불러오는 중...</li>
       </ul>
+    </div>
+  </div>
+
+  <!-- 일일 보상 팝업 -->
+  <div id="dailyRewardPopup" class="daily-reward-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-label="오늘의 스핀 보상">
+    <div class="daily-reward-card">
+      <img id="dailyRewardBg" class="daily-reward-bg" src="" alt="">
+      <div class="daily-reward-content">
+        <p class="daily-reward-msg1">오늘도 똥싸당을 방문해 주셔서 감사똥!</p>
+        <p class="daily-reward-msg2">행운의 황금똥 주인은 바로 YOU</p>
+        <img id="dailyRewardPoopImg" class="daily-reward-poop" src="" alt="황금똥">
+        <p class="daily-reward-spin-badge">🎰 30 SPIN 지급!</p>
+        <div class="daily-reward-btn-wrap">
+          <img id="dailyRewardBtnImg" class="daily-reward-btn-img" src="" alt="받기">
+          <button id="dailyRewardBtn" class="daily-reward-btn" type="button" aria-label="스핀 받기"></button>
+        </div>
+      </div>
     </div>
   </div>
 

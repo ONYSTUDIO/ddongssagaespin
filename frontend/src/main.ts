@@ -8,6 +8,8 @@ import { buildFortuneResult, hideFortuneCard } from './scripts/fortune';
 import { initPopup, showResultPopup, hideResultPopup } from './scripts/popup';
 import { saveScore } from './scripts/ranking';
 import { initMeta } from './scripts/meta';
+import { initDailyReward, checkAndShowDailyReward } from './scripts/dailyReward';
+import { getCurrentSpinCount, consumeSpin } from './scripts/spinManager';
 
 import spinOnSrc       from './assets/images/buttons/btn_spin_on.png';
 import spinOffSrc      from './assets/images/buttons/btn_spin_off.png';
@@ -21,14 +23,33 @@ const reel1          = document.getElementById('reel1')          as HTMLElement;
 const reel2          = document.getElementById('reel2')          as HTMLElement;
 const reel3          = document.getElementById('reel3')          as HTMLElement;
 const resultEl       = document.getElementById('resultText')     as HTMLElement;
+const spinCountEl    = document.getElementById('spinCountText')  as HTMLElement;
 
-// ── 버튼 이미지 상태 전환 ──
+let isSpinning = false;
+
+// ── 스핀 카운트 UI 업데이트 ───────────────────────────────────────
+function updateSpinCountUI(count: number): void {
+  spinCountEl.innerHTML = `<span class="spin-count-num">${count}</span> SPIN`;
+  if (count <= 10) {
+    spinCountEl.classList.remove('spin-normal');
+    spinCountEl.classList.add('spin-low');
+  } else {
+    spinCountEl.classList.remove('spin-low');
+    spinCountEl.classList.add('spin-normal');
+  }
+  if (!isSpinning) {
+    btn.disabled = count <= 0;
+    if (count <= 0) setBtnState('off');
+  }
+}
+
+// ── 버튼 이미지 상태 전환 ─────────────────────────────────────────
 function setBtnState(state: 'on' | 'off' | 'focus'): void {
   const map = { on: spinOnSrc, off: spinOffSrc, focus: spinFocusSrc };
   btnImg.src = map[state];
 }
 
-// ── 머신 프레임 로드 후 릴 초기화 ──
+// ── 머신 프레임 로드 후 릴 초기화 ────────────────────────────────
 function initAllReels(): void {
   initReel(reel1);
   initReel(reel2);
@@ -40,16 +61,32 @@ machineFrameEl.src = machineFrameSrc;
 if (machineFrameEl.complete && machineFrameEl.naturalWidth > 0) initAllReels();
 
 setBtnState('on');
-initLogin();
+
+// ── 로그인 성공 후 처리 ───────────────────────────────────────────
+async function onLoginSuccess(): Promise<void> {
+  // 스핀 카운트 표시
+  const count = await getCurrentSpinCount();
+  updateSpinCountUI(count);
+
+  // 일일 보상 팝업 초기화 및 표시
+  initDailyReward((newCount) => {
+    updateSpinCountUI(newCount);
+  });
+  await checkAndShowDailyReward();
+}
+
+initLogin(onLoginSuccess);
 initPopup();
 initMeta();
 
-// ── 호버 이벤트 ──
+// ── 호버 이벤트 ──────────────────────────────────────────────────
 btn.addEventListener('mouseenter', () => { if (!btn.disabled) setBtnState('focus'); });
 btn.addEventListener('mouseleave', () => { if (!btn.disabled) setBtnState('on');    });
 
-// ── SPIN 함수 ──
-function spin(): void {
+// ── SPIN 함수 ─────────────────────────────────────────────────────
+async function spin(): Promise<void> {
+  if (isSpinning) return;
+  isSpinning = true;
   btn.disabled = true;
   setBtnState('off');
   resultEl.className = 'result-text';
@@ -57,9 +94,17 @@ function spin(): void {
   hideFortuneCard();
   hideResultPopup();
 
+  // 스핀 1개 차감
+  const { success, remaining } = await consumeSpin();
+  if (!success) {
+    isSpinning = false;
+    updateSpinCountUI(0);
+    return;
+  }
+  updateSpinCountUI(remaining);
+
   [reel1, reel2, reel3].forEach(r => r.classList.remove('winner', 'jackpot'));
 
-  // 당첨 심볼 사전 결정 (스트립 구성에 필요)
   const final0 = getRandomItem();
   const final1 = getRandomItem();
   const final2 = getRandomItem();
@@ -71,13 +116,14 @@ function spin(): void {
     results[index] = item;
     stoppedCount++;
     if (stoppedCount === 3) {
-      const grade        = judgeResult(results[0].id, results[1].id, results[2].id);
+      const grade         = judgeResult(results[0].id, results[1].id, results[2].id);
       const fortuneResult = buildFortuneResult(grade, results[0].id, results[1].id, results[2].id);
       showResult(fortuneResult);
       showResultPopup(fortuneResult);
       saveScore(grade, fortuneResult.luckScore);
-      btn.disabled = false;
-      setBtnState('on');
+      isSpinning = false;
+      btn.disabled = remaining <= 0;
+      if (remaining > 0) setBtnState('on');
     }
   }
 
