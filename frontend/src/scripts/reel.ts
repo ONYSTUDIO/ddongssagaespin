@@ -1,7 +1,7 @@
 import { getRandomItem, SlotItem } from './game';
 
 const STRIP_LENGTH = 25;
-const WIN_IDX = 3;  // 스트립 앞쪽 배치 — 끝에서 앞으로 스크롤(위→아래 방향)
+export const WIN_IDX = 3;  // 스트립 앞쪽 배치 — 끝에서 앞으로 스크롤(위→아래 방향)
 
 function buildStrip(stripEl: HTMLElement, finalItem: SlotItem, cellH: number): void {
   stripEl.innerHTML = '';

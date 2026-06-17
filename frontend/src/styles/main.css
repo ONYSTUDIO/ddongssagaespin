@@ -70,8 +70,8 @@ body {
 .reels {
   position: absolute;
   top: 19.3%;
-  left: 14.5%;
-  width: 71%;
+  left: 16.1%;
+  width: 68%;
   height: 40%;
   display: flex;
   align-items: stretch;
@@ -113,6 +113,27 @@ body {
 .reel.spinning .reel-strip {
   filter: blur(0.5px);
 }
+
+/* ===== 히트 심볼 확대 + 사선 흔들기 애니메이션 ===== */
+@keyframes symbolHit {
+  0%   { transform: scale(1)    translateX(0); }
+  12%  { transform: scale(1.4)  translateX(0); }
+  25%  { transform: scale(1.35) translateX(-10px); }
+  37%  { transform: scale(1.35) translateX(10px); }
+  49%  { transform: scale(1.35) translateX(-8px); }
+  61%  { transform: scale(1.32) translateX(8px); }
+  72%  { transform: scale(1.22) translateX(-5px); }
+  82%  { transform: scale(1.14) translateX(5px); }
+  91%  { transform: scale(1.06) translateX(-2px); }
+  100% { transform: scale(1)    translateX(0); }
+}
+
+.reel-symbol.hit {
+  animation: symbolHit 3s ease forwards;
+  position: relative;
+  z-index: 10;
+}
+
 
 /* 당첨 시 릴 오버레이 반짝임 */
 .reel.winner {

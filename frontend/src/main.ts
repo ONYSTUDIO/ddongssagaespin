@@ -2,7 +2,7 @@ import './styles/main.css';
 import { initLogin } from './scripts/login';
 import { getRandomItem, SlotItem } from './scripts/game';
 import { judgeResult } from './scripts/rules';
-import { initReel, animateReel } from './scripts/reel';
+import { initReel, animateReel, WIN_IDX } from './scripts/reel';
 import { showResult } from './scripts/effects';
 import { buildFortuneResult, hideFortuneCard } from './scripts/fortune';
 import { initPopup, showResultPopup, hideResultPopup } from './scripts/popup';
@@ -103,7 +103,10 @@ async function spin(): Promise<void> {
   }
   updateSpinCountUI(remaining);
 
-  [reel1, reel2, reel3].forEach(r => r.classList.remove('winner', 'jackpot'));
+  [reel1, reel2, reel3].forEach(r => {
+    r.classList.remove('winner', 'jackpot');
+    r.querySelectorAll('.reel-symbol.hit').forEach(el => el.classList.remove('hit'));
+  });
 
   const final0 = getRandomItem();
   const final1 = getRandomItem();
@@ -119,11 +122,33 @@ async function spin(): Promise<void> {
       const grade         = judgeResult(results[0].id, results[1].id, results[2].id);
       const fortuneResult = buildFortuneResult(grade, results[0].id, results[1].id, results[2].id);
       showResult(fortuneResult);
-      showResultPopup(fortuneResult);
       saveScore(grade, fortuneResult.luckScore);
       isSpinning = false;
       btn.disabled = remaining <= 0;
       if (remaining > 0) setBtnState('on');
+
+      // 매칭 심볼 찾기
+      const reelEls = [reel1, reel2, reel3];
+      const ids = [results[0].id, results[1].id, results[2].id];
+      const countMap: Record<string, number[]> = {};
+      ids.forEach((id, i) => {
+        if (!countMap[id]) countMap[id] = [];
+        countMap[id].push(i);
+      });
+      const hitIndices = Object.values(countMap)
+        .filter(arr => arr.length >= 2)
+        .flat();
+
+      if (hitIndices.length > 0) {
+        hitIndices.forEach(i => {
+          const strip = reelEls[i].querySelector('.reel-strip');
+          const symbol = strip?.children[WIN_IDX] as HTMLElement | undefined;
+          symbol?.classList.add('hit');
+        });
+        setTimeout(() => showResultPopup(fortuneResult), 3100);
+      } else {
+        showResultPopup(fortuneResult);
+      }
     }
   }
 
