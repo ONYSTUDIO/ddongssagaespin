@@ -63,6 +63,15 @@ body {
   display: block;
   pointer-events: none;
   user-select: none;
+  animation: machineNeonGlow 2s ease-in-out infinite;
+}
+
+@keyframes machineNeonGlow {
+  0%   { filter: drop-shadow(0 0 2px rgba(220, 30,  80, 0.8)) drop-shadow(0 0 5px rgba(180, 10, 60, 0.4)); }
+  35%  { filter: drop-shadow(0 0 3px rgba(255, 50, 100, 1.0)) drop-shadow(0 0 7px rgba(200, 20, 70, 0.5)); }
+  60%  { filter: drop-shadow(0 0 1px rgba(190, 20,  60, 0.6)) drop-shadow(0 0 3px rgba(140, 10, 50, 0.3)); }
+  85%  { filter: drop-shadow(0 0 3px rgba(255, 60, 110, 1.0)) drop-shadow(0 0 7px rgba(210, 30, 80, 0.5)); }
+  100% { filter: drop-shadow(0 0 2px rgba(220, 30,  80, 0.8)) drop-shadow(0 0 5px rgba(180, 10, 60, 0.4)); }
 }
 
 /* ===== 릴 영역: 프레임 이미지 위에 절대 위치 ===== */
@@ -135,25 +144,6 @@ body {
 }
 
 
-/* 당첨 시 릴 오버레이 반짝임 */
-.reel.winner {
-  animation: winnerGlow 0.5s ease-in-out infinite alternate;
-}
-
-@keyframes winnerGlow {
-  from { background: rgba(255, 68, 68, 0); }
-  to   { background: rgba(255, 68, 68, 0.28); }
-}
-
-/* 잭팟 릴 황금 오버레이 */
-.reel.jackpot {
-  animation: jackpotGlow 0.3s ease-in-out infinite alternate;
-}
-
-@keyframes jackpotGlow {
-  from { background: rgba(255, 215, 0, 0); }
-  to   { background: rgba(255, 215, 0, 0.35); }
-}
 
 /* ===== 히트 라인: 가운데 행 (판정 기준) ===== */
 /* 릴 영역: top=22.33%, height=34% → 가운데 행: 33.66%~45% */
