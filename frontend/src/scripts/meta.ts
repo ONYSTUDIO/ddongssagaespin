@@ -6,6 +6,13 @@ import supportSrc        from '../assets/images/meta/icons/meta_support_gift.png
 import { fetchRanking, RankEntry } from './ranking';
 import { supabase } from './supabase';
 import { showLoginScreen } from './login';
+import {
+  initFortuneCookie,
+  showFortuneCookiePopup,
+  showFortuneCookieLimitPopup,
+  openFortuneCookieCreatePopup,
+} from './fortuneCookie';
+import { ensureFortuneCookieDailyState } from './fortuneCookieDaily';
 
 const MOCK_RANKING: RankEntry[] = [
   { username: 'testuser2', best_score: 95 },
@@ -109,8 +116,24 @@ export function initMeta(): void {
   (document.getElementById('metaIconRanking') as HTMLImageElement).src = rankingSrc;
   (document.getElementById('metaIconSupport') as HTMLImageElement).src = supportSrc;
 
-  document.getElementById('metaBtnFortune')?.addEventListener('click', () => {
-    showToast('준비중입니다 🍪');
+  initFortuneCookie();
+
+  document.getElementById('metaBtnFortune')?.addEventListener('click', async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { showFortuneCookiePopup(); return; }
+
+    const state = await ensureFortuneCookieDailyState(user.id);
+
+    if (!state.checked_cookie) {
+      // A: 오늘 쿠키 미확인 → 쿠키 팝업 (메세지 작성 여부 무관)
+      showFortuneCookiePopup();
+    } else if (!state.wrote_message) {
+      // B: 쿠키 확인했지만 메세지 미작성 → 바로 메세지 작성 팝업
+      openFortuneCookieCreatePopup();
+    } else {
+      // C / D: 쿠키 확인 + 메세지 작성 모두 완료 → 하루 제한 팝업
+      showFortuneCookieLimitPopup();
+    }
   });
 
   document.getElementById('metaBtnRanking')?.addEventListener('click', () => {

@@ -4,13 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>똥싸개 슬롯머신</title>
-  <script type="module" crossorigin src="/assets/index-BvNMofgv.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-DQtp40kZ.css">
+  <script type="module" crossorigin src="/assets/index-ByEJVVXC.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-B6qnvU2J.css">
 </head>
 <body>
 
   <!-- 로그인 화면 -->
   <div id="loginScreen" class="login-screen" role="dialog" aria-modal="true" aria-label="로그인">
+    <img id="loginCorgiImg" class="login-corgi-img" src="" alt="">
     <div class="login-popup">
       <img id="loginPopupBg" class="login-popup-bg-img" src="" alt="">
       <div class="login-popup-content">
@@ -58,7 +59,8 @@
         <div class="hit-line" id="hitLine"></div>
 
         <div class="result-box">
-          <p class="result-text" id="resultText">SPIN을 눌러보세요!</p>
+          <p class="spin-count-text spin-normal" id="spinCountText">보유 스핀 : --</p>
+          <p class="result-text" id="resultText"></p>
         </div>
 
         <button class="spin-btn" id="spinBtn">
@@ -126,8 +128,101 @@
     </div>
   </div>
 
+  <!-- 일일 보상 팝업 -->
+  <div id="dailyRewardPopup" class="daily-reward-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-label="오늘의 스핀 보상">
+    <div class="daily-reward-card">
+      <img id="dailyRewardBg" class="daily-reward-bg" src="" alt="">
+      <div class="daily-reward-content">
+        <p class="daily-reward-msg1">오늘도 똥싸당을 방문해 주셔서 감사똥!</p>
+        <p class="daily-reward-msg2">행운의 황금똥 주인은 바로 YOU</p>
+        <img id="dailyRewardPoopImg" class="daily-reward-poop" src="" alt="황금똥">
+        <p class="daily-reward-spin-badge">🎰 30 SPIN 지급!</p>
+        <div class="daily-reward-btn-wrap">
+          <img id="dailyRewardBtnImg" class="daily-reward-btn-img" src="" alt="받기">
+          <button id="dailyRewardBtn" class="daily-reward-btn" type="button" aria-label="스핀 받기"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast -->
   <div class="meta-toast" id="metaToast"></div>
+
+  <!-- 포춘쿠키 팝업 -->
+  <div id="fortuneCookieOverlay" class="fc-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-label="포춘쿠키">
+    <div class="fc-popup">
+      <button class="fc-close" id="fcCloseBtn" aria-label="닫기">✕</button>
+
+      <div class="fc-intro" id="fcIntro">
+        <p class="fc-intro-text">하루에 한 번 포춘 쿠키 메세지를 얻어보세요!</p>
+        <p class="fc-intro-sub">망치를 클릭해서 쿠키를 깨주세요!</p>
+      </div>
+
+      <div class="fc-stage">
+        <div class="fc-cookie-wrap" id="fcCookieWrap">
+          <img id="fcCookieImg" class="fc-cookie-img" src="" alt="포춘쿠키">
+          <div class="fc-paper-wrap" id="fcPaperWrap">
+            <img id="fcPaperImg" class="fc-paper-img" src="" alt="포춘 종이">
+            <div class="fc-msg" id="fcMsg" aria-live="polite">
+              <p class="fc-msg-text" id="fcMsgText"></p>
+            </div>
+          </div>
+          <button class="fc-hammer-btn" id="fcHammerBtn" type="button" aria-label="망치로 쿠키 깨기">
+            <img id="fcHammerImg" class="fc-hammer-img" src="" alt="망치">
+          </button>
+        </div>
+      </div>
+
+      <!-- 메시지 확인 후 액션 버튼 -->
+      <div class="fc-actions" id="fcActions">
+        <button class="fc-action-btn fc-action-btn--confirm" id="fcActionConfirm" type="button">확인</button>
+        <button class="fc-action-btn fc-action-btn--create" id="fcActionCreate" type="button">포춘쿠키 만들기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 포춘쿠키 하루 제한 팝업 -->
+  <div id="fcLimitOverlay" class="fc-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-label="포춘쿠키 제한">
+    <div class="fc-popup">
+      <button class="fc-close" id="fcLimitCloseBtn" aria-label="닫기">✕</button>
+      <div class="fc-intro">
+        <p class="fc-limit-title">쿠키는 하루에 한 번만!</p>
+        <p class="fc-limit-sub">내일 다시 만나요 🍪</p>
+      </div>
+      <button class="fc-action-btn fc-action-btn--confirm fc-limit-confirm-btn" id="fcLimitConfirmBtn" type="button">확인</button>
+    </div>
+  </div>
+
+  <!-- 포춘쿠키 작성 팝업 -->
+  <div id="fcCreateOverlay" class="fc-create-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-label="포춘쿠키 만들기">
+    <div class="fc-create-popup">
+      <button class="fc-close" id="fcCreateCloseBtn" aria-label="닫기">✕</button>
+
+      <div class="fc-create-header">
+        <p class="fc-create-title">포춘 쿠키에 남길 메세지를 작성해주세요.</p>
+        <p class="fc-create-sub">작성한 메세지는 다른 사용자에게 랜덤으로 전달됩니다.</p>
+      </div>
+
+      <div class="fc-create-paper-area">
+        <img id="fcCreatePaperImg" class="fc-create-paper-img" src="" alt="종이">
+        <textarea
+          id="fcCreateTextarea"
+          class="fc-create-textarea"
+          placeholder="메세지를 입력해주세요."
+          rows="3"
+        ></textarea>
+      </div>
+
+      <div class="fc-create-footer">
+        <span class="fc-create-counter"><span id="fcCreateCount">0</span> / <span id="fcCreateMax">50</span></span>
+        <p class="fc-create-error" id="fcCreateError"></p>
+      </div>
+
+      <div class="fc-create-btn-wrap">
+        <button class="fc-create-submit-btn" id="fcCreateSubmitBtn" type="button">확인</button>
+      </div>
+    </div>
+  </div>
 
   <!-- 결과 팝업 오버레이 -->
   <div id="resultPopup" class="popup-overlay" aria-hidden="true" role="dialog" aria-modal="true">

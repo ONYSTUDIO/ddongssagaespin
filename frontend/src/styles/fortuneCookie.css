@@ -1,0 +1,464 @@
+/* ===== 포춘쿠키 팝업 오버레이 ===== */
+.fc-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.72);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.fc-overlay.fc-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ===== 팝업 카드 ===== */
+.fc-popup {
+  position: relative;
+  width: min(88vw, 340px);
+  background: linear-gradient(160deg, #1a0a2e 0%, #2a0d3e 60%, #1a0a2e 100%);
+  border: 1px solid rgba(200, 80, 160, 0.5);
+  border-radius: 20px;
+  padding: 28px 24px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  box-shadow:
+    0 0 20px rgba(180, 40, 140, 0.3),
+    0 8px 32px rgba(0, 0, 0, 0.6);
+}
+
+/* ===== 닫기 버튼 ===== */
+.fc-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  color: #ddd;
+  font-size: 1rem;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transition: background 0.2s;
+}
+
+.fc-close:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+/* ===== 설명 문구 ===== */
+.fc-intro {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fc-intro-text {
+  color: #ffd700;
+  font-size: clamp(0.82rem, 3.5vw, 0.95rem);
+  font-weight: bold;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
+  line-height: 1.5;
+}
+
+.fc-intro-sub {
+  color: #e0b0ff;
+  font-size: clamp(0.75rem, 3vw, 0.85rem);
+  line-height: 1.4;
+}
+
+/* ===== 스테이지: 쿠키 컨테이너 중앙 정렬 ===== */
+.fc-stage {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* 쿠키 위로 나오는 망치 공간 확보 */
+  padding-top: min(14vw, 56px);
+  padding-bottom: 8px;
+}
+
+/* ===== 쿠키 이미지 래퍼 (망치의 기준 컨테이너) ===== */
+.fc-cookie-wrap {
+  position: relative;
+  width: min(60vw, 198px);
+  transition: transform 0.35s ease;
+  transform-origin: center center;
+  aspect-ratio: 1 / 1;
+}
+
+/* 망치 클릭 후 스케일업 + 위로 이동 */
+.fc-cookie-wrap.fc-zoomed {
+  transform: translateY(-50px) scale(1.7);
+}
+
+.fc-cookie-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* ===== 종이 래퍼: 쿠키 기준 절대 위치 + 메시지 오버레이 기준 ===== */
+.fc-paper-wrap {
+  position: absolute;
+  /* 위로 올림: 쿠키 상단 기준보다 높은 위치 */
+  top: -30%;
+  /* width 10% 확대 → (258-100)/2 = 79% centering offset */
+  left: -79%;
+  width: 258%;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.fc-paper-wrap.fc-paper-appear {
+  animation: fcPaperAppear 0.9s ease-out forwards;
+}
+
+@keyframes fcPaperAppear {
+  0%   { opacity: 0; transform: scale(0.65) translateY(10px); }
+  60%  { opacity: 1; transform: scale(1.06) translateY(-12px); }
+  100% { opacity: 1; transform: scale(1)    translateY(-6px); }
+}
+
+/* ===== 종이 이미지: 래퍼 안에서 100% 채움 ===== */
+.fc-paper-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: contain;
+}
+
+/* ===== 메시지 오버레이: 종이 이미지 위에 텍스트 ===== */
+/* 양쪽 말림 제외(각 ~26%) + 상하 장식 테두리 제외(~22%) */
+.fc-msg {
+  position: absolute;
+  top: 22%;
+  bottom: 22%;
+  left: 26%;
+  right: 26%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.fc-msg.fc-msg-visible {
+  animation: fcMsgAppear 0.6s ease-out forwards;
+}
+
+@keyframes fcMsgAppear {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.fc-msg-text {
+  color: #2d1200;
+  text-align: center;
+  line-height: 1.65;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  font-weight: 500;
+}
+
+/* ===== 결과 액션 버튼 영역 ===== */
+.fc-actions {
+  display: none;
+  width: 100%;
+  gap: 10px;
+  justify-content: center;
+}
+
+.fc-actions.fc-actions--visible {
+  display: flex;
+  animation: fcActionsAppear 0.4s ease-out forwards;
+}
+
+@keyframes fcActionsAppear {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.fc-action-btn {
+  flex: 1;
+  max-width: 148px;
+  padding: 10px 8px;
+  border-radius: 12px;
+  font-size: clamp(0.78rem, 3.2vw, 0.88rem);
+  font-weight: bold;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.fc-action-btn:active { opacity: 0.72; }
+
+.fc-action-btn--confirm {
+  background: transparent;
+  border: 1.5px solid rgba(255, 215, 0, 0.7);
+  color: #ffd700;
+}
+
+.fc-action-btn--create {
+  background: linear-gradient(135deg, #5a1278 0%, #8a22aa 100%);
+  border: 1.5px solid rgba(200, 80, 200, 0.5);
+  color: #ffd700;
+}
+
+/* ===== 포춘쿠키 작성 팝업 오버레이 ===== */
+.fc-create-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.72);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.fc-create-overlay.fc-create-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.fc-create-popup {
+  position: relative;
+  width: min(96vw, 520px);
+  background: linear-gradient(160deg, #1a0a2e 0%, #2a0d3e 60%, #1a0a2e 100%);
+  border: 1px solid rgba(200, 80, 160, 0.5);
+  border-radius: 20px;
+  padding: 18px 20px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  box-shadow:
+    0 0 20px rgba(180, 40, 140, 0.3),
+    0 8px 32px rgba(0, 0, 0, 0.6);
+}
+
+.fc-create-header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fc-create-title {
+  color: #ffd700;
+  font-size: clamp(1.00rem, 4.2vw, 1.15rem);
+  font-weight: bold;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
+  line-height: 1.5;
+}
+
+.fc-create-sub {
+  color: #e0b0ff;
+  font-size: clamp(0.85rem, 3.4vw, 0.96rem);
+  line-height: 1.4;
+}
+
+/* 종이 이미지 + textarea 겹침 영역 */
+.fc-create-paper-area {
+  position: relative;
+  /* width 140% → flex align-items:center 가 자동으로 중앙 정렬 (margin-left 불필요) */
+  width: 140%;
+  height: clamp(100px, 28vw, 140px);
+  overflow: hidden;
+}
+
+/* object-fit: cover 로 paper-area 크기에 맞춰 이미지 채움 */
+/* object-position 수직값 조절: 낮을수록 이미지 위쪽 표시, 높을수록 아래쪽 표시 */
+.fc-create-paper-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 45%;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+}
+
+.fc-create-textarea {
+  position: absolute;
+  /* fortune_paper_2.png 기준: 말림(좌우 26%) + 테두리(상하 22%) */
+  top: 36%;
+  bottom: 16%;
+  left: 26%;
+  right: 26%;
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+  color: #2d1200;
+  font-size: clamp(0.88rem, 3.2vw, 1.02rem);
+  font-family: inherit;
+  line-height: 1.6;
+  text-align: center;
+  overflow-y: auto;
+  padding: 2px 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.fc-create-overlay.fc-create-open .fc-create-textarea {
+  pointer-events: auto;
+}
+
+.fc-create-textarea::placeholder {
+  color: rgba(80, 40, 0, 0.4);
+}
+
+.fc-create-footer {
+  width: 70%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  margin-top: -20px;
+}
+
+.fc-create-counter {
+  color: rgba(255, 215, 0, 0.65);
+  font-size: 0.72rem;
+}
+
+.fc-create-error {
+  color: #ff7070;
+  font-size: 0.72rem;
+  min-height: 1em;
+  text-align: center;
+  width: 100%;
+}
+
+.fc-create-btn-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.fc-create-submit-btn {
+  padding: 11px 44px;
+  background: linear-gradient(135deg, #5a1278 0%, #8a22aa 100%);
+  border: 1.5px solid rgba(200, 80, 200, 0.5);
+  border-radius: 12px;
+  color: #ffd700;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.fc-create-submit-btn:active { opacity: 0.75; }
+
+.fc-create-submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ===== 하루 제한 팝업 전용 문구 ===== */
+.fc-limit-title {
+  color: #ffd700;
+  font-size: clamp(1.0rem, 4vw, 1.15rem);
+  font-weight: bold;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
+  line-height: 1.5;
+}
+
+.fc-limit-sub {
+  color: #e0b0ff;
+  font-size: clamp(0.82rem, 3.2vw, 0.95rem);
+  line-height: 1.4;
+}
+
+.fc-limit-confirm-btn {
+  margin-top: 8px;
+  max-width: 180px;
+  width: 100%;
+  padding: 11px 16px;
+}
+
+/* ===== 망치 버튼: .fc-cookie-wrap 기준 절대 위치 ===== */
+/* 쿠키 상단을 막 내려치려는 위치: 위쪽 + 약간 왼쪽 + 대각선 기울기 */
+.fc-hammer-btn {
+  position: absolute;
+  /* 망치 하단(머리)이 쿠키 상단과 살짝 겹치도록 */
+  bottom: 62%;
+  /* 쿠키 중심 */
+  left: 18%;
+  /* 쿠키보다 약간 작은 크기 */
+  width: 72%;
+  transform: rotate(-25deg);
+  transform-origin: bottom right;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.fc-hammer-btn:disabled {
+  cursor: not-allowed;
+}
+
+/* ===== 망치 이미지: 네온 글로우 펄스 ===== */
+.fc-hammer-img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  animation: fcHammerGlow 1.2s ease-in-out infinite;
+}
+
+@keyframes fcHammerGlow {
+  0%   {
+    filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.7)) drop-shadow(0 0 10px rgba(255, 180, 0, 0.4));
+    transform: scale(1);
+  }
+  50%  {
+    filter: drop-shadow(0 0 10px rgba(255, 240, 80, 1.0)) drop-shadow(0 0 22px rgba(255, 200, 0, 0.7));
+    transform: scale(1.1);
+  }
+  100% {
+    filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.7)) drop-shadow(0 0 10px rgba(255, 180, 0, 0.4));
+    transform: scale(1);
+  }
+}
+
+/* ===== 망치 내려치기: 아래로 강타 후 흔들림 ===== */
+.fc-hammer-img.fc-hammer-strike {
+  animation: fcHammerStrike 0.5s ease-out forwards;
+}
+
+@keyframes fcHammerStrike {
+  0%   { transform: scale(1)    rotate(0deg)   translateY(0); }
+  20%  { transform: scale(1.12) rotate(-20deg) translateY(-10px); }
+  45%  { transform: scale(1.05) rotate(30deg)  translateY(55px); }
+  65%  { transform: scale(1.02) rotate(-15deg) translateY(30px); }
+  80%  { transform: scale(1.01) rotate(10deg)  translateY(42px); }
+  100% { transform: scale(1)    rotate(0deg)   translateY(35px); }
+}
