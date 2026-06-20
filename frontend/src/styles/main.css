@@ -286,6 +286,8 @@ body {
 
 /* ===== 당첨 안내표 ===== */
 .payTable {
+  position: relative;
+  z-index: 2;
   max-width: 480px;
   width: 100%;
   margin: 0 auto;
@@ -321,4 +323,53 @@ body {
 
 .payTable li strong {
   color: #ffd700;
+}
+
+/* ── 별 반짝임 레이어 ── */
+.star-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.star {
+  --color: #fff;
+  --glow:  rgba(200, 220, 255, 0.4);
+  position: absolute;
+  border-radius: 50%;
+  background: var(--color);
+  animation: starTwinkle var(--dur, 3s) ease-in-out var(--delay, 0s) infinite;
+}
+
+/* 밝은 별: 2단 글로우 */
+.star--bright {
+  box-shadow:
+    0 0 3px 1px var(--color),
+    0 0 10px 3px var(--glow),
+    0 0 20px 5px var(--glow);
+}
+
+/* 메가 네온 별: 4단 글로우 */
+.star--mega {
+  box-shadow:
+    0 0 4px 2px var(--color),
+    0 0 12px 4px var(--glow),
+    0 0 24px 8px var(--glow),
+    0 0 44px 12px var(--glow);
+  animation:
+    starTwinkle var(--dur, 3s) ease-in-out var(--delay, 0s) infinite,
+    starPulse   calc(var(--dur, 3s) * 0.7) ease-in-out var(--delay, 0s) infinite;
+}
+
+@keyframes starTwinkle {
+  0%, 100% { opacity: 0.07; transform: scale(0.55); }
+  45%       { opacity: var(--peak, 1); transform: scale(1.35); }
+  55%       { opacity: var(--peak, 1); transform: scale(1.25); }
+}
+
+@keyframes starPulse {
+  0%, 100% { filter: brightness(0.6) saturate(0.8); }
+  50%       { filter: brightness(1.6) saturate(1.4); }
 }

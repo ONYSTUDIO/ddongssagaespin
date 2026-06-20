@@ -1,6 +1,7 @@
 /* ===== 게임 레이아웃: 슬롯 + 메타 사이드바 ===== */
 .game-layout {
   position: relative;
+  z-index: 2;
   width: 100%;
   max-width: 480px;
 }

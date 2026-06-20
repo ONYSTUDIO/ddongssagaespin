@@ -11,6 +11,7 @@ import { initMeta } from './scripts/meta';
 import { initDailyReward, checkAndShowDailyReward } from './scripts/dailyReward';
 import { getCurrentSpinCount, consumeSpin } from './scripts/spinManager';
 import { saveSlotFortuneLog } from './scripts/history';
+import { initStars } from './scripts/stars';
 
 import spinOnSrc       from './assets/images/buttons/btn_spin_on.png';
 import spinOffSrc      from './assets/images/buttons/btn_spin_off.png';
@@ -76,6 +77,7 @@ async function onLoginSuccess(): Promise<void> {
   await checkAndShowDailyReward();
 }
 
+initStars();
 initLogin(onLoginSuccess);
 initPopup();
 initMeta();
