@@ -10,11 +10,13 @@ import paperSrc  from '../assets/images/meta/fortune/fortune_paper_2.png';
 import { getRandomFortuneCookieMessage, saveFortuneCookieMessage } from './fortuneCookieMessages';
 import { markFortuneCookieChecked, markFortuneCookieMessageWritten } from './fortuneCookieDaily';
 import { saveFortuneCookieLog } from './history';
+import { grantSpinsWithResult } from './spinManager';
 import { supabase } from './supabase';
 
 const BREAK_FRAMES = [cookie01, cookie02, cookie03, cookie04, cookie05];
 const FRAME_DURATION = 250; // 4 transitions × 250ms = 1s
 const MAX_FORTUNE_COOKIE_MESSAGE_LENGTH = 50;
+const FORTUNE_COOKIE_SPIN_REWARD = 10;
 
 function getEl<T extends HTMLElement>(id: string): T {
   return document.getElementById(id) as T;
@@ -273,9 +275,9 @@ function validateFortuneCookieMessage(text: string): string | null {
 
 // ── 저장 및 제출 ──────────────────────────────────────────────────────────────
 async function submitFortuneCookieMessage(): Promise<void> {
-  const textarea   = getEl<HTMLTextAreaElement>('fcCreateTextarea');
-  const errorEl    = getEl('fcCreateError');
-  const submitBtn  = getEl<HTMLButtonElement>('fcCreateSubmitBtn');
+  const textarea  = getEl<HTMLTextAreaElement>('fcCreateTextarea');
+  const errorEl   = getEl('fcCreateError');
+  const submitBtn = getEl<HTMLButtonElement>('fcCreateSubmitBtn');
   const text = textarea.value;
 
   const validationErr = validateFortuneCookieMessage(text);
@@ -288,22 +290,42 @@ async function submitFortuneCookieMessage(): Promise<void> {
   errorEl.textContent = '저장 중...';
   errorEl.style.color = '#e0b0ff';
 
+  // 1. 메시지 DB 저장
   const user   = await getCurrentUser();
   const author = user?.author ?? null;
-  const { error } = await saveFortuneCookieMessage(author, text.trim());
+  const { error: saveErr } = await saveFortuneCookieMessage(author, text.trim());
 
-  if (error) {
-    errorEl.textContent = error;
+  if (saveErr) {
+    errorEl.textContent = saveErr;
     errorEl.style.color = '#ff7070';
     submitBtn.disabled = false;
     return;
   }
 
+  // 2. 스핀 +10 지급
+  const { newCount, error: spinErr } = await grantSpinsWithResult(
+    FORTUNE_COOKIE_SPIN_REWARD,
+    'fortune_cookie',
+  );
+
+  if (spinErr) {
+    errorEl.textContent = spinErr;
+    errorEl.style.color = '#ff7070';
+    // 메시지는 이미 저장됐으므로 버튼 재활성화 안 함 (중복 저장 방지)
+    return;
+  }
+
+  // 3. wrote_message 처리
   if (user) {
     try { await markFortuneCookieMessageWritten(user.id); } catch (_) { /* silent */ }
   }
 
-  errorEl.textContent = '✓ 메세지가 등록되었습니다!';
+  // 4. 인게임 스핀 UI 갱신
+  document.dispatchEvent(
+    new CustomEvent('spinCountUpdated', { detail: { count: newCount } }),
+  );
+
+  errorEl.textContent = `✓ 등록 완료! +${FORTUNE_COOKIE_SPIN_REWARD} SPIN 지급!`;
   errorEl.style.color = '#88ffbb';
-  setTimeout(closeFortuneCookieCreatePopup, 1200);
+  setTimeout(closeFortuneCookieCreatePopup, 1400);
 }

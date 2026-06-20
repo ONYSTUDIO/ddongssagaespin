@@ -80,6 +80,11 @@ initLogin(onLoginSuccess);
 initPopup();
 initMeta();
 
+// 포춘쿠키 보상 등 외부에서 스핀 지급 시 UI 갱신
+document.addEventListener('spinCountUpdated', (e) => {
+  updateSpinCountUI((e as CustomEvent<{ count: number }>).detail.count);
+});
+
 // ── 호버 이벤트 ──────────────────────────────────────────────────
 btn.addEventListener('mouseenter', () => { if (!btn.disabled) setBtnState('focus'); });
 btn.addEventListener('mouseleave', () => { if (!btn.disabled) setBtnState('on');    });
