@@ -18,7 +18,7 @@ export async function saveScore(grade: string, luckScore: number): Promise<void>
 
 export async function fetchRanking(): Promise<RankEntry[]> {
   const { data, error } = await supabase
-    .from('ranking_view')
+    .from('daily_ranking_view')
     .select('username, best_score')
     .order('best_score', { ascending: false })
     .limit(10);
