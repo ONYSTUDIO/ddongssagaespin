@@ -17,8 +17,13 @@
   pointer-events: auto;
 }
 
+.fc-overlay.fc-open .fc-popup {
+  pointer-events: auto;
+}
+
 /* ===== 팝업 카드 ===== */
 .fc-popup {
+  pointer-events: none;
   position: relative;
   width: min(88vw, 340px);
   background: linear-gradient(160deg, #1a0a2e 0%, #2a0d3e 60%, #1a0a2e 100%);
@@ -240,7 +245,12 @@
   pointer-events: auto;
 }
 
+.fc-create-overlay.fc-create-open .fc-create-popup {
+  pointer-events: auto;
+}
+
 .fc-create-popup {
+  pointer-events: none;
   position: relative;
   width: min(96vw, 520px);
   background: linear-gradient(160deg, #1a0a2e 0%, #2a0d3e 60%, #1a0a2e 100%);

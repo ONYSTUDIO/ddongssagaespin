@@ -10,6 +10,7 @@ import { saveScore } from './scripts/ranking';
 import { initMeta } from './scripts/meta';
 import { initDailyReward, checkAndShowDailyReward } from './scripts/dailyReward';
 import { getCurrentSpinCount, consumeSpin } from './scripts/spinManager';
+import { saveSlotFortuneLog } from './scripts/history';
 
 import spinOnSrc       from './assets/images/buttons/btn_spin_on.png';
 import spinOffSrc      from './assets/images/buttons/btn_spin_off.png';
@@ -123,6 +124,7 @@ async function spin(): Promise<void> {
       const fortuneResult = buildFortuneResult(grade, results[0].id, results[1].id, results[2].id);
       showResult(fortuneResult);
       saveScore(grade, fortuneResult.luckScore);
+      saveSlotFortuneLog(fortuneResult).catch(() => { /* silent */ });
       isSpinning = false;
       btn.disabled = remaining <= 0;
       if (remaining > 0) setBtnState('on');

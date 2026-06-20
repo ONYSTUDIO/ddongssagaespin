@@ -101,6 +101,14 @@
       </button>
     </aside>
 
+    <!-- 왼쪽 사이드바: 나의 기록 (데스크탑: 슬롯 왼쪽 / 모바일: 메타 아래) -->
+    <aside class="meta-sidebar-left" id="metaSidebarLeft">
+      <button class="meta-btn" id="metaBtnHistory" aria-label="나의 기록">
+        <img class="meta-btn-img" id="metaIconHistory" src="" alt="">
+        <span class="meta-btn-label">나의 기록</span>
+      </button>
+    </aside>
+
   </div>
 
   <!-- 당첨 안내표: game-layout 밖에 배치 → 모바일에서 메타 아래에 위치 -->
@@ -145,6 +153,22 @@
 
   <!-- Toast -->
   <div class="meta-toast" id="metaToast"></div>
+
+  <!-- 나의 기록 팝업 -->
+  <div id="historyOverlay" class="history-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-label="나의 기록">
+    <div class="history-popup-card">
+      <button class="history-close" id="historyCloseBtn" aria-label="닫기">✕</button>
+      <h2 class="history-title">📜 나의 기록</h2>
+      <ul class="history-list" id="historyList">
+        <li class="history-empty">불러오는 중...</li>
+      </ul>
+      <div class="history-pagination">
+        <button class="history-page-btn" id="historyPrevBtn" type="button">이전</button>
+        <span class="history-page-info" id="historyPageInfo">1 / 1</span>
+        <button class="history-page-btn" id="historyNextBtn" type="button">다음</button>
+      </div>
+    </div>
+  </div>
 
   <!-- 포춘쿠키 팝업 -->
   <div id="fortuneCookieOverlay" class="fc-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-label="포춘쿠키">

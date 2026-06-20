@@ -3,6 +3,7 @@ import '../styles/meta.css';
 import fortuneCookieSrc from '../assets/images/meta/icons/icon_fortune_cookie.png';
 import rankingSrc        from '../assets/images/meta/icons/meta_ranking.png';
 import supportSrc        from '../assets/images/meta/icons/meta_support_gift.png';
+import historySrc        from '../assets/images/meta/icons/meta_my_history_2.png';
 import { fetchRanking, RankEntry } from './ranking';
 import { supabase } from './supabase';
 import { showLoginScreen } from './login';
@@ -13,6 +14,7 @@ import {
   openFortuneCookieCreatePopup,
 } from './fortuneCookie';
 import { ensureFortuneCookieDailyState } from './fortuneCookieDaily';
+import { initHistory, showHistoryPopup } from './history';
 
 const MOCK_RANKING: RankEntry[] = [
   { username: 'testuser2', best_score: 95 },
@@ -90,33 +92,40 @@ function handleEsc(e: KeyboardEvent): void {
 const MACHINE_TOP_OFFSET_RATIO = 0.08;
 
 function alignSidebarToMachine(): void {
-  const machine = document.querySelector('.machine') as HTMLElement | null;
-  const sidebar = document.querySelector('.meta-sidebar') as HTMLElement | null;
-  if (!machine || !sidebar) return;
+  const machine     = document.querySelector('.machine')      as HTMLElement | null;
+  const sidebar     = document.querySelector('.meta-sidebar') as HTMLElement | null;
+  const sidebarLeft = document.getElementById('metaSidebarLeft');
+  if (!machine) return;
 
   // 모바일(세로 스택)에서는 정렬 불필요
   if (window.innerWidth <= 560) {
-    sidebar.style.paddingTop = '';
+    if (sidebar)     sidebar.style.paddingTop = '';
+    if (sidebarLeft) sidebarLeft.style.paddingTop = '';
     return;
   }
 
-  sidebar.style.paddingTop = '0';
-  const machineRect = machine.getBoundingClientRect();
-  const sidebarRect = sidebar.getBoundingClientRect();
-
-  // 머신 div 상단 + 이미지 상단 투명 여백 보정
+  const machineRect   = machine.getBoundingClientRect();
   const imageTopOffset = machineRect.height * MACHINE_TOP_OFFSET_RATIO;
-  const diff = machineRect.top + imageTopOffset - sidebarRect.top;
-  if (diff > 0) sidebar.style.paddingTop = `${diff}px`;
+
+  const alignEl = (el: HTMLElement) => {
+    el.style.paddingTop = '0';
+    const diff = machineRect.top + imageTopOffset - el.getBoundingClientRect().top;
+    if (diff > 0) el.style.paddingTop = `${diff}px`;
+  };
+
+  if (sidebar)     alignEl(sidebar);
+  if (sidebarLeft) alignEl(sidebarLeft);
 }
 
 // ── Public API ─────────────────────────────────────────────────────
 export function initMeta(): void {
-  (document.getElementById('metaIconFortune') as HTMLImageElement).src = fortuneCookieSrc;
-  (document.getElementById('metaIconRanking') as HTMLImageElement).src = rankingSrc;
-  (document.getElementById('metaIconSupport') as HTMLImageElement).src = supportSrc;
+  (document.getElementById('metaIconFortune') as HTMLImageElement).src  = fortuneCookieSrc;
+  (document.getElementById('metaIconRanking') as HTMLImageElement).src  = rankingSrc;
+  (document.getElementById('metaIconSupport') as HTMLImageElement).src  = supportSrc;
+  (document.getElementById('metaIconHistory') as HTMLImageElement).src  = historySrc;
 
   initFortuneCookie();
+  initHistory();
 
   document.getElementById('metaBtnFortune')?.addEventListener('click', async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -142,6 +151,10 @@ export function initMeta(): void {
 
   document.getElementById('metaBtnSupport')?.addEventListener('click', () => {
     showToast('후원 기능 준비중입니다 🎁');
+  });
+
+  document.getElementById('metaBtnHistory')?.addEventListener('click', () => {
+    showHistoryPopup();
   });
 
   document.getElementById('metaBtnLogout')?.addEventListener('click', async () => {

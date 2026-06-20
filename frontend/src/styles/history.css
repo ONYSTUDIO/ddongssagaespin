@@ -1,0 +1,211 @@
+/* ===== 나의 기록 팝업 오버레이 ===== */
+.history-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 0, 20, 0.78);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.history-overlay.history-popup-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ===== 팝업 카드 ===== */
+.history-popup-card {
+  pointer-events: none;
+  position: relative;
+  width: min(92vw, 480px);
+  max-height: 82dvh;
+  background: rgba(16, 0, 40, 0.95);
+  border: 1px solid rgba(255, 215, 0, 0.32);
+  border-radius: 22px;
+  padding: 28px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  backdrop-filter: blur(12px);
+  box-shadow:
+    0 0 48px rgba(120, 0, 255, 0.28),
+    0 4px 32px rgba(0, 0, 0, 0.6);
+  transform: scale(0.88);
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.history-popup-open .history-popup-card {
+  pointer-events: auto;
+  transform: scale(1);
+}
+
+/* ===== 닫기 버튼 ===== */
+.history-close {
+  position: absolute;
+  top: -13px;
+  right: -13px;
+  width: 32px;
+  height: 32px;
+  background: rgba(20, 0, 40, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 50%;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.history-close:hover {
+  background: rgba(70, 0, 120, 0.95);
+  color: #fff;
+}
+
+/* ===== 제목 ===== */
+.history-title {
+  color: #ffd700;
+  font-size: 1.05rem;
+  font-weight: bold;
+  text-align: center;
+  letter-spacing: 1.5px;
+  text-shadow: 0 0 14px rgba(255, 215, 0, 0.5);
+  flex-shrink: 0;
+}
+
+/* ===== 리스트 ===== */
+.history-list {
+  list-style: none;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-right: 4px;
+}
+
+.history-list::-webkit-scrollbar       { width: 4px; }
+.history-list::-webkit-scrollbar-track { background: transparent; }
+.history-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 215, 0, 0.28);
+  border-radius: 2px;
+}
+
+/* ===== 리스트 아이템 ===== */
+.history-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+  transition: background 0.15s;
+}
+
+.history-item:hover {
+  background: rgba(255, 215, 0, 0.07);
+}
+
+.history-date {
+  color: rgba(255, 215, 0, 0.55);
+  font-size: 0.72rem;
+  letter-spacing: 0.5px;
+}
+
+.history-info {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px;
+  line-height: 1.5;
+}
+
+.history-luck {
+  color: #ffd700;
+  font-size: 0.8rem;
+  font-weight: bold;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.history-sep {
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+
+.history-type {
+  color: #e0b0ff;
+  font-size: 0.8rem;
+  font-weight: bold;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.history-type--cookie {
+  color: #ffb347;
+}
+
+.history-msg {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.78rem;
+  line-height: 1.45;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+/* ===== 빈 상태 ===== */
+.history-empty {
+  color: rgba(255, 255, 255, 0.42);
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 24px 0;
+}
+
+/* ===== 페이지네이션 ===== */
+.history-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.history-page-btn {
+  padding: 6px 18px;
+  background: rgba(90, 18, 120, 0.6);
+  border: 1px solid rgba(200, 80, 200, 0.4);
+  border-radius: 10px;
+  color: #ffd700;
+  font-size: 0.82rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.history-page-btn:hover:not(:disabled) {
+  background: rgba(120, 30, 160, 0.8);
+  border-color: rgba(200, 80, 200, 0.8);
+}
+
+.history-page-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.history-page-info {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.82rem;
+  min-width: 48px;
+  text-align: center;
+}

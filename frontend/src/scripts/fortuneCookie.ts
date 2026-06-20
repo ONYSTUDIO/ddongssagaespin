@@ -9,6 +9,7 @@ import hammerSrc from '../assets/images/meta/fortune/fortune_hammer.png';
 import paperSrc  from '../assets/images/meta/fortune/fortune_paper_2.png';
 import { getRandomFortuneCookieMessage, saveFortuneCookieMessage } from './fortuneCookieMessages';
 import { markFortuneCookieChecked, markFortuneCookieMessageWritten } from './fortuneCookieDaily';
+import { saveFortuneCookieLog } from './history';
 import { supabase } from './supabase';
 
 const BREAK_FRAMES = [cookie01, cookie02, cookie03, cookie04, cookie05];
@@ -172,10 +173,11 @@ export function showFortunePaper(): void {
     adjustMsgFontSize(msgText as HTMLElement, msg.message);
     msgText.textContent = msg.message;
 
-    // 오늘 쿠키 확인 완료 기록
+    // 오늘 쿠키 확인 완료 기록 + 로그 저장
     const user = await getCurrentUser();
     if (user) {
       try { await markFortuneCookieChecked(user.id); } catch (_) { /* silent */ }
+      try { await saveFortuneCookieLog(msg.message); } catch (_) { /* silent */ }
     }
 
     // 메시지 표시 후 액션 버튼 등장
