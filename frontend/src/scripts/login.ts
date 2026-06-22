@@ -12,8 +12,14 @@ function getEl<T extends HTMLElement>(id: string): T {
 
 // ── 공개 API ──────────────────────────────────────────────────────────────────
 
+let pendingHideHandler: (() => void) | null = null;
+
 export function showLoginScreen(): void {
   const screen = getEl('loginScreen');
+  if (pendingHideHandler) {
+    screen.removeEventListener('transitionend', pendingHideHandler);
+    pendingHideHandler = null;
+  }
   screen.style.display = '';
   screen.removeAttribute('aria-hidden');
   requestAnimationFrame(() => screen.classList.remove('login-screen--out'));
@@ -23,9 +29,11 @@ export function hideLoginScreen(): void {
   const screen = getEl('loginScreen');
   screen.classList.add('login-screen--out');
   screen.setAttribute('aria-hidden', 'true');
-  screen.addEventListener('transitionend', () => {
+  pendingHideHandler = () => {
     screen.style.display = 'none';
-  }, { once: true });
+    pendingHideHandler = null;
+  };
+  screen.addEventListener('transitionend', pendingHideHandler, { once: true });
 }
 
 export async function handleLoginSubmit(id: string, pw: string): Promise<string | null> {

@@ -5,4 +5,7 @@ export default defineConfig({
   build: {
     outDir: '../dist/frontend',
   },
+  server: {
+    allowedHosts: true,
+  }
 });
