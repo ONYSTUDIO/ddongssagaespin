@@ -119,9 +119,12 @@ async function spin(): Promise<void> {
   }
   updateSpinCountUI(remaining);
 
+  // 이전 히트 클론 제거 + 숨겨진 원본 심볼 복구
+  const hitOverlay = document.getElementById('hitSymbolOverlay');
+  if (hitOverlay) hitOverlay.innerHTML = '';
   [reel1, reel2, reel3].forEach(r => {
     r.classList.remove('winner', 'jackpot');
-    r.querySelectorAll('.reel-symbol.hit').forEach(el => el.classList.remove('hit'));
+    r.querySelectorAll<HTMLElement>('.reel-symbol').forEach(s => { s.style.opacity = ''; });
   });
 
   const final0 = getRandomItem();
@@ -167,10 +170,29 @@ async function spin(): Promise<void> {
         .flat();
 
       if (judgment.shouldPlayHitEffect && hitIndices.length > 0) {
+        const overlay = document.getElementById('hitSymbolOverlay');
         hitIndices.forEach(i => {
-          const strip = reelEls[i].querySelector('.reel-strip');
-          const symbol = strip?.children[WIN_IDX] as HTMLElement | undefined;
-          symbol?.classList.add('hit');
+          const strip  = reelEls[i].querySelector('.reel-strip');
+          const symbol = strip?.children[WIN_IDX] as HTMLImageElement | undefined;
+          if (!symbol || !overlay) return;
+
+          // 원본 위치를 측정해 고정 좌표로 클론 생성
+          const rect  = symbol.getBoundingClientRect();
+          const clone = document.createElement('img');
+          clone.src   = symbol.src;
+          clone.className    = 'hit-symbol-clone';
+          clone.style.left   = `${rect.left}px`;
+          clone.style.top    = `${rect.top}px`;
+          clone.style.width  = `${rect.width}px`;
+          clone.style.height = `${rect.height}px`;
+          overlay.appendChild(clone);
+
+          // 원본 숨기고 애니메이션 종료 후 복구
+          symbol.style.opacity = '0';
+          setTimeout(() => {
+            clone.remove();
+            symbol.style.opacity = '';
+          }, 3000);
         });
         pendingPopupTimer = setTimeout(() => {
           pendingPopupTimer = null;
