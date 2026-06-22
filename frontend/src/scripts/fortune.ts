@@ -16,6 +16,8 @@ export interface FortuneResult {
   resultMessage: string;
   fortuneMessage: string;
   luckScore: number;
+  hitSymbol: string;  // 히트 심볼 ID (e.g. 'corgi', 'bell')
+  hitCount: number;   // 히트 개수: 3(트리플) / 2(페어) / 0(ALL_DIFFERENT)
 }
 
 // ── 등급별 메타데이터 ─────────────────────────────────────────────────────────
@@ -230,7 +232,18 @@ export function buildFortuneResult(
     ? pickRandom(data.fortuneMessages)
     : '';
 
-  return { grade, title, resultMessage, fortuneMessage, luckScore };
+  // 히트 심볼 결정
+  let hitSymbol = '';
+  let hitCount = 0;
+  if (isTriple) {
+    hitSymbol = id1;
+    hitCount = 3;
+  } else if (grade === 'SMALL_LUCK') {
+    hitSymbol = (id1 === id2) ? id1 : (id2 === id3) ? id2 : id1; // id1===id3 폴백
+    hitCount = 2;
+  }
+
+  return { grade, title, resultMessage, fortuneMessage, luckScore, hitSymbol, hitCount };
 }
 
 // ── DOM 조작 ─────────────────────────────────────────────────────────────────

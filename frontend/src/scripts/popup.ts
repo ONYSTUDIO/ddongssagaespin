@@ -6,7 +6,22 @@ import { FortuneResult } from './fortune';
 
 import fortuneBagSrc  from '../assets/images/popup/fortune_bag_idle.png';
 import particleSrc    from '../assets/images/effects/particle_01.png';
-import poopGoldSrc    from '../assets/images/symbols/symbol_poop_gold.png';
+
+import corgiSymSrc       from '../assets/images/symbols/symbol_corgi.png';
+import poopGoldSrc       from '../assets/images/symbols/symbol_poop_gold.png';
+import bellSymSrc        from '../assets/images/symbols/symbol_bell.png';
+import talismanSymSrc    from '../assets/images/symbols/symbol_talisman.png';
+import ghostSymSrc       from '../assets/images/symbols/symbol_ghost.png';
+import sweetpotatoSymSrc from '../assets/images/symbols/symbol_sweetpotato.png';
+
+const SYMBOL_SRCS: Record<string, string> = {
+  corgi:       corgiSymSrc,
+  poop_gold:   poopGoldSrc,
+  bell:        bellSymSrc,
+  talisman:    talismanSymSrc,
+  ghost:       ghostSymSrc,
+  sweetpotato: sweetpotatoSymSrc,
+};
 
 import corgiFrame1 from '../assets/images/popup/corgi/pop_corgi_frame_1.png';
 import corgiFrame2 from '../assets/images/popup/corgi/pop_corgi_frame_2.png';
@@ -115,27 +130,30 @@ export function playCorgiAnimation(
   after(elapsed, onComplete);
 }
 
-// 문장 부호(. ! ?) 뒤 공백 기준으로 문장을 분리해 각각 <span> 블록으로 렌더링
-function renderSentences(el: HTMLElement, text: string): void {
+// 히트 심볼 이미지를 hitCount개 렌더링
+function renderHitSymbols(el: HTMLElement, result: FortuneResult): void {
   el.innerHTML = '';
-  const sentences = text.split(/(?<=[.!?])\s+/).filter(s => s.trim());
-  sentences.forEach(sentence => {
-    const span = document.createElement('span');
-    span.className = 'popup-sentence';
-    span.textContent = sentence.trim();
-    el.appendChild(span);
-  });
+  const src = SYMBOL_SRCS[result.hitSymbol];
+  if (!src || result.hitCount === 0) return;
+  for (let i = 0; i < result.hitCount; i++) {
+    const img = document.createElement('img');
+    img.src = src;
+    img.className = 'popup-hit-symbol';
+    img.alt = '';
+    el.appendChild(img);
+  }
 }
 
-// 카드 콘텐츠가 Safe Area를 넘칠 경우 결과 메시지 폰트를 단계적으로 축소
+// 카드 콘텐츠가 Safe Area를 넘칠 경우 히트 심볼 크기를 단계적으로 축소
 function fitContentToCard(contentEl: HTMLElement): void {
-  const resultEl = contentEl.querySelector<HTMLElement>('.popup-result-msg');
-  if (!resultEl) return;
+  const symbols = contentEl.querySelectorAll<HTMLImageElement>('.popup-hit-symbol');
+  if (symbols.length === 0) return;
   let i = 0;
-  while (contentEl.scrollHeight > contentEl.clientHeight && i < 15) {
-    const px = parseFloat(window.getComputedStyle(resultEl).fontSize);
-    if (px <= 9) break;
-    resultEl.style.fontSize = `${px - 0.5}px`;
+  while (contentEl.scrollHeight > contentEl.clientHeight && i < 8) {
+    symbols.forEach(img => {
+      const w = parseFloat(window.getComputedStyle(img).width);
+      if (w > 22) img.style.width = `${w - 3}px`;
+    });
     i++;
   }
 }
@@ -204,12 +222,11 @@ export function showResultPopup(result: FortuneResult): void {
   cardImg.classList.remove('popup-flipping');
   stageImg.src = '';
   cardImg.src  = '';
-  resultMsgEl.style.fontSize = ''; // 이전 자동 축소 리셋
 
   // 결과 내용 채우기
   gradeBadge.textContent   = result.title;
   gradeBadge.dataset.grade = result.grade;
-  renderSentences(resultMsgEl, result.resultMessage);
+  renderHitSymbols(resultMsgEl, result);
   luckScoreEl.textContent  = String(result.luckScore);
   fortuneEl.textContent    = result.fortuneMessage;
 
