@@ -28,6 +28,7 @@ const resultEl       = document.getElementById('resultText')     as HTMLElement;
 const spinCountEl    = document.getElementById('spinCountText')  as HTMLElement;
 
 let isSpinning = false;
+let pendingPopupTimer: ReturnType<typeof setTimeout> | null = null;
 
 // ── 스핀 카운트 UI 업데이트 ───────────────────────────────────────
 function updateSpinCountUI(count: number): void {
@@ -95,6 +96,13 @@ btn.addEventListener('mouseleave', () => { if (!btn.disabled) setBtnState('on');
 async function spin(): Promise<void> {
   if (isSpinning) return;
   isSpinning = true;
+
+  // 이전 스핀의 지연 팝업 타이머가 살아 있으면 취소
+  if (pendingPopupTimer !== null) {
+    clearTimeout(pendingPopupTimer);
+    pendingPopupTimer = null;
+  }
+
   btn.disabled = true;
   setBtnState('off');
   resultEl.className = 'result-text';
@@ -127,16 +135,26 @@ async function spin(): Promise<void> {
     results[index] = item;
     stoppedCount++;
     if (stoppedCount === 3) {
-      const grade         = judgeResult(results[0].id, results[1].id, results[2].id);
-      const fortuneResult = buildFortuneResult(grade, results[0].id, results[1].id, results[2].id);
-      showResult(fortuneResult);
-      saveScore(grade, fortuneResult.luckScore);
+      const judgment      = judgeResult(results[0].id, results[1].id, results[2].id);
+      const fortuneResult = buildFortuneResult(judgment.grade, results[0].id, results[1].id, results[2].id);
+
+      saveScore(judgment.grade, fortuneResult.luckScore);
       saveSlotFortuneLog(fortuneResult).catch(() => { /* silent */ });
+
       isSpinning = false;
       btn.disabled = remaining <= 0;
       if (remaining > 0) setBtnState('on');
 
-      // 매칭 심볼 찾기
+      // 모두 다른 꽝(ALL_DIFFERENT): 히트 연출 없음, 팝업 없음, 텍스트만 표시
+      if (!judgment.shouldShowResultPopup) {
+        resultEl.className = 'result-text lose';
+        resultEl.textContent = '꽝... 다음 스핀을 기대해보세요!';
+        return;
+      }
+
+      showResult(fortuneResult);
+
+      // 매칭 심볼 하이라이트 (pair / triple)
       const reelEls = [reel1, reel2, reel3];
       const ids = [results[0].id, results[1].id, results[2].id];
       const countMap: Record<string, number[]> = {};
@@ -148,13 +166,16 @@ async function spin(): Promise<void> {
         .filter(arr => arr.length >= 2)
         .flat();
 
-      if (hitIndices.length > 0) {
+      if (judgment.shouldPlayHitEffect && hitIndices.length > 0) {
         hitIndices.forEach(i => {
           const strip = reelEls[i].querySelector('.reel-strip');
           const symbol = strip?.children[WIN_IDX] as HTMLElement | undefined;
           symbol?.classList.add('hit');
         });
-        setTimeout(() => showResultPopup(fortuneResult), 3100);
+        pendingPopupTimer = setTimeout(() => {
+          pendingPopupTimer = null;
+          showResultPopup(fortuneResult);
+        }, 3100);
       } else {
         showResultPopup(fortuneResult);
       }

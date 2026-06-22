@@ -63,13 +63,14 @@ export async function fetchUserFortuneLogs(page: number): Promise<{ logs: Fortun
 export async function saveSlotFortuneLog(result: FortuneResult): Promise<void> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return;
-  await supabase.from('user_fortune_logs').insert({
+  const { error } = await supabase.from('user_fortune_logs').insert({
     user_id:      user.id,
     log_type:     'SLOT_RESULT',
     fortune_type: result.title,
     luck_score:   result.luckScore,
     message:      result.resultMessage,
   });
+  if (error) throw error;
 }
 
 export async function saveFortuneCookieLog(message: string): Promise<void> {
