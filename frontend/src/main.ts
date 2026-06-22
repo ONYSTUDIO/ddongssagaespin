@@ -2,7 +2,7 @@ import './styles/main.css';
 import { initLogin } from './scripts/login';
 import { getRandomItem, SlotItem } from './scripts/game';
 import { judgeResult } from './scripts/rules';
-import { initReel, animateReel, WIN_IDX } from './scripts/reel';
+import { initReel, animateReel, nudgeReel, WIN_IDX } from './scripts/reel';
 import { showResult } from './scripts/effects';
 import { buildFortuneResult, hideFortuneCard } from './scripts/fortune';
 import { initPopup, showResultPopup, hideResultPopup } from './scripts/popup';
@@ -29,6 +29,11 @@ const spinCountEl    = document.getElementById('spinCountText')  as HTMLElement;
 
 let isSpinning = false;
 let pendingPopupTimer: ReturnType<typeof setTimeout> | null = null;
+
+// ── 특수 연출 확률 (나중에 실제 확률로 조정) ──────────────────────
+// 0 ~ SUSPENSE_THRESH: 서스펜스 / SUSPENSE_THRESH ~ NUDGE_THRESH: 넛지 / 나머지: 일반
+const SUSPENSE_THRESH = 0.25;
+const NUDGE_THRESH    = 0.50;
 
 // ── 스핀 카운트 UI 업데이트 ───────────────────────────────────────
 function updateSpinCountUI(count: number): void {
@@ -131,82 +136,106 @@ async function spin(): Promise<void> {
   const final1 = getRandomItem();
   const final2 = getRandomItem();
 
+  // 특수 연출 롤 — 셋 중 하나만 발생
+  const roll        = Math.random();
+  const isSuspense  = roll < SUSPENSE_THRESH;
+  const isNudge     = roll >= SUSPENSE_THRESH && roll < NUDGE_THRESH;
+  const suspenseMs  = isSuspense ? 1500 : 0;
+
   const results: Record<number, SlotItem> = {};
+  const reelCenterIdx = [WIN_IDX, WIN_IDX, WIN_IDX]; // 넛지 후 각 릴의 실제 중앙 인덱스
   let stoppedCount = 0;
+
+  const reelEls = [reel1, reel2, reel3];
+
+  function runJudgment(): void {
+    const judgment      = judgeResult(results[0].id, results[1].id, results[2].id);
+    const fortuneResult = buildFortuneResult(judgment.grade, results[0].id, results[1].id, results[2].id);
+
+    saveScore(judgment.grade, fortuneResult.luckScore);
+    saveSlotFortuneLog(fortuneResult).catch(() => { /* silent */ });
+
+    isSpinning = false;
+    btn.disabled = remaining <= 0;
+    if (remaining > 0) setBtnState('on');
+
+    // 모두 다른 꽝(ALL_DIFFERENT): 히트 연출 없음, 팝업 없음, 텍스트만 표시
+    if (!judgment.shouldShowResultPopup) {
+      resultEl.className = 'result-text lose';
+      resultEl.textContent = '꽝... 다음 스핀을 기대해보세요!';
+      return;
+    }
+
+    showResult(fortuneResult);
+
+    // 매칭 심볼 하이라이트 (pair / triple)
+    const ids = [results[0].id, results[1].id, results[2].id];
+    const countMap: Record<string, number[]> = {};
+    ids.forEach((id, i) => {
+      if (!countMap[id]) countMap[id] = [];
+      countMap[id].push(i);
+    });
+    const hitIndices = Object.values(countMap)
+      .filter(arr => arr.length >= 2)
+      .flat();
+
+    if (judgment.shouldPlayHitEffect && hitIndices.length > 0) {
+      const overlay = document.getElementById('hitSymbolOverlay');
+      hitIndices.forEach(i => {
+        const strip  = reelEls[i].querySelector('.reel-strip');
+        // 넛지된 릴은 reelCenterIdx[i]가 WIN_IDX와 다를 수 있음
+        const symbol = strip?.children[reelCenterIdx[i]] as HTMLImageElement | undefined;
+        if (!symbol || !overlay) return;
+
+        const rect  = symbol.getBoundingClientRect();
+        const clone = document.createElement('img');
+        clone.src   = symbol.src;
+        clone.className    = 'hit-symbol-clone';
+        clone.style.left   = `${rect.left}px`;
+        clone.style.top    = `${rect.top}px`;
+        clone.style.width  = `${rect.width}px`;
+        clone.style.height = `${rect.height}px`;
+        overlay.appendChild(clone);
+
+        symbol.style.opacity = '0';
+        setTimeout(() => {
+          clone.remove();
+          symbol.style.opacity = '';
+        }, 3000);
+      });
+      pendingPopupTimer = setTimeout(() => {
+        pendingPopupTimer = null;
+        showResultPopup(fortuneResult);
+      }, 3100);
+    } else {
+      showResultPopup(fortuneResult);
+    }
+  }
 
   function onReelStop(index: number, item: SlotItem): void {
     results[index] = item;
     stoppedCount++;
-    if (stoppedCount === 3) {
-      const judgment      = judgeResult(results[0].id, results[1].id, results[2].id);
-      const fortuneResult = buildFortuneResult(judgment.grade, results[0].id, results[1].id, results[2].id);
+    if (stoppedCount < 3) return;
 
-      saveScore(judgment.grade, fortuneResult.luckScore);
-      saveSlotFortuneLog(fortuneResult).catch(() => { /* silent */ });
-
-      isSpinning = false;
-      btn.disabled = remaining <= 0;
-      if (remaining > 0) setBtnState('on');
-
-      // 모두 다른 꽝(ALL_DIFFERENT): 히트 연출 없음, 팝업 없음, 텍스트만 표시
-      if (!judgment.shouldShowResultPopup) {
-        resultEl.className = 'result-text lose';
-        resultEl.textContent = '꽝... 다음 스핀을 기대해보세요!';
-        return;
-      }
-
-      showResult(fortuneResult);
-
-      // 매칭 심볼 하이라이트 (pair / triple)
-      const reelEls = [reel1, reel2, reel3];
-      const ids = [results[0].id, results[1].id, results[2].id];
-      const countMap: Record<string, number[]> = {};
-      ids.forEach((id, i) => {
-        if (!countMap[id]) countMap[id] = [];
-        countMap[id].push(i);
-      });
-      const hitIndices = Object.values(countMap)
-        .filter(arr => arr.length >= 2)
-        .flat();
-
-      if (judgment.shouldPlayHitEffect && hitIndices.length > 0) {
-        const overlay = document.getElementById('hitSymbolOverlay');
-        hitIndices.forEach(i => {
-          const strip  = reelEls[i].querySelector('.reel-strip');
-          const symbol = strip?.children[WIN_IDX] as HTMLImageElement | undefined;
-          if (!symbol || !overlay) return;
-
-          // 원본 위치를 측정해 고정 좌표로 클론 생성
-          const rect  = symbol.getBoundingClientRect();
-          const clone = document.createElement('img');
-          clone.src   = symbol.src;
-          clone.className    = 'hit-symbol-clone';
-          clone.style.left   = `${rect.left}px`;
-          clone.style.top    = `${rect.top}px`;
-          clone.style.width  = `${rect.width}px`;
-          clone.style.height = `${rect.height}px`;
-          overlay.appendChild(clone);
-
-          // 원본 숨기고 애니메이션 종료 후 복구
-          symbol.style.opacity = '0';
-          setTimeout(() => {
-            clone.remove();
-            symbol.style.opacity = '';
-          }, 3000);
+    if (isNudge) {
+      // 3릴 정지 후 잠깐 대기 → 랜덤 릴 1개 넛지
+      setTimeout(() => {
+        const nudgeIdx = Math.floor(Math.random() * 3);
+        const dir: 'up' | 'down' = Math.random() < 0.5 ? 'up' : 'down';
+        nudgeReel(reelEls[nudgeIdx], dir, (newItem, newIdx) => {
+          results[nudgeIdx]      = newItem;
+          reelCenterIdx[nudgeIdx] = newIdx;
+          runJudgment();
         });
-        pendingPopupTimer = setTimeout(() => {
-          pendingPopupTimer = null;
-          showResultPopup(fortuneResult);
-        }, 3100);
-      } else {
-        showResultPopup(fortuneResult);
-      }
+      }, 400);
+    } else {
+      runJudgment();
     }
   }
 
-  animateReel(reel1, 1000, final0, (item) => onReelStop(0, item));
-  animateReel(reel2, 1500, final1, (item) => onReelStop(1, item));
-  animateReel(reel3, 2000, final2, (item) => onReelStop(2, item));
+  animateReel(reel1,  700,  final0, (item) => onReelStop(0, item));
+  animateReel(reel2, 1100,  final1, (item) => onReelStop(1, item));
+  animateReel(reel3, 1550,  final2, (item) => onReelStop(2, item), suspenseMs);
 }
 
 btn.addEventListener('click', spin);

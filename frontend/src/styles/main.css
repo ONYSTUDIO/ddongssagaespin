@@ -118,9 +118,9 @@ body {
   pointer-events: none;
 }
 
-/* 스핀 중 스트립에 미세 blur 효과 */
+/* 스핀 중 blur로 속도감 강조 */
 .reel.spinning .reel-strip {
-  filter: blur(0.5px);
+  filter: blur(1.5px);
 }
 
 /* ===== 히트 심볼 확대 + 사선 흔들기 애니메이션 ===== */
