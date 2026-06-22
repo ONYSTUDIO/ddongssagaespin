@@ -115,6 +115,31 @@ export function playCorgiAnimation(
   after(elapsed, onComplete);
 }
 
+// 문장 부호(. ! ?) 뒤 공백 기준으로 문장을 분리해 각각 <span> 블록으로 렌더링
+function renderSentences(el: HTMLElement, text: string): void {
+  el.innerHTML = '';
+  const sentences = text.split(/(?<=[.!?])\s+/).filter(s => s.trim());
+  sentences.forEach(sentence => {
+    const span = document.createElement('span');
+    span.className = 'popup-sentence';
+    span.textContent = sentence.trim();
+    el.appendChild(span);
+  });
+}
+
+// 카드 콘텐츠가 Safe Area를 넘칠 경우 결과 메시지 폰트를 단계적으로 축소
+function fitContentToCard(contentEl: HTMLElement): void {
+  const resultEl = contentEl.querySelector<HTMLElement>('.popup-result-msg');
+  if (!resultEl) return;
+  let i = 0;
+  while (contentEl.scrollHeight > contentEl.clientHeight && i < 15) {
+    const px = parseFloat(window.getComputedStyle(resultEl).fontSize);
+    if (px <= 9) break;
+    resultEl.style.fontSize = `${px - 0.5}px`;
+    i++;
+  }
+}
+
 // scaleX 0 → 이미지 교체 → scaleX 1 (카드 플립 효과)
 function flipImg(imgEl: HTMLImageElement, newSrc: string): void {
   imgEl.classList.add('popup-flipping');
@@ -179,11 +204,12 @@ export function showResultPopup(result: FortuneResult): void {
   cardImg.classList.remove('popup-flipping');
   stageImg.src = '';
   cardImg.src  = '';
+  resultMsgEl.style.fontSize = ''; // 이전 자동 축소 리셋
 
   // 결과 내용 채우기
   gradeBadge.textContent   = result.title;
   gradeBadge.dataset.grade = result.grade;
-  resultMsgEl.textContent  = result.resultMessage;
+  renderSentences(resultMsgEl, result.resultMessage);
   luckScoreEl.textContent  = String(result.luckScore);
   fortuneEl.textContent    = result.fortuneMessage;
 
@@ -213,7 +239,7 @@ export function showResultPopup(result: FortuneResult): void {
           after(400,  () => { cardImg.src = cards.back; showEl(cardWrap); });
           // 카드 앞면 flip → 텍스트 오버레이 등장
           after(1200, () => flipImg(cardImg, cards.front));
-          after(1800, () => showEl(cardContentEl));
+          after(1800, () => { fitContentToCard(cardContentEl); showEl(cardContentEl); });
         });
       });
     });
@@ -225,7 +251,7 @@ export function showResultPopup(result: FortuneResult): void {
     after(1400, () => { cardImg.src  = cards.back;    showEl(cardWrap); });
     // 3. 카드 앞면 flip → 텍스트 오버레이 등장
     after(2200, () => flipImg(cardImg, cards.front));
-    after(2800, () => showEl(cardContentEl));
+    after(2800, () => { fitContentToCard(cardContentEl); showEl(cardContentEl); });
   }
 }
 

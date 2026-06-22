@@ -134,8 +134,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  /* 카드 테두리/장식 영역 제외한 텍스트 영역 */
-  padding: 22% 10% 18%;
+  /* Safe Area: 카드 테두리/장식 영역 제외한 텍스트 영역 */
+  padding: 10% 25% 18%;
   gap: 7px;
   text-align: center;
   opacity: 0;
@@ -172,6 +172,20 @@
   line-height: 1.55;
   text-shadow: 0 1px 6px rgba(0, 0, 0, 0.95), 0 0 12px rgba(0, 0, 0, 0.6);
   margin: 0;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  width: 100%;
+}
+
+/* 문장 단위 블록 */
+.popup-sentence {
+  display: block;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+.popup-sentence + .popup-sentence {
+  margin-top: 7px;
 }
 
 /* 행운지수 */
@@ -211,6 +225,8 @@
   padding-top: 7px;
   width: 100%;
   margin: 0;
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
 .popup-fortune-msg:empty {
