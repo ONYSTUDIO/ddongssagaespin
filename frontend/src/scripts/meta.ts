@@ -7,6 +7,7 @@ import historySrc        from '../assets/images/meta/icons/meta_my_history_2.png
 import { fetchRanking, RankEntry } from './ranking';
 import { supabase } from './supabase';
 import { showLoginScreen } from './login';
+import { stopBgm } from './sound';
 import {
   initFortuneCookie,
   showFortuneCookiePopup,
@@ -158,6 +159,7 @@ export function initMeta(): void {
   });
 
   document.getElementById('metaBtnLogout')?.addEventListener('click', async () => {
+    stopBgm();
     await supabase.auth.signOut();
     showLoginScreen();
   });
