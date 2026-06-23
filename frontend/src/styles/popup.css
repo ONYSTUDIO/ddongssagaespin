@@ -130,17 +130,11 @@
 .popup-card-content {
   position: absolute;
   inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  /* Safe Area: 카드 테두리/장식 영역 제외한 텍스트 영역 */
-  padding: 10% calc(25% - 6px) 18% calc(25% + 6px);
-  gap: 7px;
+  /* 절대 배치 컨테이너 — 자식들이 각자 Safe Area 기준으로 위치 지정 */
   text-align: center;
   opacity: 0;
   transition: opacity 0.4s ease;
-  pointer-events: none; /* 클릭은 오버레이에서 처리 */
+  pointer-events: none;
   overflow: hidden;
 }
 
@@ -148,12 +142,27 @@
   opacity: 1;
 }
 
+/* 뱃지 + 히트심볼: 행운지수 위에 anchoring — 카드 크기와 무관하게 간격 일정 */
+.popup-above-luck {
+  position: absolute;
+  top: 8%;                      /* ★ 상단 Safe Area (오버플로우 방지) */
+  bottom: calc(50% + 34px);    /* ★ 행운지수 상단 기준 고정 (반높이~22px + 간격12px) */
+  left: calc(22% + 8px);       /* ★ 좌측 Safe Area */
+  right: calc(22% - 8px);      /* ★ 우측 Safe Area */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;   /* 내용물이 행운지수 쪽으로 붙도록 */
+  gap: 10px;
+  overflow: hidden;
+}
+
 /* 등급 뱃지: 기본값 (꽝 / 회색) */
 .popup-grade-badge {
   display: inline-block;
-  padding: 7px 22px;
-  border-radius: 24px;
-  font-size: 1.15rem;
+  padding: 8px 32px;
+  border-radius: 28px;
+  font-size: 2.2rem;
   font-weight: bold;
   letter-spacing: 3px;
   background: rgba(60, 60, 60, 0.7);
@@ -197,7 +206,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
   width: 100%;
   margin: 0;
   flex-shrink: 0;
@@ -205,59 +213,63 @@
 
 /* 히트 심볼 개별 이미지 (2개/3개 모두 자연스럽게 중앙 정렬) */
 .popup-hit-symbol {
-  width: clamp(26px, 15%, 44px);
+  width: clamp(58px, 30%, 72px);  /* ★ 심볼 크기: clamp(min, 카드내부% , max) */
   height: auto;
   object-fit: contain;
   flex-shrink: 0;
   filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.6));
 }
 
-/* 행운지수 */
+/* 행운지수: 카드 세로 정중앙에 절대 배치 */
 .popup-luck-row {
+  position: absolute;         /* ★ 절대 배치 */
+  top: 50%;                   /* ★ 카드 세로 중앙 */
+  left: calc(50% + 8px);     /* ★ 가로 중앙 + 8px 우이동 */
+  transform: translate(-50%, -50%);
   display: flex;
   align-items: center;
   gap: 6px;
   background: rgba(0, 0, 0, 0.38);
   border: 1px solid rgba(255, 215, 0, 0.3);
   border-radius: 8px;
-  padding: 2px 10px;
+  padding: 5px 16px;
   backdrop-filter: blur(4px);
-  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .popup-luck-label {
   color: rgba(255, 255, 255, 0.72);
-  font-size: 0.6rem;
+  font-size: 0.75rem;
   letter-spacing: 1px;
 }
 
 .popup-luck-score {
-  font-size: 1.3rem;
+  font-size: 2.1rem;
   font-weight: bold;
   color: #ffd700;
   text-shadow: 0 0 8px rgba(255, 215, 0, 0.75), 0 1px 4px rgba(0, 0, 0, 0.7);
   line-height: 1;
 }
 
-/* 운세 메시지 — 카드 배경(베이지)에서 가독성을 위해 어두운 색 사용 */
+/* 운세 메시지: 행운지수 아래 Safe Area 경계에 고정 — 내용 길이와 무관하게 위치 불변 */
 .popup-fortune-msg {
+  position: absolute;
+  top: calc(50% + 40px);       /* ★ 행운지수 중심(50%) + 간격 조정 */
+  left: calc(26% + 8px);       /* ★ 좌측 Safe Area 경계 */
+  right: calc(26% - 8px);      /* ★ 우측 Safe Area 경계 */
+  bottom: 14%;                  /* ★ 하단 Safe Area 경계 */
   color: rgba(30, 18, 8, 0.88);
   font-weight: bold;
-  font-size: 0.85rem;
-  line-height: 1.62;
+  font-size: 1.05rem;
+  line-height: 1.55;
   text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
-  border-top: 1px solid rgba(80, 50, 20, 0.2);
-  padding-top: 7px;
-  width: 100%;
-  margin: 0;
   word-break: keep-all;
   overflow-wrap: break-word;
+  overflow: hidden;
 }
 
 .popup-fortune-msg:empty {
   display: none;
-  padding: 0;
-  border: none;
 }
 
 /* ===== SUPER_LUCK 이펙트: 파티클 + 황금똥 ===== */
