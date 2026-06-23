@@ -84,6 +84,7 @@ export function getCardAssetsByGrade(grade: Grade): CardAssets {
 // ── 내부 유틸 ─────────────────────────────────────────────────────────────────
 
 let pending: ReturnType<typeof setTimeout>[] = [];
+let popupOnClose: (() => void) | null = null;
 
 function clearPending(): void {
   pending.forEach(clearTimeout);
@@ -201,7 +202,8 @@ function playSuperLuckPoopEffect(stageEl: HTMLElement): Promise<void> {
 
 // ── 공개 API ──────────────────────────────────────────────────────────────────
 
-export function showResultPopup(result: FortuneResult): void {
+export function showResultPopup(result: FortuneResult, onClose?: () => void): void {
+  popupOnClose = onClose ?? null;
   clearPending();
 
   const overlay        = getEl('resultPopup');
@@ -288,7 +290,12 @@ export function hideResultPopup(): void {
     }
   });
 
-  after(350, () => overlay.setAttribute('aria-hidden', 'true'));
+  after(350, () => {
+    overlay.setAttribute('aria-hidden', 'true');
+    const cb = popupOnClose;
+    popupOnClose = null;
+    cb?.();
+  });
 }
 
 // 한 번만 호출: 이벤트 리스너 등록

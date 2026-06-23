@@ -42,7 +42,7 @@ export function animateReel(
   finalItem: SlotItem,
   callback: (item: SlotItem) => void,
   suspenseMs = 0
-): void {
+): () => void {
   const stripEl = reelEl.querySelector('.reel-strip') as HTMLElement;
   const cellH = reelEl.offsetHeight / 3;
 
@@ -74,9 +74,27 @@ export function animateReel(
   reelEl.classList.add('spinning');
 
   // 시간 기반 구간 경계 (ms)
-  const T_DECEL  = linearBaseMs + suspenseMs;   // 선형 → 감속
-  const T_BOUNCE = T_DECEL + decelMs;           // 감속 → 바운스
-  const T_END    = T_BOUNCE + bounceMs;         // 종료
+  const T_DECEL  = linearBaseMs + suspenseMs;
+  const T_BOUNCE = T_DECEL + decelMs;
+  const T_END    = T_BOUNCE + bounceMs;
+
+  let cancelled = false;
+
+  // 스킵 시: targetY로 즉시 이동 후 짧은 바운스
+  function doSkipBounce(): void {
+    reelEl.classList.remove('spinning');
+    const SKIP_MS = 260;
+    const skipAmp = cellH * 0.45;
+    let t0: number | null = null;
+    function bounceFrame(ts: number): void {
+      if (!t0) t0 = ts;
+      const t = Math.min((ts - t0) / SKIP_MS, 1);
+      stripEl.style.transform = `translateY(${targetY + skipAmp * Math.exp(-6 * t) * Math.sin(2 * Math.PI * t)}px)`;
+      if (t < 1) { requestAnimationFrame(bounceFrame); }
+      else { stripEl.style.transform = `translateY(${targetY}px)`; callback(finalItem); }
+    }
+    requestAnimationFrame(bounceFrame);
+  }
 
   let startTime: number | null = null;
 
@@ -85,6 +103,7 @@ export function animateReel(
   }
 
   function frame(timestamp: number): void {
+    if (cancelled) { doSkipBounce(); return; }
     if (!startTime) startTime = timestamp;
     const elapsed = timestamp - startTime;
 
@@ -114,6 +133,7 @@ export function animateReel(
   }
 
   requestAnimationFrame(frame);
+  return () => { cancelled = true; };
 }
 
 // 릴 1칸 이동 (넛지): 당첨 결과 변경 연출
