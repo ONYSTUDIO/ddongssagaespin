@@ -14,6 +14,13 @@
     flex-wrap: wrap;
     justify-content: center;
     column-gap: 14px;
+    row-gap: 10px;
+    padding-bottom: 14px;
+  }
+
+  /* 슬롯머신 컨테이너: 첫 번째 줄 전체 너비 */
+  .game-layout > .container {
+    flex: 0 0 100%;
   }
 }
 
@@ -29,16 +36,9 @@
 }
 
 @media (max-width: 560px) {
+  /* 투명 래퍼로 전환: 자식 버튼들이 .game-layout의 flex 아이템으로 직접 참여 */
   .meta-sidebar {
-    position: static;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    padding-top: 4px;
-    padding-bottom: 12px;
-    gap: 14px;
-    width: auto;
-    order: 3;
+    display: contents;
   }
 }
 
@@ -154,17 +154,18 @@
 }
 
 @media (max-width: 560px) {
+  /* 투명 래퍼로 전환: 자식 버튼들이 .game-layout의 flex 아이템으로 직접 참여 */
   .meta-sidebar-left {
-    position: static;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    padding-top: 4px;
-    padding-bottom: 12px;
-    gap: 14px;
-    width: auto;
-    order: 2;
+    display: contents;
   }
+
+  /* 모바일 버튼 순서: [기록][포춘쿠키][순위][후원하기] / [음원재생][로그아웃] */
+  #metaBtnHistory { order: 1; flex-shrink: 0; }
+  #metaBtnFortune { order: 2; flex-shrink: 0; }
+  #metaBtnRanking { order: 3; flex-shrink: 0; }
+  #metaBtnSupport { order: 4; flex-shrink: 0; }
+  #bgmBtn         { order: 5; flex-shrink: 0; }
+  #metaBtnLogout  { order: 6; flex-shrink: 0; }
 }
 
 /* ===== 랭킹 팝업 오버레이 ===== */
