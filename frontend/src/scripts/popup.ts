@@ -230,7 +230,9 @@ export function showResultPopup(result: FortuneResult, onClose?: () => void): vo
   gradeBadge.dataset.grade = result.grade;
   renderHitSymbols(resultMsgEl, result);
   luckScoreEl.textContent  = String(result.luckScore);
-  fortuneEl.textContent    = result.fortuneMessage;
+  // 마침표·느낌표·물음표 뒤 줄바꿈 (문장 끝이 아닌 경우에만)
+  fortuneEl.innerHTML = result.fortuneMessage
+    .replace(/([.!?])\s*(?!\s*$)/g, '$1<br>');
 
   // 오버레이 열기 (두 번의 rAF로 transition 보장)
   overlay.removeAttribute('aria-hidden');
