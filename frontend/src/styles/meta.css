@@ -9,6 +9,11 @@
 @media (max-width: 560px) {
   .game-layout {
     max-width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    column-gap: 14px;
   }
 }
 
@@ -27,11 +32,13 @@
   .meta-sidebar {
     position: static;
     flex-direction: row;
+    align-items: center;
     justify-content: center;
     padding-top: 4px;
     padding-bottom: 12px;
     gap: 14px;
-    width: 100%;
+    width: auto;
+    order: 3;
   }
 }
 
@@ -87,6 +94,12 @@
   height: 48px;
 }
 
+@media (max-width: 560px) {
+  .meta-btn--logout {
+    margin-top: 0;
+  }
+}
+
 .meta-btn--logout:hover {
   border-color: rgba(255, 80, 80, 0.7);
   box-shadow: 0 0 14px rgba(255, 60, 60, 0.4);
@@ -99,6 +112,34 @@
   pointer-events: none;
   flex-shrink: 0;
 }
+
+/* BGM 토글 버튼 — 로그아웃과 동일 스타일 */
+.meta-btn--bgm {
+  background: rgba(40, 0, 20, 0.6);
+  border-color: rgba(255, 80, 80, 0.25);
+  width: 48px;
+  height: 48px;
+}
+
+.meta-btn--bgm:hover {
+  border-color: rgba(255, 80, 80, 0.7);
+  box-shadow: 0 0 14px rgba(255, 60, 60, 0.4);
+}
+
+.bgm-icon {
+  width: 22px;
+  height: 22px;
+  color: rgba(255, 120, 120, 0.85);
+  pointer-events: none;
+  flex-shrink: 0;
+}
+
+/* 재생 중: ⏸ 표시 / 일시정지 중: ▶ 표시 */
+.bgm-icon--play  { display: none; }
+.bgm-icon--pause { display: block; }
+
+.meta-btn--bgm.bgm-paused .bgm-icon--play  { display: block; }
+.meta-btn--bgm.bgm-paused .bgm-icon--pause { display: none; }
 
 /* ===== 왼쪽 사이드바 (나의 기록) ===== */
 .meta-sidebar-left {
@@ -116,11 +157,13 @@
   .meta-sidebar-left {
     position: static;
     flex-direction: row;
+    align-items: center;
     justify-content: center;
-    padding-top: 0;
+    padding-top: 4px;
     padding-bottom: 12px;
     gap: 14px;
-    width: 100%;
+    width: auto;
+    order: 2;
   }
 }
 

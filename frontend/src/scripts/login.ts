@@ -22,6 +22,9 @@ export function showLoginScreen(): void {
   }
   screen.style.display = '';
   screen.removeAttribute('aria-hidden');
+  // 로그아웃 후 재진입 시 버튼 비활성 상태 초기화
+  const btn = document.getElementById('loginBtn') as HTMLButtonElement | null;
+  if (btn) btn.disabled = false;
   requestAnimationFrame(() => screen.classList.remove('login-screen--out'));
 }
 
@@ -54,7 +57,11 @@ export async function handleLoginSubmit(id: string, pw: string): Promise<string 
 
 const MIN_PW_LENGTH = 6;
 
-export function initLogin(onLoginSuccess?: () => void): void {
+export function initLogin(
+  onLoginSuccess?: () => void,
+  onLoginAttempt?: () => void,
+  onLoginFail?: () => void,
+): void {
   const screen   = getEl('loginScreen');
   const loginBtn = getEl<HTMLButtonElement>('loginBtn');
   const idInput  = getEl<HTMLInputElement>('loginId');
@@ -93,10 +100,14 @@ export function initLogin(onLoginSuccess?: () => void): void {
     loginBtn.disabled = true;
     if (errorEl) errorEl.textContent = '';
 
+    // await 전 동기 구간에서 호출 → 모든 브라우저/iOS에서 user gesture로 인정
+    onLoginAttempt?.();
+
     const err = await handleLoginSubmit(id, pw);
     if (err) {
       if (errorEl) errorEl.textContent = err;
       loginBtn.disabled = false;
+      onLoginFail?.();
       return;
     }
     hideLoginScreen();

@@ -12,7 +12,7 @@ import { initDailyReward, checkAndShowDailyReward } from './scripts/dailyReward'
 import { getCurrentSpinCount, consumeSpin } from './scripts/spinManager';
 import { saveSlotFortuneLog } from './scripts/history';
 import { initStars } from './scripts/stars';
-import { startBgm } from './scripts/sound';
+import { startBgm, stopBgm, initBgmBtn } from './scripts/sound';
 
 import spinOnSrc       from './assets/images/buttons/btn_spin_on.png';
 import spinOffSrc      from './assets/images/buttons/btn_spin_off.png';
@@ -100,9 +100,14 @@ async function onLoginSuccess(): Promise<void> {
 }
 
 initStars();
-initLogin(onLoginSuccess);
+initLogin(
+  onLoginSuccess,
+  () => startBgm(),  // await 전 동기 구간 호출 → 웹/Android/iOS 모두 user gesture로 인정
+  () => stopBgm(),   // 로그인 실패 시 BGM 중단
+);
 initPopup();
 initMeta();
+initBgmBtn();
 
 // 포춘쿠키 보상 등 외부에서 스핀 지급 시 UI 갱신
 document.addEventListener('spinCountUpdated', (e) => {
