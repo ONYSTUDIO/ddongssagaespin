@@ -12,6 +12,7 @@ import { initDailyReward, checkAndShowDailyReward } from './scripts/dailyReward'
 import { getCurrentSpinCount, consumeSpin } from './scripts/spinManager';
 import { saveSlotFortuneLog } from './scripts/history';
 import { initStars } from './scripts/stars';
+import { startBgm } from './scripts/sound';
 
 import spinOnSrc       from './assets/images/buttons/btn_spin_on.png';
 import spinOffSrc      from './assets/images/buttons/btn_spin_off.png';
@@ -76,6 +77,7 @@ setBtnState('on');
 
 // ── 로그인 성공 후 처리 ───────────────────────────────────────────
 async function onLoginSuccess(): Promise<void> {
+  startBgm();
   isInitializing = true;
 
   // 스핀 카운트 표시 (isInitializing=true 이므로 버튼 비활성화 차단)
