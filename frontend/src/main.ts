@@ -30,6 +30,7 @@ const spinCountEl    = document.getElementById('spinCountText')  as HTMLElement;
 let isSpinning     = false;  // 스핀 전체 진행 중 (릴 + 연출 포함)
 let isReelAnimating = false;  // 릴 애니메이션 중에만 true (스킵 가능 구간)
 let isSkipRequested = false;  // 스킵 중복 방지
+let isInitializing  = false;  // 로그인 초기화 중 — 스핀 버튼 비활성화 차단
 let reelCancelFns: Array<() => void> = [];
 let pendingPopupTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -48,7 +49,7 @@ function updateSpinCountUI(count: number): void {
     spinCountEl.classList.remove('spin-low');
     spinCountEl.classList.add('spin-normal');
   }
-  if (!isSpinning) {
+  if (!isSpinning && !isInitializing) {
     btn.disabled = count <= 0;
     if (count <= 0) setBtnState('off');
   }
@@ -75,7 +76,9 @@ setBtnState('on');
 
 // ── 로그인 성공 후 처리 ───────────────────────────────────────────
 async function onLoginSuccess(): Promise<void> {
-  // 스핀 카운트 표시
+  isInitializing = true;
+
+  // 스핀 카운트 표시 (isInitializing=true 이므로 버튼 비활성화 차단)
   const count = await getCurrentSpinCount();
   updateSpinCountUI(count);
 
@@ -84,6 +87,14 @@ async function onLoginSuccess(): Promise<void> {
     updateSpinCountUI(newCount);
   });
   await checkAndShowDailyReward();
+
+  isInitializing = false;
+
+  // 일일 보상 팝업이 떠 있으면 버튼 상태를 건드리지 않음 (팝업 수령 시 콜백이 처리)
+  const rewardPopup = document.getElementById('dailyRewardPopup');
+  if (!rewardPopup?.classList.contains('daily-reward-open')) {
+    updateSpinCountUI(count);
+  }
 }
 
 initStars();
@@ -207,8 +218,9 @@ async function spin(): Promise<void> {
         const clone = document.createElement('img');
         clone.src   = symbol.src;
         clone.className    = 'hit-symbol-clone';
-        clone.style.left   = `${rect.left}px`;
-        clone.style.top    = `${rect.top}px`;
+        // 문서 기준 좌표: getBoundingClientRect(뷰포트 상대) + 스크롤 오프셋
+        clone.style.left   = `${rect.left + window.scrollX}px`;
+        clone.style.top    = `${rect.top  + window.scrollY}px`;
         clone.style.width  = `${rect.width}px`;
         clone.style.height = `${rect.height}px`;
         overlay.appendChild(clone);

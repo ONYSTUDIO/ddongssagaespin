@@ -137,17 +137,21 @@ body {
   100% { transform: scale(1)    translateX(0); }
 }
 
-/* 오버레이 컨테이너: overflow:hidden 외부에서 클론 재생 */
+/* 오버레이 컨테이너: 문서 원점(0,0)에 absolute — 자식 클론이 스크롤과 함께 기계 위에 고정됨 */
 #hitSymbolOverlay {
-  position: fixed;
-  inset: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  overflow: visible;
   pointer-events: none;
   z-index: 50;
 }
 
-/* 히트 심볼 클론: 원본과 동일한 위치에 fixed 배치 후 애니메이션 */
+/* 히트 심볼 클론: 문서 기준 absolute — 스크롤 시 릴 심볼과 함께 이동 */
 .hit-symbol-clone {
-  position: fixed;
+  position: absolute;
   object-fit: contain;
   padding: 6px;
   pointer-events: none;

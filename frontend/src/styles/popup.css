@@ -18,10 +18,10 @@
   pointer-events: auto;
 }
 
-/* ===== 스테이지: 복주머니 / 코기 (오버레이 중앙 절대 위치) ===== */
-/* translate(-50%,-50%)로 중앙 고정, scale로 등장/퇴장 */
+/* ===== 스테이지: 복주머니 / 코기 ===== */
+/* position: fixed — 뷰포트 기준 고정 (iOS Safari 초회 absolute % 계산 버그 방지) */
 .popup-stage {
-  position: absolute;
+  position: fixed;
   top: 50%;
   left: 50%;
   width: min(90vw, 440px);
