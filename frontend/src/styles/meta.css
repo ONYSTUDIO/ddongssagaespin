@@ -1,5 +1,7 @@
 /* ===== HUD: 상단 바 ===== */
 .game-hud {
+  position: relative;
+  z-index: 3;
   width: 100%;
   display: flex;
   align-items: center;

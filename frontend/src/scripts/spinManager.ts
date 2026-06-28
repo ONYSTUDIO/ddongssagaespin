@@ -1,6 +1,6 @@
 import { supabase } from './supabase';
 
-export const DAILY_SPIN_REWARD = 30;
+export const DAILY_SPIN_REWARD = 10;
 
 export type SpinReason = 'daily_reward' | 'spin_use' | 'ad_reward' | 'event' | 'admin' | 'ranking' | 'fortune_cookie';
 
@@ -34,7 +34,7 @@ export async function checkDailyReward(): Promise<boolean> {
   return data?.last_login_date !== today;
 }
 
-// ── 일일 스핀 30개 지급 ───────────────────────────────────────────
+// ── 일일 스핀 10개 지급 ───────────────────────────────────────────
 export async function grantDailySpinReward(): Promise<number> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return 0;
