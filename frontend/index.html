@@ -184,7 +184,24 @@
       <!-- 게임 화면 -->
       <div class="mg01-game" id="mg01Game" style="display: none;">
         <h2 class="mg01-title">💩 황금똥 찾기</h2>
+        <div class="mg01-hud">
+          <span class="mg01-hud-item">남은 선택: <strong id="mg01SelectionCount">10</strong></span>
+          <span class="mg01-hud-item mg01-hud-poop">황금똥: <strong id="mg01PoopCount">0</strong></span>
+          <span class="mg01-hud-item mg01-hud-dog">강아지: <strong id="mg01DogCount">0</strong></span>
+        </div>
         <div class="mg01-grid" id="mg01Grid"></div>
+      </div>
+
+      <!-- 결과 화면 (게임 위 오버레이) -->
+      <div class="mg01-result" id="mg01Result">
+        <button class="mg01-result-close" id="mg01ResultCloseBtn" aria-label="결과 닫기">✕</button>
+        <h2 class="mg01-title">게임 종료!</h2>
+        <div class="mg01-result-rows">
+          <p class="mg01-result-row">💩 황금똥 <strong id="mg01ResultPoop">0</strong>개 획득</p>
+          <p class="mg01-result-row">🎰 획득 예정 Spin: <strong id="mg01ResultSpin">0</strong></p>
+          <p class="mg01-result-row">🐕 새로운 강아지 <strong id="mg01ResultDog">0</strong>마리 발견</p>
+        </div>
+        <button class="mg01-start-btn" id="mg01RetryBtn" type="button">다시 하기</button>
       </div>
     </div>
   </div>

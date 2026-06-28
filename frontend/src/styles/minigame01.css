@@ -22,15 +22,15 @@
 .mg01-popup {
   position: relative;
   width: min(94vw, 420px);
-  max-height: 88dvh;
+  max-height: 90dvh;
   background: rgba(16, 0, 40, 0.96);
   border: 1px solid rgba(255, 215, 0, 0.32);
   border-radius: 22px;
-  padding: 32px 22px 24px;
+  padding: 32px 18px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   backdrop-filter: blur(14px);
   box-shadow:
     0 0 52px rgba(120, 0, 255, 0.28),
@@ -73,12 +73,13 @@
 /* ===== 공통 타이틀 ===== */
 .mg01-title {
   color: #ffd700;
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   font-weight: bold;
   text-align: center;
   letter-spacing: 1.5px;
   text-shadow: 0 0 16px rgba(255, 215, 0, 0.55);
   margin: 0;
+  flex-shrink: 0;
 }
 
 /* ===== 시작 화면 ===== */
@@ -128,46 +129,208 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
   width: 100%;
 }
+
+/* ===== HUD ===== */
+.mg01-hud {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 7px 10px;
+  background: rgba(10, 0, 28, 0.6);
+  border: 1px solid rgba(255, 215, 0, 0.18);
+  border-radius: 10px;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.mg01-hud-item {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.mg01-hud-item strong {
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+.mg01-hud-poop strong { color: #ffd700; }
+.mg01-hud-dog  strong { color: #b8ffc0; }
 
 /* ===== 6×6 그리드 ===== */
 .mg01-grid {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  gap: 5px;
+  gap: 4px;
   width: 100%;
 }
 
-/* ===== 셀 ===== */
+/* ===== 셀 기본 ===== */
 .mg01-cell {
   aspect-ratio: 1;
   background: rgba(40, 0, 80, 0.8);
   border: 1px solid rgba(180, 100, 255, 0.28);
-  border-radius: 8px;
+  border-radius: 7px;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  transition: background 0.13s, border-color 0.13s, transform 0.1s;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
-  font-size: 1.2rem;
   display: flex;
   align-items: center;
   justify-content: center;
   user-select: none;
+  padding: 0;
+  overflow: hidden;
+  font-size: 0.85rem;
+  font-weight: bold;
+  line-height: 1;
 }
 
-.mg01-cell:hover:not(.mg01-cell--revealed) {
+.mg01-cell:hover:not([disabled]) {
   background: rgba(70, 10, 120, 0.9);
-  border-color: rgba(255, 215, 0, 0.45);
+  border-color: rgba(255, 215, 0, 0.5);
 }
 
-.mg01-cell:active:not(.mg01-cell--revealed) {
-  transform: scale(0.9);
+.mg01-cell:active:not([disabled]) {
+  transform: scale(0.88);
 }
 
+/* ===== 셀: 열린 상태 공통 ===== */
 .mg01-cell--revealed {
-  background: rgba(10, 2, 24, 0.6);
-  border-color: rgba(255, 255, 255, 0.1);
   cursor: default;
+}
+
+.mg01-cell--empty {
+  background: rgba(8, 0, 20, 0.5);
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+/* ===== 셀: 숫자 힌트 ===== */
+.mg01-cell--hint {
+  background: rgba(12, 2, 30, 0.6);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.mg01-cell[data-hint="1"] { color: #64b5f6; }
+.mg01-cell[data-hint="2"] { color: #81c784; }
+.mg01-cell[data-hint="3"] { color: #ff7043; }
+.mg01-cell[data-hint="4"] { color: #ab47bc; }
+.mg01-cell[data-hint="5"] { color: #ef5350; }
+.mg01-cell[data-hint="6"] { color: #ff1744; }
+
+/* ===== 셀: 아이콘 이미지 ===== */
+.mg01-cell-img {
+  width: 80%;
+  height: 80%;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+}
+
+/* ===== 셀: 타입별 배경 ===== */
+.mg01-cell[data-cell-type="1"] {
+  background: rgba(50, 38, 0, 0.75);
+  border-color: rgba(255, 215, 0, 0.55);
+  box-shadow: inset 0 0 8px rgba(255, 215, 0, 0.2);
+}
+
+.mg01-cell[data-cell-type="2"] {
+  background: rgba(0, 40, 10, 0.75);
+  border-color: rgba(100, 220, 130, 0.55);
+}
+
+.mg01-cell[data-cell-type="3"] {
+  background: rgba(30, 10, 40, 0.8);
+  border-color: rgba(180, 80, 255, 0.45);
+}
+
+.mg01-cell[data-cell-type="4"] {
+  background: rgba(40, 20, 0, 0.8);
+  border-color: rgba(255, 140, 40, 0.45);
+}
+
+/* 강아지 (1001~) */
+.mg01-cell[data-cell-type^="100"] {
+  background: rgba(0, 20, 40, 0.75);
+  border-color: rgba(100, 200, 255, 0.45);
+}
+
+/* ===== 결과 화면 (오버레이) ===== */
+.mg01-result {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 28px 20px;
+  background: rgba(12, 0, 30, 0.92);
+  backdrop-filter: blur(6px);
+  border-radius: 22px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.mg01-result.mg01-result--open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.mg01-result-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 28px;
+  height: 28px;
+  background: rgba(40, 0, 70, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.8rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.18s, color 0.18s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mg01-result-close:hover {
+  background: rgba(80, 0, 130, 0.95);
+  color: #fff;
+}
+
+.mg01-result-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  background: rgba(10, 0, 28, 0.55);
+  border: 1px solid rgba(255, 215, 0, 0.18);
+  border-radius: 14px;
+  padding: 16px 18px;
+}
+
+.mg01-result-row {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.mg01-result-row strong {
+  color: #ffd700;
+  font-size: 1.05rem;
+}
+
+@media (max-width: 380px) {
+  .mg01-hud-item { font-size: 0.72rem; }
+  .mg01-cell { border-radius: 5px; }
 }
