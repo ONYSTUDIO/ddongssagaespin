@@ -1,5 +1,6 @@
 import './styles/main.css';
 import { initLogin } from './scripts/login';
+import { supabase } from './scripts/supabase';
 import { getRandomItem, SlotItem } from './scripts/game';
 import { judgeResult } from './scripts/rules';
 import { initReel, animateReel, nudgeReel, WIN_IDX } from './scripts/reel';
@@ -18,6 +19,7 @@ import spinOnSrc       from './assets/images/buttons/btn_spin_on.png';
 import spinOffSrc      from './assets/images/buttons/btn_spin_off.png';
 import spinFocusSrc    from './assets/images/buttons/btn_spin_focus.png';
 import machineFrameSrc from './assets/images/machine/machine_frame.png';
+import corgiAvatarSrc  from './assets/images/symbols/symbol_corgi.png';
 
 const btn            = document.getElementById('spinBtn')        as HTMLButtonElement;
 const btnImg         = document.getElementById('btnSpinImg')     as HTMLImageElement;
@@ -27,6 +29,7 @@ const reel2          = document.getElementById('reel2')          as HTMLElement;
 const reel3          = document.getElementById('reel3')          as HTMLElement;
 const resultEl       = document.getElementById('resultText')     as HTMLElement;
 const spinCountEl    = document.getElementById('spinCountText')  as HTMLElement;
+const hitLineEl      = document.getElementById('hitLine')        as HTMLElement;
 
 let isSpinning     = false;  // 스핀 전체 진행 중 (릴 + 연출 포함)
 let isReelAnimating = false;  // 릴 애니메이션 중에만 true (스킵 가능 구간)
@@ -75,8 +78,19 @@ if (machineFrameEl.complete && machineFrameEl.naturalWidth > 0) initAllReels();
 
 setBtnState('on');
 
+// ── HUD 유저 정보 설정 ───────────────────────────────────────────
+async function setHudUser(): Promise<void> {
+  const { data: { user } } = await supabase.auth.getUser();
+  const username = user?.email?.split('@')[0] ?? '--';
+  const usernameEl = document.getElementById('hudUsername');
+  const avatarEl   = document.getElementById('hudAvatarImg') as HTMLImageElement | null;
+  if (usernameEl) usernameEl.textContent = username;
+  if (avatarEl)   avatarEl.src = corgiAvatarSrc;
+}
+
 // ── 로그인 성공 후 처리 ───────────────────────────────────────────
 async function onLoginSuccess(): Promise<void> {
+  setHudUser();
   startBgm();
   isInitializing = true;
 
@@ -157,6 +171,7 @@ async function spin(): Promise<void> {
   // 이전 히트 클론 제거 + 숨겨진 원본 심볼 복구
   const hitOverlay = document.getElementById('hitSymbolOverlay');
   if (hitOverlay) hitOverlay.innerHTML = '';
+  hitLineEl.classList.remove('active');
   [reel1, reel2, reel3].forEach(r => {
     r.classList.remove('winner', 'jackpot');
     r.querySelectorAll<HTMLElement>('.reel-symbol').forEach(s => { s.style.opacity = ''; });
@@ -201,6 +216,7 @@ async function spin(): Promise<void> {
     }
 
     // 히트 연출이 있는 경우: 팝업 닫힐 때 버튼 활성화
+    hitLineEl.classList.add('active');
     showResult(fortuneResult);
 
     const ids = [results[0].id, results[1].id, results[2].id];

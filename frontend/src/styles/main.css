@@ -39,7 +39,7 @@ body {
   font-size: 2rem;
   color: #ffd700;
   text-shadow: 0 0 20px #ffd700, 0 0 40px #ff8c00;
-  margin-bottom: 20px;
+  margin-bottom: 2px;
   letter-spacing: 2px;
 }
 
@@ -54,6 +54,16 @@ body {
   border-radius: 0;
   padding: 0;
   box-shadow: none;
+
+  /* ── machine_frame.png 962×1404 기준 릴 영역 (원본 픽셀: left=105, top=275, w=752, h=632) ── */
+  /* 좌/우 3% 축소, 위/아래 1% 축소 — 조정 필요 시 이 값 4개만 수정 */
+  --reel-top:    20.6%;   /* 19.6% + 1% */
+  --reel-left:   13.9%;   /* 10.9% + 3% (좌/우 유지) */
+  --reel-width:  72.2%;   /* 78.2% - 6% (좌/우 유지) */
+  --reel-height: 43.0%;   /* 45.0% - 2% */
+
+  /* 전체 Y 미세조정 — 이 값만 바꾸면 릴/텍스트/버튼 동시 이동 */
+  --slot-offset-y: 0%;
 }
 
 /* 프레임 이미지: 비율 기준 레이어 */
@@ -75,13 +85,13 @@ body {
 }
 
 /* ===== 릴 영역: 프레임 이미지 위에 절대 위치 ===== */
-/* 측정값(1024×1536): top=17.5%, left=14.5%, width=71%, height=47% */
+/* machine_frame.png 962×1404: left=105, top=275, width=752, height=632 */
 .reels {
   position: absolute;
-  top: 19.3%;
-  left: 16.1%;
-  width: 68%;
-  height: 40%;
+  top: calc(var(--reel-top) + var(--slot-offset-y));
+  left: var(--reel-left);
+  width: var(--reel-width);
+  height: var(--reel-height);
   display: flex;
   align-items: stretch;
   gap: 1.5%;
@@ -123,6 +133,10 @@ body {
   filter: blur(1.5px);
 }
 
+@media (max-width: 560px) {
+  .machine { margin-bottom: 0; }
+}
+
 /* ===== 히트 심볼 확대 + 사선 흔들기 애니메이션 ===== */
 @keyframes symbolHit {
   0%   { transform: scale(1)    translateX(0); }
@@ -160,25 +174,43 @@ body {
 
 
 
-/* ===== 히트 라인: 가운데 행 (판정 기준) ===== */
-/* 릴 영역: top=22.33%, height=34% → 가운데 행: 33.66%~45% */
+/* ===== 히트 라인: 릴 박스 정중앙 가로선 ===== */
+/* 중앙 = reel-top(20.6%) + reel-height/2(21.5%) = 42.1% */
 .hit-line {
   position: absolute;
-  top: 33.66%;
-  left: 17.1%;
-  width: 65.4%;
-  height: 11.33%;
-  border-top: 2px solid rgba(255, 220, 40, 0.85);
-  border-bottom: 2px solid rgba(255, 220, 40, 0.85);
-  box-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+  top: calc(42.1% + var(--slot-offset-y));
+  left: 16%;     /* center: 50% - 68%/2 */
+  width: 68%;
+  height: 2px;
+  background: rgba(255, 50, 100, 0.95);
+  box-shadow:
+    0 0 4px  rgba(255, 50, 100, 1.0),
+    0 0 10px rgba(230, 40,  85, 0.8),
+    0 0 22px rgba(200, 20,  70, 0.5);
   pointer-events: none;
   z-index: 3;
+  display: none;
 }
 
-/* ===== 결과 메시지 박스: 프레임 어두운 결과 표시 바 (y=920~1060, 59.9%~69%) ===== */
+.hit-line.active {
+  display: block;
+  animation: hitLineFlicker 1.5s ease-in-out infinite;
+}
+
+@keyframes hitLineFlicker {
+  0%   { opacity: 1;    box-shadow: 0 0 4px rgba(255,50,100,1.0), 0 0 10px rgba(230,40,85,0.8), 0 0 22px rgba(200,20,70,0.5); }
+  18%  { opacity: 0.4;  box-shadow: 0 0 2px rgba(255,50,100,0.4), 0 0  4px rgba(230,40,85,0.3), 0 0  8px rgba(200,20,70,0.2); }
+  22%  { opacity: 1;    box-shadow: 0 0 4px rgba(255,50,100,1.0), 0 0 10px rgba(230,40,85,0.8), 0 0 22px rgba(200,20,70,0.5); }
+  55%  { opacity: 1;    box-shadow: 0 0 6px rgba(255,70,115,1.0), 0 0 14px rgba(240,50,95,0.9), 0 0 30px rgba(210,30,80,0.6); }
+  72%  { opacity: 0.6;  box-shadow: 0 0 2px rgba(255,50,100,0.6), 0 0  6px rgba(230,40,85,0.4), 0 0 12px rgba(200,20,70,0.3); }
+  75%  { opacity: 1;    box-shadow: 0 0 4px rgba(255,50,100,1.0), 0 0 10px rgba(230,40,85,0.8), 0 0 22px rgba(200,20,70,0.5); }
+  100% { opacity: 1;    box-shadow: 0 0 4px rgba(255,50,100,1.0), 0 0 10px rgba(230,40,85,0.8), 0 0 22px rgba(200,20,70,0.5); }
+}
+
+/* ===== 결과 메시지(잔여 스핀 수) 박스: 프레임 어두운 결과 표시 바 (y=920~1060, 59.9%~69%) ===== */
 .result-box {
   position: absolute;
-  top: 63%;
+  top: calc(68.5% + var(--slot-offset-y));
   left: 10%;
   width: 80%;
   height: 9%;
@@ -209,10 +241,10 @@ body {
 .result-text.lose { color: #c0966e; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
 
 /* ===== SPIN 버튼: 머신 프레임 하단 내부 절대 위치 ===== */
-/* 하단 장식 영역(69%~100%) 내 배치: bottom=8%, width=48% */
+/* 하단 장식 영역(69%~100%) 내 배치: bottom=3%, width=48% */
 .spin-btn {
   position: absolute;
-  bottom: 8%;
+  bottom: calc(3% - var(--slot-offset-y));
   left: 50%;
   transform: translateX(-50%);
   width: 48%;

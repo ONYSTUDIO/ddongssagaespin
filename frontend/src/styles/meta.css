@@ -1,3 +1,107 @@
+/* ===== HUD: 상단 바 ===== */
+.game-hud {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(10, 0, 30, 0.55);
+  border: 1px solid rgba(255, 215, 0, 0.15);
+  border-radius: 14px;
+  backdrop-filter: blur(6px);
+  margin-bottom: 20px;
+}
+
+.hud-profile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.hud-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 215, 0, 0.5);
+  background: rgba(20, 0, 50, 0.6);
+  flex-shrink: 0;
+}
+
+.hud-username {
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 0.85rem;
+  font-weight: 600;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hud-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.hud-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: rgba(20, 0, 50, 0.6);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  border-radius: 10px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.hud-btn:hover {
+  transform: scale(1.08);
+  border-color: rgba(255, 215, 0, 0.5);
+}
+
+.hud-btn:active {
+  transform: scale(0.93);
+}
+
+.hud-btn--bgm .bgm-icon {
+  width: 20px;
+  height: 20px;
+  color: rgba(200, 180, 255, 0.9);
+  pointer-events: none;
+}
+
+.hud-btn--logout {
+  border-color: rgba(255, 80, 80, 0.2);
+}
+
+.hud-btn--logout:hover {
+  border-color: rgba(255, 80, 80, 0.6);
+  box-shadow: 0 0 10px rgba(255, 60, 60, 0.3);
+}
+
+.hud-logout-icon {
+  width: 18px;
+  height: 18px;
+  color: rgba(255, 120, 120, 0.85);
+  pointer-events: none;
+  flex-shrink: 0;
+}
+
+@media (max-width: 560px) {
+  .game-hud {
+    flex: 0 0 100%;
+    margin-bottom: 14px;
+    border-radius: 10px;
+  }
+}
+
 /* ===== 게임 레이아웃: 슬롯 + 메타 사이드바 ===== */
 .game-layout {
   position: relative;
@@ -12,9 +116,10 @@
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+    align-content: flex-start;
     justify-content: center;
     column-gap: 14px;
-    row-gap: 10px;
+    row-gap: 0;
     padding-bottom: 14px;
   }
 
@@ -85,61 +190,12 @@
   display: none;
 }
 
-/* 로그아웃 버튼 */
-.meta-btn--logout {
-  margin-top: 8px;
-  background: rgba(40, 0, 20, 0.6);
-  border-color: rgba(255, 80, 80, 0.25);
-  width: 48px;
-  height: 48px;
-}
-
-@media (max-width: 560px) {
-  .meta-btn--logout {
-    margin-top: 0;
-  }
-}
-
-.meta-btn--logout:hover {
-  border-color: rgba(255, 80, 80, 0.7);
-  box-shadow: 0 0 14px rgba(255, 60, 60, 0.4);
-}
-
-.meta-logout-icon {
-  width: 22px;
-  height: 22px;
-  color: rgba(255, 120, 120, 0.85);
-  pointer-events: none;
-  flex-shrink: 0;
-}
-
-/* BGM 토글 버튼 — 로그아웃과 동일 스타일 */
-.meta-btn--bgm {
-  background: rgba(40, 0, 20, 0.6);
-  border-color: rgba(255, 80, 80, 0.25);
-  width: 48px;
-  height: 48px;
-}
-
-.meta-btn--bgm:hover {
-  border-color: rgba(255, 80, 80, 0.7);
-  box-shadow: 0 0 14px rgba(255, 60, 60, 0.4);
-}
-
-.bgm-icon {
-  width: 22px;
-  height: 22px;
-  color: rgba(255, 120, 120, 0.85);
-  pointer-events: none;
-  flex-shrink: 0;
-}
-
-/* 재생 중: ⏸ 표시 / 일시정지 중: ▶ 표시 */
+/* BGM 아이콘 토글: 재생 중 ⏸ / 일시정지 중 ▶ */
 .bgm-icon--play  { display: none; }
 .bgm-icon--pause { display: block; }
 
-.meta-btn--bgm.bgm-paused .bgm-icon--play  { display: block; }
-.meta-btn--bgm.bgm-paused .bgm-icon--pause { display: none; }
+.hud-btn--bgm.bgm-paused .bgm-icon--play  { display: block; }
+.hud-btn--bgm.bgm-paused .bgm-icon--pause { display: none; }
 
 /* ===== 왼쪽 사이드바 (나의 기록) ===== */
 .meta-sidebar-left {
@@ -159,13 +215,11 @@
     display: contents;
   }
 
-  /* 모바일 버튼 순서: [기록][포춘쿠키][순위][후원하기] / [음원재생][로그아웃] */
+  /* 모바일 버튼 순서: [기록][포춘쿠키][순위][후원하기] */
   #metaBtnHistory { order: 1; flex-shrink: 0; }
   #metaBtnFortune { order: 2; flex-shrink: 0; }
   #metaBtnRanking { order: 3; flex-shrink: 0; }
   #metaBtnSupport { order: 4; flex-shrink: 0; }
-  #bgmBtn         { order: 5; flex-shrink: 0; }
-  #metaBtnLogout  { order: 6; flex-shrink: 0; }
 }
 
 /* ===== 랭킹 팝업 오버레이 ===== */

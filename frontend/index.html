@@ -40,6 +40,32 @@
   <!-- 게임 레이아웃: 슬롯 + 메타 사이드바 -->
   <div class="game-layout">
 
+    <!-- HUD: 상단 바 -->
+    <div class="game-hud" id="gameHud">
+      <div class="hud-profile">
+        <img class="hud-avatar" id="hudAvatarImg" src="" alt="프로필">
+        <span class="hud-username" id="hudUsername">--</span>
+      </div>
+      <div class="hud-actions">
+        <button class="hud-btn hud-btn--bgm" id="bgmBtn" aria-label="배경음악 켜기/끄기">
+          <svg class="bgm-icon bgm-icon--pause" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="6" y="4" width="4" height="16" rx="1" fill="currentColor"/>
+            <rect x="14" y="4" width="4" height="16" rx="1" fill="currentColor"/>
+          </svg>
+          <svg class="bgm-icon bgm-icon--play" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 4.5L20 12L6 19.5V4.5Z" fill="currentColor"/>
+          </svg>
+        </button>
+        <button class="hud-btn hud-btn--logout" id="metaBtnLogout" aria-label="로그아웃">
+          <svg class="hud-logout-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="16 17 21 12 16 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
     <!-- 슬롯 게임 컨테이너 -->
     <div class="container">
 
@@ -84,23 +110,6 @@
         <span class="meta-btn-label">후원하기</span>
       </button>
 
-      <button class="meta-btn meta-btn--bgm" id="bgmBtn" aria-label="배경음악 켜기/끄기">
-        <svg class="bgm-icon bgm-icon--pause" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="6" y="4" width="4" height="16" rx="1" fill="currentColor"/>
-          <rect x="14" y="4" width="4" height="16" rx="1" fill="currentColor"/>
-        </svg>
-        <svg class="bgm-icon bgm-icon--play" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M6 4.5L20 12L6 19.5V4.5Z" fill="currentColor"/>
-        </svg>
-      </button>
-
-      <button class="meta-btn meta-btn--logout" id="metaBtnLogout" aria-label="로그아웃">
-        <svg class="meta-logout-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <polyline points="16 17 21 12 16 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
     </aside>
 
     <!-- 왼쪽 사이드바: 나의 기록 (데스크탑: 슬롯 왼쪽 / 모바일: 메타 아래) -->
