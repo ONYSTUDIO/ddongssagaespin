@@ -246,22 +246,3 @@ export function buildFortuneResult(
   return { grade, title, resultMessage, fortuneMessage, luckScore, hitSymbol, hitCount };
 }
 
-// ── DOM 조작 ─────────────────────────────────────────────────────────────────
-
-export function showFortuneCard(result: FortuneResult): void {
-  const fortuneCard  = document.getElementById('fortuneCard')  as HTMLElement;
-  const luckIndexEl  = document.getElementById('luckIndex')    as HTMLElement;
-  const fortuneMsgEl = document.getElementById('fortuneMsg')   as HTMLElement;
-
-  if (result.grade !== 'MISS' && result.fortuneMessage) {
-    luckIndexEl.textContent  = String(result.luckScore);
-    fortuneMsgEl.textContent = result.fortuneMessage;
-    setTimeout(() => fortuneCard.classList.add('visible'), 300);
-  } else {
-    fortuneCard.classList.remove('visible');
-  }
-}
-
-export function hideFortuneCard(): void {
-  (document.getElementById('fortuneCard') as HTMLElement).classList.remove('visible');
-}

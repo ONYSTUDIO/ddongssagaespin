@@ -241,63 +241,6 @@ body {
   cursor: not-allowed;
 }
 
-/* ===== 운세 카드 (3hit 당첨 시에만 표시) ===== */
-.fortune-card {
-  display: none;
-  background: rgba(255, 215, 0, 0.07);
-  border: 1px solid rgba(255, 215, 0, 0.4);
-  border-radius: 14px;
-  padding: 18px 20px;
-  margin-bottom: 20px;
-  backdrop-filter: blur(6px);
-  text-align: left;
-}
-
-.fortune-card.visible {
-  display: block;
-  animation: fortuneFadeIn 0.5s ease forwards;
-}
-
-@keyframes fortuneFadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.fortune-card-title {
-  font-size: 0.75rem;
-  color: #ffd700;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  margin-bottom: 14px;
-  text-align: center;
-}
-
-.fortune-luck-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.fortune-luck-label {
-  color: #d0b0ff;
-  font-size: 0.9rem;
-}
-
-.fortune-luck-value {
-  font-size: 2rem;
-  font-weight: bold;
-  color: #ffd700;
-  text-shadow: 0 0 12px #ffd700;
-}
-
-.fortune-msg {
-  color: #f0e6ff;
-  font-size: 0.95rem;
-  line-height: 1.7;
-}
 
 /* ===== 당첨 안내표 ===== */
 .payTable {

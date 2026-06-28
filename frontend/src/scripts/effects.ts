@@ -1,4 +1,4 @@
-import { FortuneResult, showFortuneCard } from './fortune';
+import { FortuneResult } from './fortune';
 
 export function showResult(result: FortuneResult): void {
   const el = document.getElementById('resultText') as HTMLElement;
@@ -28,6 +28,4 @@ export function showResult(result: FortuneResult): void {
   } else {
     el.classList.add('lose');
   }
-
-  showFortuneCard(result);
 }

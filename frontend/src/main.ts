@@ -4,7 +4,7 @@ import { getRandomItem, SlotItem } from './scripts/game';
 import { judgeResult } from './scripts/rules';
 import { initReel, animateReel, nudgeReel, WIN_IDX } from './scripts/reel';
 import { showResult } from './scripts/effects';
-import { buildFortuneResult, hideFortuneCard } from './scripts/fortune';
+import { buildFortuneResult } from './scripts/fortune';
 import { initPopup, showResultPopup, hideResultPopup } from './scripts/popup';
 import { saveScore } from './scripts/ranking';
 import { initMeta } from './scripts/meta';
@@ -143,7 +143,6 @@ async function spin(): Promise<void> {
   setBtnState('off');
   resultEl.className = 'result-text';
   resultEl.textContent = '두근두근... 🎰';
-  hideFortuneCard();
   hideResultPopup();
 
   // 스핀 1개 차감
