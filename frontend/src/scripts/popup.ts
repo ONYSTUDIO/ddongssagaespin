@@ -160,11 +160,15 @@ function fitContentToCard(contentEl: HTMLElement): void {
 }
 
 // scaleX 0 → 이미지 교체 → scaleX 1 (카드 플립 효과)
+// 300ms: CSS transition(260ms) 완료 후 발동 보장 — 모바일 setTimeout 지연 대응
+// 이중 rAF: 새 이미지 디코딩 완료 후 역방향 전환 시작 — 모바일 뒷면 재노출 버그 방지
 function flipImg(imgEl: HTMLImageElement, newSrc: string): void {
   imgEl.classList.add('popup-flipping');
-  after(260, () => {
+  after(300, () => {
     imgEl.src = newSrc;
-    imgEl.classList.remove('popup-flipping');
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      imgEl.classList.remove('popup-flipping');
+    }));
   });
 }
 

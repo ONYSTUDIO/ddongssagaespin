@@ -118,6 +118,7 @@
   display: block;
   user-select: none;
   pointer-events: none;
+  will-change: transform; /* 모바일 GPU 레이어 사전 확보 — 플립 애니메이션 끊김 방지 */
   transition: transform 0.26s ease;
 }
 
