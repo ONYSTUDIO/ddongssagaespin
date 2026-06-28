@@ -5,7 +5,7 @@ import { getRandomItem, SlotItem } from './scripts/game';
 import { judgeResult } from './scripts/rules';
 import { initReel, animateReel, nudgeReel, WIN_IDX } from './scripts/reel';
 import { showResult } from './scripts/effects';
-import { buildFortuneResult } from './scripts/fortune';
+import { buildFortuneResult, loadFortuneMessages } from './scripts/fortune';
 import { initPopup, showResultPopup, hideResultPopup } from './scripts/popup';
 import { saveScore } from './scripts/ranking';
 import { initMeta } from './scripts/meta';
@@ -93,6 +93,9 @@ async function onLoginSuccess(): Promise<void> {
   setHudUser();
   startBgm();
   isInitializing = true;
+
+  // 운세 메시지 DB 로드 (실패 시 하드코딩 폴백 유지)
+  await loadFortuneMessages();
 
   // 스핀 카운트 표시 (isInitializing=true 이므로 버튼 비활성화 차단)
   const count = await getCurrentSpinCount();

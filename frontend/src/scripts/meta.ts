@@ -4,6 +4,7 @@ import fortuneCookieSrc from '../assets/images/meta/icons/icon_fortune_cookie.pn
 import rankingSrc        from '../assets/images/meta/icons/meta_ranking.png';
 import supportSrc        from '../assets/images/meta/icons/meta_support_gift.png';
 import historySrc        from '../assets/images/meta/icons/meta_my_history_2.png';
+import minigameSrc       from '../assets/images/meta/icons/meta_minigame_01.png';
 import { fetchRanking, RankEntry } from './ranking';
 import { supabase } from './supabase';
 import { showLoginScreen } from './login';
@@ -120,10 +121,11 @@ function alignSidebarToMachine(): void {
 
 // ── Public API ─────────────────────────────────────────────────────
 export function initMeta(): void {
-  (document.getElementById('metaIconFortune') as HTMLImageElement).src  = fortuneCookieSrc;
-  (document.getElementById('metaIconRanking') as HTMLImageElement).src  = rankingSrc;
-  (document.getElementById('metaIconSupport') as HTMLImageElement).src  = supportSrc;
-  (document.getElementById('metaIconHistory') as HTMLImageElement).src  = historySrc;
+  (document.getElementById('metaIconFortune')  as HTMLImageElement).src = fortuneCookieSrc;
+  (document.getElementById('metaIconRanking')  as HTMLImageElement).src = rankingSrc;
+  (document.getElementById('metaIconSupport')  as HTMLImageElement).src = supportSrc;
+  (document.getElementById('metaIconHistory')  as HTMLImageElement).src = historySrc;
+  (document.getElementById('metaIconMinigame') as HTMLImageElement).src = minigameSrc;
 
   initFortuneCookie();
   initHistory();
@@ -156,6 +158,10 @@ export function initMeta(): void {
 
   document.getElementById('metaBtnHistory')?.addEventListener('click', () => {
     showHistoryPopup();
+  });
+
+  document.getElementById('metaBtnMinigame')?.addEventListener('click', () => {
+    showToast('미니게임 준비중입니다 🎮');
   });
 
   document.getElementById('metaBtnLogout')?.addEventListener('click', async () => {

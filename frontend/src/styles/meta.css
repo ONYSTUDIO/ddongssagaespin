@@ -215,11 +215,12 @@
     display: contents;
   }
 
-  /* 모바일 버튼 순서: [기록][포춘쿠키][순위][후원하기] */
-  #metaBtnHistory { order: 1; flex-shrink: 0; }
-  #metaBtnFortune { order: 2; flex-shrink: 0; }
-  #metaBtnRanking { order: 3; flex-shrink: 0; }
-  #metaBtnSupport { order: 4; flex-shrink: 0; }
+  /* 모바일 버튼 순서: [기록][미니게임][포춘쿠키][순위][후원하기] */
+  #metaBtnHistory  { order: 1; flex-shrink: 0; }
+  #metaBtnMinigame { order: 2; flex-shrink: 0; }
+  #metaBtnFortune  { order: 3; flex-shrink: 0; }
+  #metaBtnRanking  { order: 4; flex-shrink: 0; }
+  #metaBtnSupport  { order: 5; flex-shrink: 0; }
 }
 
 /* ===== 랭킹 팝업 오버레이 ===== */
