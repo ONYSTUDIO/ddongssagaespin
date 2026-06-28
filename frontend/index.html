@@ -169,6 +169,26 @@
   <!-- Toast -->
   <div class="meta-toast" id="metaToast"></div>
 
+  <!-- 미니게임 01 팝업 -->
+  <div id="minigame01Overlay" class="mg01-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-label="황금똥 찾기 미니게임">
+    <div class="mg01-popup">
+      <button class="mg01-close" id="mg01CloseBtn" aria-label="닫기">✕</button>
+
+      <!-- 시작 화면 -->
+      <div class="mg01-intro" id="mg01Intro">
+        <h2 class="mg01-title">💩 황금똥 찾기</h2>
+        <p class="mg01-desc">숨겨진 황금똥과 강아지를 찾아보세요!</p>
+        <button class="mg01-start-btn" id="mg01StartBtn" type="button">게임 시작</button>
+      </div>
+
+      <!-- 게임 화면 -->
+      <div class="mg01-game" id="mg01Game" style="display: none;">
+        <h2 class="mg01-title">💩 황금똥 찾기</h2>
+        <div class="mg01-grid" id="mg01Grid"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- 나의 기록 팝업 -->
   <div id="historyOverlay" class="history-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-label="나의 기록">
     <div class="history-popup-card">

@@ -1,0 +1,173 @@
+/* ===== 미니게임 01 팝업 오버레이 ===== */
+.mg01-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 0, 20, 0.82);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 350;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.mg01-overlay.mg01-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ===== 팝업 카드 ===== */
+.mg01-popup {
+  position: relative;
+  width: min(94vw, 420px);
+  max-height: 88dvh;
+  background: rgba(16, 0, 40, 0.96);
+  border: 1px solid rgba(255, 215, 0, 0.32);
+  border-radius: 22px;
+  padding: 32px 22px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  backdrop-filter: blur(14px);
+  box-shadow:
+    0 0 52px rgba(120, 0, 255, 0.28),
+    0 4px 32px rgba(0, 0, 0, 0.65);
+  transform: scale(0.88);
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  overflow: hidden auto;
+}
+
+.mg01-open .mg01-popup {
+  transform: scale(1);
+}
+
+/* ===== 닫기 버튼 ===== */
+.mg01-close {
+  position: absolute;
+  top: -13px;
+  right: -13px;
+  width: 32px;
+  height: 32px;
+  background: rgba(20, 0, 40, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 50%;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+  flex-shrink: 0;
+}
+
+.mg01-close:hover {
+  background: rgba(70, 0, 120, 0.95);
+  color: #fff;
+}
+
+/* ===== 공통 타이틀 ===== */
+.mg01-title {
+  color: #ffd700;
+  font-size: 1.15rem;
+  font-weight: bold;
+  text-align: center;
+  letter-spacing: 1.5px;
+  text-shadow: 0 0 16px rgba(255, 215, 0, 0.55);
+  margin: 0;
+}
+
+/* ===== 시작 화면 ===== */
+.mg01-intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+}
+
+.mg01-desc {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.9rem;
+  text-align: center;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.mg01-start-btn {
+  margin-top: 6px;
+  padding: 12px 40px;
+  background: rgba(90, 18, 120, 0.75);
+  border: 1px solid rgba(255, 215, 0, 0.55);
+  border-radius: 14px;
+  color: #ffd700;
+  font-size: 1rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: background 0.18s, box-shadow 0.18s, transform 0.15s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.mg01-start-btn:hover {
+  background: rgba(120, 30, 160, 0.9);
+  box-shadow: 0 0 18px rgba(255, 215, 0, 0.4);
+}
+
+.mg01-start-btn:active {
+  transform: scale(0.95);
+}
+
+/* ===== 게임 화면 ===== */
+.mg01-game {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+}
+
+/* ===== 6×6 그리드 ===== */
+.mg01-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 5px;
+  width: 100%;
+}
+
+/* ===== 셀 ===== */
+.mg01-cell {
+  aspect-ratio: 1;
+  background: rgba(40, 0, 80, 0.8);
+  border: 1px solid rgba(180, 100, 255, 0.28);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.mg01-cell:hover:not(.mg01-cell--revealed) {
+  background: rgba(70, 10, 120, 0.9);
+  border-color: rgba(255, 215, 0, 0.45);
+}
+
+.mg01-cell:active:not(.mg01-cell--revealed) {
+  transform: scale(0.9);
+}
+
+.mg01-cell--revealed {
+  background: rgba(10, 2, 24, 0.6);
+  border-color: rgba(255, 255, 255, 0.1);
+  cursor: default;
+}
