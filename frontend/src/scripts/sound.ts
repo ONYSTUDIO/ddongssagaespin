@@ -1,53 +1,108 @@
 import bgmMp3 from '../assets/audio/bgm/bgm_ingame.mp3';
 import bgmOgg from '../assets/audio/bgm/bgm_ingame.ogg';
 
-// ── BGM ───────────────────────────────────────────────────────────────────────
+// ── Web Audio API BGM ─────────────────────────────────────────────────────────
+// HTML Audio의 loop=true는 파일 끝에서 처음으로 seek하는 방식이라
+// 브라우저/포맷에 관계없이 미세한 공백이 생긴다.
+// AudioBufferSourceNode.loop는 샘플 단위로 루프하므로 공백이 없다.
 
-const bgm = new Audio();
-bgm.loop   = true;
-bgm.volume = 0.7;
+let ctx: AudioContext | null = null;
+let gainNode: GainNode | null = null;
+let source: AudioBufferSourceNode | null = null;
+let buffer: AudioBuffer | null = null;
+let isPlaying = false;
+let pauseOffset = 0;  // 일시정지 시점의 재생 위치 (초)
+let startedAt = 0;    // ctx.currentTime 기준 소스 시작 시각
 
-const canOgg = bgm.canPlayType('audio/ogg') !== '';
-bgm.src = canOgg ? bgmOgg : bgmMp3;
+function getCtx(): AudioContext {
+  if (!ctx) {
+    ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+    gainNode = ctx.createGain();
+    gainNode.gain.value = 0.7;
+    gainNode.connect(ctx.destination);
+  }
+  return ctx;
+}
+
+async function loadBuffer(): Promise<void> {
+  if (buffer) return;
+  const ac = getCtx();
+  const canOgg = new Audio().canPlayType('audio/ogg') !== '';
+  const url = canOgg ? bgmOgg : bgmMp3;
+  const res = await fetch(url);
+  const raw = await res.arrayBuffer();
+  buffer = await ac.decodeAudioData(raw);
+}
+
+// 모듈 로드 시 백그라운드 사전 로딩
+loadBuffer().catch(() => {});
+
+function startSource(fromOffset = 0): void {
+  if (!ctx || !gainNode || !buffer) return;
+  source = ctx.createBufferSource();
+  source.buffer = buffer;
+  source.loop = true;
+  source.connect(gainNode);
+  source.start(0, fromOffset % buffer.duration);
+  startedAt = ctx.currentTime - fromOffset;
+  isPlaying = true;
+}
+
+function stopSource(): void {
+  source?.stop();
+  source?.disconnect();
+  source = null;
+  isPlaying = false;
+}
+
+// ── 버튼 동기화 ───────────────────────────────────────────────────────────────
 
 function getBgmBtn(): HTMLElement | null {
   return document.getElementById('bgmBtn');
 }
 
 function syncBtn(): void {
-  getBgmBtn()?.classList.toggle('bgm-paused', bgm.paused);
+  getBgmBtn()?.classList.toggle('bgm-paused', !isPlaying);
 }
 
-export function startBgm(): void {
-  bgm.play()
-    .then(() => syncBtn())   // 재생 성공 → 일시정지 아이콘으로 전환
-    .catch(() => syncBtn()); // 재생 차단 → 재생 아이콘으로 전환
+// ── 공개 API ─────────────────────────────────────────────────────────────────
+
+export async function startBgm(): Promise<void> {
+  const ac = getCtx();
+  if (ac.state === 'suspended') await ac.resume();
+  await loadBuffer();
+  if (!isPlaying) {
+    startSource(pauseOffset);
+    syncBtn();
+  }
 }
 
 export function stopBgm(): void {
-  bgm.pause();
-  bgm.currentTime = 0;
+  stopSource();
+  pauseOffset = 0;
   syncBtn();
 }
 
 export function setBgmVolume(v: number): void {
-  bgm.volume = Math.max(0, Math.min(1, v));
+  if (gainNode) gainNode.gain.value = Math.max(0, Math.min(1, v));
 }
 
 export function initBgmBtn(): void {
   const btn = getBgmBtn();
   if (!btn) return;
 
-  // 초기 상태: 일시정지(▶ 아이콘) — 로그인 전엔 재생 안됨
   btn.classList.add('bgm-paused');
 
   btn.addEventListener('click', () => {
-    if (bgm.paused) {
-      bgm.play().catch(() => {});
-      btn.classList.remove('bgm-paused');
+    if (!isPlaying) {
+      startBgm().catch(() => {});
     } else {
-      bgm.pause();
-      btn.classList.add('bgm-paused');
+      // 현재 재생 위치 저장 후 일시정지
+      if (ctx && buffer) {
+        pauseOffset = (ctx.currentTime - startedAt) % buffer.duration;
+      }
+      stopSource();
+      syncBtn();
     }
   });
 }
