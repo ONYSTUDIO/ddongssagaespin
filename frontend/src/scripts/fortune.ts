@@ -1,4 +1,32 @@
 import { Grade } from './game';
+import { supabase } from './supabase';
+
+// ── DB 타입 매핑 상수 (fortune_messages 테이블) ───────────────────────────────
+// symbol 컬럼: smallint
+export const SYMBOL_ID = {
+  corgi:         1,
+  poop_gold:     2,
+  talisman:      3,
+  bell:          4,
+  sweetpotato:   5,
+  ghost:         6,
+  _generic_miss: 7,
+} as const;
+
+// message_type 컬럼: smallint
+export const MESSAGE_TYPE_ID = {
+  triple_result: 1,
+  pair_result:   2,
+  fortune:       3,
+} as const;
+
+export type SymbolKey      = keyof typeof SYMBOL_ID;
+export type MessageTypeKey = keyof typeof MESSAGE_TYPE_ID;
+
+// symbol 정수 → 문자열 키 역매핑
+const SYMBOL_KEY_BY_ID = Object.fromEntries(
+  Object.entries(SYMBOL_ID).map(([k, v]) => [v, k as SymbolKey])
+) as Record<number, SymbolKey>;
 
 // ── 외부에서 사용할 타입 ──────────────────────────────────────────────────────
 
@@ -38,10 +66,10 @@ const LUCK_RANGE: Record<Grade, [number, number]> = {
   MISS:       [1,  39],
 };
 
-// ── 심볼별 운세 데이터 ────────────────────────────────────────────────────────
-// 키는 SlotItem.id 와 동일. '_generic_miss'는 모두 다른 경우 폴백용.
+// ── 심볼별 운세 데이터 (하드코딩 폴백) ───────────────────────────────────────
+// DB 로드 실패 시 사용. 키는 SlotItem.id 와 동일.
 
-export const FORTUNE_DATA: Record<string, FortuneData> = {
+const FORTUNE_DATA_FALLBACK: Record<string, FortuneData> = {
   corgi: {
     resultMessages: [
       '웰시코기가 당신에게 초대길을 선물했습니다.',
@@ -189,6 +217,43 @@ export const FORTUNE_DATA: Record<string, FortuneData> = {
   },
 };
 
+// ── 런타임 캐시 & DB 로드 ────────────────────────────────────────────────────
+// 앱 시작 시 onLoginSuccess()에서 loadFortuneMessages()를 호출해 캐시를 채움.
+// DB 로드 실패 시 FORTUNE_DATA_FALLBACK 을 그대로 사용.
+
+let fortuneCache: Record<string, FortuneData> = { ...FORTUNE_DATA_FALLBACK };
+
+export async function loadFortuneMessages(): Promise<void> {
+  const { data, error } = await supabase
+    .from('fortune_messages')
+    .select('symbol, message_type, message')
+    .eq('is_active', true)
+    .order('sort_order');
+
+  if (error || !data || data.length === 0) return;
+
+  const cache: Record<string, FortuneData> = {};
+  for (const key of Object.keys(SYMBOL_ID)) {
+    cache[key] = { resultMessages: [], pairResultMessages: [], fortuneMessages: [] };
+  }
+
+  for (const row of data) {
+    const key = SYMBOL_KEY_BY_ID[row.symbol as number];
+    if (!key || !cache[key]) continue;
+
+    if (row.message_type === MESSAGE_TYPE_ID.triple_result) {
+      cache[key].resultMessages.push(row.message as string);
+    } else if (row.message_type === MESSAGE_TYPE_ID.pair_result) {
+      cache[key].pairResultMessages.push(row.message as string);
+    } else if (row.message_type === MESSAGE_TYPE_ID.fortune) {
+      cache[key].fortuneMessages.push(row.message as string);
+    }
+  }
+
+  const isValid = Object.values(cache).some(d => d.resultMessages.length > 0);
+  if (isValid) fortuneCache = cache;
+}
+
 // ── 유틸 ─────────────────────────────────────────────────────────────────────
 
 function randomInRange(min: number, max: number): number {
@@ -220,7 +285,7 @@ export function buildFortuneResult(
   else if (id1 === id3) primarySymbol = id1;
   else                  primarySymbol = '_generic_miss';
 
-  const data = FORTUNE_DATA[primarySymbol] ?? FORTUNE_DATA['_generic_miss'];
+  const data = fortuneCache[primarySymbol] ?? fortuneCache['_generic_miss'];
 
   // 트리플이면 resultMessages, 페어면 pairResultMessages(없으면 폴백)
   const resultPool = (!isTriple && data.pairResultMessages.length > 0)
