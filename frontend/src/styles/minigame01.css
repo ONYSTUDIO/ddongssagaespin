@@ -184,7 +184,8 @@
   justify-content: center;
   user-select: none;
   padding: 0;
-  overflow: hidden;
+  overflow: visible;
+  position: relative;
   font-size: 0.85rem;
   font-weight: bold;
   line-height: 1;
@@ -333,4 +334,88 @@
 @media (max-width: 380px) {
   .mg01-hud-item { font-size: 0.72rem; }
   .mg01-cell { border-radius: 5px; }
+}
+
+/* ===== 말풍선 (선택 효과 연출) ===== */
+.mg01-cell--bubbling {
+  z-index: 5;
+}
+
+.mg01-bubble {
+  position: absolute;
+  bottom: calc(100% + 5px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: bold;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 10;
+  line-height: 1.5;
+}
+
+/* 말풍선 꼬리 (아래 삼각형) */
+.mg01-bubble::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border: 4px solid transparent;
+}
+
+/* 유령·고구마: 빨간 말풍선, 배경 없음 */
+.mg01-bubble--danger {
+  color: #ff4444;
+  border: 1.5px solid #ff4444;
+  background: transparent;
+}
+.mg01-bubble--danger::after {
+  border-top-color: #ff4444;
+}
+
+/* 코기: 파란 말풍선, 배경 없음 */
+.mg01-bubble--bonus {
+  color: #5599ff;
+  border: 1.5px solid #5599ff;
+  background: transparent;
+}
+.mg01-bubble--bonus::after {
+  border-top-color: #5599ff;
+}
+
+/* 신규 강아지: 주황 글씨, 흰 배경 */
+.mg01-bubble--new {
+  color: #ff8c00;
+  border: 1.5px solid #ff8c00;
+  background: #fff;
+}
+.mg01-bubble--new::after {
+  border-top-color: #ff8c00;
+}
+
+/* 떠올랐다가 사라지는 애니메이션 (위험/보너스) */
+@keyframes mg01-float-fade {
+  0%   { opacity: 1; transform: translateX(-50%) translateY(0); }
+  55%  { opacity: 1; transform: translateX(-50%) translateY(-10px); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-22px); }
+}
+
+.mg01-bubble--float {
+  animation: mg01-float-fade 1.3s ease-out forwards;
+}
+
+/* 나타나고 유지되는 애니메이션 (신규 강아지) */
+@keyframes mg01-pop-in {
+  0%   { opacity: 0; transform: translateX(-50%) scale(0.5); }
+  65%  { transform: translateX(-50%) scale(1.15); }
+  100% { opacity: 1; transform: translateX(-50%) scale(1); }
+}
+
+.mg01-bubble--stay {
+  animation: mg01-pop-in 0.28s ease-out forwards;
 }

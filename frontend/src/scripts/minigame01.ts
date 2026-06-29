@@ -159,6 +159,30 @@ function revealCellEl(idx: number): void {
   }
 }
 
+// ── 말풍선 연출 ──────────────────────────────────────────────────
+function showSelectionBubble(
+  cellEl: HTMLElement,
+  text: string,
+  variant: 'danger' | 'bonus' | 'new',
+): void {
+  const bubble = document.createElement('span');
+  bubble.className = `mg01-bubble mg01-bubble--${variant}`;
+  bubble.textContent = text;
+  cellEl.classList.add('mg01-cell--bubbling');
+  cellEl.appendChild(bubble);
+
+  if (variant === 'new') {
+    bubble.classList.add('mg01-bubble--stay');
+    // 신규 강아지 말풍선은 사라지지 않음
+  } else {
+    bubble.classList.add('mg01-bubble--float');
+    bubble.addEventListener('animationend', () => {
+      bubble.remove();
+      cellEl.classList.remove('mg01-cell--bubbling');
+    }, { once: true });
+  }
+}
+
 // ── BFS Auto-expand ───────────────────────────────────────────────
 function autoExpand(startIdx: number): void {
   let expanded  = 0;
@@ -231,6 +255,9 @@ function triggerGameOver(): void {
 function handleCellClick(idx: number): void {
   if (isGameOver || revealed[idx]) return;
 
+  const grid = document.getElementById('mg01Grid');
+  const cellEl = grid?.children[idx] as HTMLElement | null;
+
   revealed[idx] = true;
   selectionCount--;
   revealCellEl(idx);
@@ -241,21 +268,26 @@ function handleCellClick(idx: number): void {
     goldenPoopCount++;
 
   } else if (isDogCell(cellType)) {
-    if (!foundDogIds.includes(cellType)) {
+    const isNew = !foundDogIds.includes(cellType);
+    if (isNew) {
       foundDogIds.push(cellType);
+      if (cellEl) showSelectionBubble(cellEl, 'New', 'new');
     }
     // TODO: 이미 보유한 강아지일 경우 dog fragment +1
     // TODO: dog fragment 10개 달성 시 profile frame level up
 
   } else if (cellType === CELL_TYPE.CORGI) {
     selectionCount += 2; // net +1 after base -1
+    if (cellEl) showSelectionBubble(cellEl, '+1', 'bonus');
     // TODO: 코기 발견 시 주변 일부 칸 공개 효과 검토
 
   } else if (cellType === CELL_TYPE.GHOST) {
     selectionCount--; // additional -1, total -2
+    if (cellEl) showSelectionBubble(cellEl, '-1', 'danger');
 
   } else if (cellType === CELL_TYPE.SWEET_POTATO) {
-    // 고구마: 선택 횟수 -1 = 기본 차감과 동일 (추가 패널티 없음)
+    selectionCount--; // additional -1, total -2 (ghost와 동일)
+    if (cellEl) showSelectionBubble(cellEl, '-1', 'danger');
 
   } else if (cellType === CELL_TYPE.EMPTY && hintNumbers[idx] === 0) {
     autoExpand(idx);
