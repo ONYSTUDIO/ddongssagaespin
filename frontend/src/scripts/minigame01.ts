@@ -1,4 +1,5 @@
 import '../styles/minigame01.css';
+import { grantSpins } from './spinManager';
 
 import dog01Src       from '../assets/images/characters/dog_01.png';
 import dog02Src       from '../assets/images/characters/dog_02.png';
@@ -221,7 +222,7 @@ function hideResultOverlay(): void {
   if (resultEl) resultEl.classList.remove('mg01-result--open');
 }
 
-function showResultScreen(): void {
+async function showResultScreen(): Promise<void> {
   const resultEl = document.getElementById('mg01Result');
   if (!resultEl) return;
 
@@ -232,8 +233,20 @@ function showResultScreen(): void {
   if (spinEl) spinEl.textContent = String(goldenPoopCount);
   if (dogEl)  dogEl.textContent  = String(foundDogIds.length);
 
-  // 게임 화면은 그대로 두고 위에 오버레이로 표시
+  // 게임 화면은 그대로 두고 위에 오버레이로 표시 (네트워크 전에 먼저 표시)
   requestAnimationFrame(() => resultEl.classList.add('mg01-result--open'));
+
+  // 획득한 스핀 지급 및 HUD 갱신 (오버레이 표시 후 비동기 처리)
+  if (goldenPoopCount > 0) {
+    try {
+      const newCount = await grantSpins(goldenPoopCount, 'minigame');
+      document.dispatchEvent(
+        new CustomEvent('spinCountUpdated', { detail: { count: newCount } }),
+      );
+    } catch {
+      // 네트워크 실패 시 HUD 갱신 생략
+    }
+  }
 }
 
 // ── Game Over ─────────────────────────────────────────────────────
@@ -370,8 +383,8 @@ export function initMinigame01(): void {
   getEl('mg01CloseBtn').addEventListener('click', hideMinigame01Popup);
   getEl('mg01StartBtn').addEventListener('click', startGame);
 
-  const retryBtn = document.getElementById('mg01RetryBtn');
-  if (retryBtn) retryBtn.addEventListener('click', startGame);
+  const confirmBtn = document.getElementById('mg01ConfirmBtn');
+  if (confirmBtn) confirmBtn.addEventListener('click', hideResultOverlay);
 
   const resultCloseBtn = document.getElementById('mg01ResultCloseBtn');
   if (resultCloseBtn) resultCloseBtn.addEventListener('click', hideResultOverlay);

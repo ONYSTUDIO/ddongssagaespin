@@ -18,6 +18,7 @@ import {
 import { ensureFortuneCookieDailyState } from './fortuneCookieDaily';
 import { initHistory, showHistoryPopup } from './history';
 import { initMinigame01, showMinigame01Popup } from './minigame01';
+import { initCharacterCodex } from './characterCodex';
 
 const MOCK_RANKING: RankEntry[] = [
   { username: 'testuser2', best_score: 95 },
@@ -131,6 +132,7 @@ export function initMeta(): void {
   initFortuneCookie();
   initHistory();
   initMinigame01();
+  initCharacterCodex();
 
   document.getElementById('metaBtnFortune')?.addEventListener('click', async () => {
     const { data: { user } } = await supabase.auth.getUser();

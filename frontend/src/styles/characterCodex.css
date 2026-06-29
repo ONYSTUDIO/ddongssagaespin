@@ -1,0 +1,215 @@
+/* ===== 캐릭터 도감 팝업 오버레이 ===== */
+.codex-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 0, 20, 0.78);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.codex-overlay.codex-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ===== 팝업 카드 ===== */
+.codex-popup {
+  pointer-events: none;
+  position: relative;
+  width: min(92vw, 400px);
+  max-height: 88dvh;
+  background: rgba(16, 0, 40, 0.95);
+  border: 1px solid rgba(255, 215, 0, 0.32);
+  border-radius: 22px;
+  padding: 28px 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  backdrop-filter: blur(12px);
+  box-shadow:
+    0 0 48px rgba(120, 0, 255, 0.28),
+    0 4px 32px rgba(0, 0, 0, 0.6);
+  transform: scale(0.88);
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  overflow-y: auto;
+}
+
+.codex-open .codex-popup {
+  pointer-events: auto;
+  transform: scale(1);
+}
+
+/* ===== 닫기 버튼 ===== */
+.codex-close {
+  position: absolute;
+  top: -13px;
+  right: -13px;
+  width: 32px;
+  height: 32px;
+  background: rgba(20, 0, 40, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 50%;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+  flex-shrink: 0;
+}
+
+.codex-close:hover {
+  background: rgba(70, 0, 120, 0.95);
+  color: #fff;
+}
+
+/* ===== 제목 ===== */
+.codex-title {
+  color: #ffd700;
+  font-size: 1.05rem;
+  font-weight: bold;
+  text-align: center;
+  letter-spacing: 1.5px;
+  text-shadow: 0 0 14px rgba(255, 215, 0, 0.5);
+  flex-shrink: 0;
+}
+
+/* ===== 설명글 ===== */
+.codex-desc {
+  color: rgba(200, 180, 255, 0.78);
+  font-size: 0.78rem;
+  text-align: center;
+  line-height: 1.55;
+  flex-shrink: 0;
+  padding: 0 4px;
+}
+
+/* ===== 3×3 그리드 ===== */
+.codex-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px 12px;
+  padding: 4px 0;
+}
+
+/* ===== 개별 캐릭터 슬롯 ===== */
+.codex-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 원형 이미지 래퍼 */
+.codex-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 215, 0, 0.38);
+  background: rgba(20, 0, 50, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* 수집된 캐릭터 */
+.codex-slot--collected .codex-circle {
+  border-color: rgba(255, 215, 0, 0.7);
+  box-shadow:
+    0 0 12px rgba(255, 215, 0, 0.3),
+    0 0 4px rgba(180, 80, 255, 0.2);
+}
+
+/* 미수집 슬롯 */
+.codex-slot--empty .codex-circle {
+  border: 2px dashed rgba(255, 255, 255, 0.15);
+  background: rgba(10, 0, 30, 0.5);
+}
+
+/* 미래 슬롯 (캐릭터 미정) */
+.codex-slot--future .codex-circle {
+  border: 2px dashed rgba(255, 255, 255, 0.08);
+  background: rgba(10, 0, 30, 0.3);
+}
+
+.codex-char-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* 미수집 물음표 */
+.codex-empty-icon {
+  font-size: 1.6rem;
+  opacity: 0.2;
+}
+
+/* 미래 슬롯 잠금 아이콘 */
+.codex-future-icon {
+  font-size: 1.2rem;
+  opacity: 0.12;
+}
+
+/* 변경 버튼 */
+.codex-change-btn {
+  padding: 4px 14px;
+  background: rgba(120, 40, 255, 0.25);
+  border: 1px solid rgba(180, 100, 255, 0.4);
+  border-radius: 20px;
+  color: rgba(210, 180, 255, 0.9);
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: background 0.18s, border-color 0.18s, transform 0.12s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.codex-change-btn:hover {
+  background: rgba(140, 60, 255, 0.4);
+  border-color: rgba(200, 130, 255, 0.65);
+  transform: scale(1.05);
+}
+
+.codex-change-btn:active {
+  transform: scale(0.94);
+}
+
+/* 로딩 상태 */
+.codex-loading {
+  text-align: center;
+  color: rgba(200, 180, 255, 0.5);
+  font-size: 0.85rem;
+  padding: 24px 0;
+}
+
+/* HUD 캐릭터 도감 버튼 */
+.hud-btn--codex {
+  border-color: rgba(180, 100, 255, 0.25);
+}
+
+.hud-btn--codex:hover {
+  border-color: rgba(200, 140, 255, 0.6);
+  box-shadow: 0 0 10px rgba(160, 60, 255, 0.3);
+}
+
+.hud-codex-icon {
+  width: 20px;
+  height: 20px;
+  color: rgba(200, 170, 255, 0.88);
+  pointer-events: none;
+  flex-shrink: 0;
+}
