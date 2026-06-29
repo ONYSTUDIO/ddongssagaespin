@@ -16,6 +16,19 @@ ALTER TABLE public.profiles
 CREATE OR REPLACE FUNCTION public.sync_spin_count()
 RETURNS TRIGGER AS $$
 BEGIN
+  IF NEW.amount < 0 THEN
+    UPDATE public.profiles
+    SET spin_count = spin_count + NEW.amount
+    WHERE id = NEW.user_id
+      AND spin_count + NEW.amount >= 0;
+
+    IF NOT FOUND THEN
+      RAISE EXCEPTION 'insufficient spin_count for user %', NEW.user_id;
+    END IF;
+
+    RETURN NEW;
+  END IF;
+
   UPDATE public.profiles
   SET spin_count = spin_count + NEW.amount
   WHERE id = NEW.user_id;
@@ -45,15 +58,18 @@ CREATE POLICY "spin_tx_insert_spin_use_only" ON public.spin_transactions
 
 -- ⚠️  주의: daily_reward 등 지급 트랜잭션은 현재 클라이언트에서 처리 중.
 --    Node.js 백엔드 구축 후 service_role로 이전할 때까지
---    아래 임시 정책을 함께 적용해 daily_reward를 허용.
+--    아래 임시 정책을 함께 적용해 현재 클라이언트 보상을 허용.
 --    백엔드 완성 후 이 정책은 DROP할 것.
-CREATE POLICY "spin_tx_insert_daily_reward_temp" ON public.spin_transactions
+DROP POLICY IF EXISTS "spin_tx_insert_daily_reward_temp" ON public.spin_transactions;
+DROP POLICY IF EXISTS "spin_tx_insert_client_reward_temp" ON public.spin_transactions;
+
+CREATE POLICY "spin_tx_insert_client_reward_temp" ON public.spin_transactions
   FOR INSERT
   TO authenticated
   WITH CHECK (
     auth.uid() = user_id
     AND amount > 0
-    AND reason = 'daily_reward'
+    AND reason IN ('daily_reward', 'fortune_cookie', 'minigame')
   );
 
 

@@ -2,7 +2,13 @@ import { supabase } from './supabase';
 
 export const DAILY_SPIN_REWARD = 10;
 
-export type SpinReason = 'daily_reward' | 'spin_use' | 'ad_reward' | 'event' | 'admin' | 'ranking' | 'fortune_cookie';
+export type SpinReason = 'daily_reward' | 'spin_use' | 'ad_reward' | 'event' | 'admin' | 'ranking' | 'fortune_cookie' | 'minigame';
+
+function getTodayKstDate(): string {
+  const now = new Date();
+  const kst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+  return kst.toISOString().slice(0, 10);
+}
 
 // ── 현재 보유 스핀 조회 ────────────────────────────────────────────
 export async function getCurrentSpinCount(): Promise<number> {
@@ -23,7 +29,7 @@ export async function checkDailyReward(): Promise<boolean> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return false;
 
-  const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+  const today = getTodayKstDate(); // YYYY-MM-DD
 
   const { data } = await supabase
     .from('profiles')
@@ -34,30 +40,40 @@ export async function checkDailyReward(): Promise<boolean> {
   return data?.last_login_date !== today;
 }
 
+async function insertSpinTransactionAndGetCount(
+  amount: number,
+  reason: SpinReason,
+): Promise<{ newCount: number; error: string | null }> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { newCount: 0, error: '로그인이 필요합니다.' };
+
+  const { error: insertErr } = await supabase
+    .from('spin_transactions')
+    .insert({ user_id: user.id, amount, reason });
+
+  if (insertErr) return { newCount: 0, error: insertErr.message };
+
+  const newCount = await getCurrentSpinCount();
+  return { newCount, error: null };
+}
+
 // ── 일일 스핀 10개 지급 ───────────────────────────────────────────
 export async function grantDailySpinReward(): Promise<number> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return 0;
 
-  const today = new Date().toISOString().split('T')[0];
+  const today = getTodayKstDate();
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('spin_count')
-    .eq('id', user.id)
-    .single();
-
-  const current = profile?.spin_count ?? 0;
-  const newCount = current + DAILY_SPIN_REWARD;
+  const { newCount, error } = await insertSpinTransactionAndGetCount(
+    DAILY_SPIN_REWARD,
+    'daily_reward',
+  );
+  if (error) return getCurrentSpinCount();
 
   await supabase
     .from('profiles')
-    .update({ spin_count: newCount, last_login_date: today })
+    .update({ last_login_date: today })
     .eq('id', user.id);
-
-  await supabase
-    .from('spin_transactions')
-    .insert({ user_id: user.id, amount: DAILY_SPIN_REWARD, reason: 'daily_reward' });
 
   return newCount;
 }
@@ -76,41 +92,16 @@ export async function consumeSpin(): Promise<{ success: boolean; remaining: numb
   const current = profile?.spin_count ?? 0;
   if (current <= 0) return { success: false, remaining: 0 };
 
-  const newCount = current - 1;
-
-  await supabase
-    .from('profiles')
-    .update({ spin_count: newCount })
-    .eq('id', user.id);
-
-  await supabase
-    .from('spin_transactions')
-    .insert({ user_id: user.id, amount: -1, reason: 'spin_use' });
+  const { newCount, error } = await insertSpinTransactionAndGetCount(-1, 'spin_use');
+  if (error) return { success: false, remaining: current };
 
   return { success: true, remaining: newCount };
 }
 
 // ── 향후 확장용: 외부에서 스핀 지급 (이벤트·관리자·광고 등) ──────────
 export async function grantSpins(amount: number, reason: SpinReason): Promise<number> {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return 0;
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('spin_count')
-    .eq('id', user.id)
-    .single();
-
-  const newCount = (profile?.spin_count ?? 0) + amount;
-
-  await supabase
-    .from('profiles')
-    .update({ spin_count: newCount })
-    .eq('id', user.id);
-
-  await supabase
-    .from('spin_transactions')
-    .insert({ user_id: user.id, amount, reason });
+  const { newCount, error } = await insertSpinTransactionAndGetCount(amount, reason);
+  if (error) return getCurrentSpinCount();
 
   return newCount;
 }
@@ -120,27 +111,7 @@ export async function grantSpinsWithResult(
   amount: number,
   reason: SpinReason,
 ): Promise<{ newCount: number; error: string | null }> {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { newCount: 0, error: '로그인이 필요합니다.' };
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('spin_count')
-    .eq('id', user.id)
-    .single();
-
-  const newCount = (profile?.spin_count ?? 0) + amount;
-
-  const { error: updateErr } = await supabase
-    .from('profiles')
-    .update({ spin_count: newCount })
-    .eq('id', user.id);
-
-  if (updateErr) return { newCount: 0, error: '스핀 지급에 실패했습니다.' };
-
-  await supabase
-    .from('spin_transactions')
-    .insert({ user_id: user.id, amount, reason });
-
-  return { newCount, error: null };
+  const result = await insertSpinTransactionAndGetCount(amount, reason);
+  if (result.error) return { newCount: 0, error: '스핀 지급에 실패했습니다.' };
+  return result;
 }
