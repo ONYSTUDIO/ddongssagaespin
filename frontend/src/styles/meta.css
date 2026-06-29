@@ -151,6 +151,7 @@
 
 /* ===== Meta 버튼 ===== */
 .meta-btn {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -191,6 +192,42 @@
 .meta-btn-label {
   display: none;
 }
+/* ===== HOT 뱃지 말풍선 ===== */
+.hot-badge {
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ff2d55;
+  color: #fff;
+  font-size: 0.58rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 8px;
+  white-space: nowrap;
+  letter-spacing: 1.5px;
+  pointer-events: none;
+  z-index: 1;
+  animation: hotFloat 2s ease-in-out infinite;
+  box-shadow: 0 2px 8px rgba(255, 45, 85, 0.55);
+}
+
+.hot-badge::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 4px 4px 0;
+  border-style: solid;
+  border-color: #ff2d55 transparent transparent;
+}
+
+@keyframes hotFloat {
+  0%, 100% { transform: translateX(-50%) translateY(0px); }
+  50%       { transform: translateX(-50%) translateY(-4px); }
+}
+
 
 /* BGM 아이콘 토글: 재생 중 ⏸ / 일시정지 중 ▶ */
 .bgm-icon--play  { display: none; }
@@ -218,9 +255,9 @@
   }
 
   /* 모바일 버튼 순서: [기록][미니게임][포춘쿠키][순위][후원하기] */
-  #metaBtnHistory  { order: 1; flex-shrink: 0; }
+  #metaBtnFortune  { order: 1; flex-shrink: 0; }
   #metaBtnMinigame { order: 2; flex-shrink: 0; }
-  #metaBtnFortune  { order: 3; flex-shrink: 0; }
+  #metaBtnHistory  { order: 3; flex-shrink: 0; }
   #metaBtnRanking  { order: 4; flex-shrink: 0; }
   #metaBtnSupport  { order: 5; flex-shrink: 0; }
 }
