@@ -1,5 +1,6 @@
 import '../styles/minigame01.css';
 import { grantSpins } from './spinManager';
+import { loadOwnedCharacters, isCharacterOwned, collectCharacter } from './characterManager';
 
 import dog01Src       from '../assets/images/characters/dog_01.png';
 import dog02Src       from '../assets/images/characters/dog_02.png';
@@ -60,8 +61,9 @@ let revealed:        boolean[]  = [];
 let hintNumbers:     number[]   = [];
 let selectionCount:  number     = 0;
 let goldenPoopCount: number     = 0;
-let foundDogIds:     number[]   = [];
-let isGameOver:      boolean    = false;
+let foundDogIds:       number[]   = [];
+let newCharacterCount: number     = 0;
+let isGameOver:        boolean    = false;
 
 // ── Helpers ──────────────────────────────────────────────────────
 function getEl<T extends HTMLElement>(id: string): T {
@@ -122,7 +124,7 @@ function updateHUD(): void {
   const dogEl  = document.getElementById('mg01DogCount');
   if (selEl)  selEl.textContent  = String(Math.max(0, selectionCount));
   if (poopEl) poopEl.textContent = String(goldenPoopCount);
-  if (dogEl)  dogEl.textContent  = String(foundDogIds.length);
+  if (dogEl)  dogEl.textContent  = String(newCharacterCount);
 }
 
 // ── Cell DOM ─────────────────────────────────────────────────────
@@ -281,13 +283,13 @@ function handleCellClick(idx: number): void {
     goldenPoopCount++;
 
   } else if (isDogCell(cellType)) {
-    const isNew = !foundDogIds.includes(cellType);
-    if (isNew) {
-      foundDogIds.push(cellType);
+    if (!foundDogIds.includes(cellType)) foundDogIds.push(cellType);
+    const isNewToCollection = !isCharacterOwned(cellType);
+    if (isNewToCollection) {
+      newCharacterCount++;
       if (cellEl) showSelectionBubble(cellEl, 'New', 'new');
     }
-    // TODO: 이미 보유한 강아지일 경우 dog fragment +1
-    // TODO: dog fragment 10개 달성 시 profile frame level up
+    collectCharacter(cellType).catch(() => {});
 
   } else if (cellType === CELL_TYPE.CORGI) {
     selectionCount += 2; // net +1 after base -1
@@ -336,9 +338,10 @@ function startGame(): void {
   revealed       = Array(GRID_SIZE).fill(false);
   hintNumbers    = computeHints(mapData);
   selectionCount = INITIAL_SELECTIONS;
-  goldenPoopCount = 0;
-  foundDogIds    = [];
-  isGameOver     = false;
+  goldenPoopCount   = 0;
+  foundDogIds       = [];
+  newCharacterCount = 0;
+  isGameOver        = false;
 
   const introEl  = document.getElementById('mg01Intro');
   const resultEl = document.getElementById('mg01Result');
@@ -368,6 +371,7 @@ export function showMinigame01Popup(): void {
   mapData     = [];
   isGameOver  = false;
   showIntro();
+  loadOwnedCharacters().catch(() => {}); // 보유 캐릭터 캐시 갱신
   requestAnimationFrame(() => requestAnimationFrame(() => {
     overlay.classList.add('mg01-open');
   }));
