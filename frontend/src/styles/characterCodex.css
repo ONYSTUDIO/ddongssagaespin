@@ -27,7 +27,7 @@
   background: rgba(16, 0, 40, 0.95);
   border: 1px solid rgba(255, 215, 0, 0.32);
   border-radius: 22px;
-  padding: 28px 20px 24px;
+  padding: 48px 20px 24px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -48,15 +48,15 @@
 /* ===== 닫기 버튼 ===== */
 .codex-close {
   position: absolute;
-  top: -13px;
-  right: -13px;
-  width: 32px;
-  height: 32px;
-  background: rgba(20, 0, 40, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  top: 14px;
+  right: 14px;
+  width: 28px;
+  height: 28px;
+  background: rgba(40, 0, 80, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 50%;
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.78rem;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -64,6 +64,7 @@
   transition: background 0.2s, color 0.2s;
   -webkit-tap-highlight-color: transparent;
   flex-shrink: 0;
+  z-index: 1;
 }
 
 .codex-close:hover {
@@ -133,14 +134,16 @@
 
 /* 미수집 슬롯 */
 .codex-slot--empty .codex-circle {
-  border: 2px dashed rgba(255, 255, 255, 0.15);
-  background: rgba(10, 0, 30, 0.5);
+  border: 2px dashed rgba(160, 120, 255, 0.5);
+  background: rgba(60, 20, 100, 0.45);
+  box-shadow: inset 0 0 14px rgba(120, 60, 220, 0.15);
 }
 
 /* 미래 슬롯 (캐릭터 미정) */
 .codex-slot--future .codex-circle {
-  border: 2px dashed rgba(255, 255, 255, 0.08);
-  background: rgba(10, 0, 30, 0.3);
+  border: 2px dashed rgba(100, 70, 180, 0.35);
+  background: rgba(35, 10, 70, 0.4);
+  box-shadow: inset 0 0 10px rgba(80, 40, 160, 0.12);
 }
 
 .codex-char-img {
@@ -154,38 +157,96 @@
 /* 미수집 물음표 */
 .codex-empty-icon {
   font-size: 1.6rem;
-  opacity: 0.2;
+  opacity: 0.45;
+  color: rgba(180, 140, 255, 1);
+  text-shadow: 0 0 8px rgba(160, 100, 255, 0.5);
 }
 
 /* 미래 슬롯 잠금 아이콘 */
 .codex-future-icon {
   font-size: 1.2rem;
-  opacity: 0.12;
+  opacity: 0.32;
+  filter: drop-shadow(0 0 4px rgba(120, 80, 200, 0.4));
 }
 
-/* 변경 버튼 */
+/* 버튼 행 (변경 + 조각) */
+.codex-btn-row {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+/* 변경 버튼 — 파란색 계열 */
 .codex-change-btn {
-  padding: 4px 14px;
-  background: rgba(120, 40, 255, 0.25);
-  border: 1px solid rgba(180, 100, 255, 0.4);
+  padding: 4px 10px;
+  background: rgba(30, 90, 220, 0.3);
+  border: 1px solid rgba(80, 150, 255, 0.55);
   border-radius: 20px;
-  color: rgba(210, 180, 255, 0.9);
-  font-size: 0.72rem;
+  color: rgba(150, 200, 255, 0.95);
+  font-size: 0.68rem;
   font-weight: 600;
   cursor: pointer;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
   transition: background 0.18s, border-color 0.18s, transform 0.12s;
   -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
 }
 
 .codex-change-btn:hover {
-  background: rgba(140, 60, 255, 0.4);
-  border-color: rgba(200, 130, 255, 0.65);
+  background: rgba(40, 110, 255, 0.45);
+  border-color: rgba(100, 170, 255, 0.8);
   transform: scale(1.05);
 }
 
 .codex-change-btn:active {
   transform: scale(0.94);
+}
+
+/* 조각/업그레이드 버튼 공통 */
+.codex-fragment-btn {
+  padding: 4px 8px;
+  border-radius: 20px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.18s, border-color 0.18s, transform 0.12s;
+}
+
+/* 비활성 — 조각 진행 중 (주황색 계열, 흐리게) */
+.codex-fragment-btn--disabled {
+  background: rgba(160, 70, 0, 0.2);
+  border: 1px solid rgba(220, 120, 30, 0.3);
+  color: rgba(220, 150, 80, 0.5);
+  cursor: default;
+}
+
+/* 활성 — 업그레이드 가능 (주황색 계열, 선명하게) */
+.codex-fragment-btn--active {
+  background: rgba(200, 90, 0, 0.35);
+  border: 1px solid rgba(255, 150, 40, 0.7);
+  color: rgba(255, 185, 80, 1);
+  cursor: pointer;
+  text-shadow: 0 0 6px rgba(255, 160, 0, 0.45);
+  animation: fragmentGlow 2s ease-in-out infinite;
+}
+
+.codex-fragment-btn--active:hover {
+  background: rgba(220, 110, 0, 0.52);
+  border-color: rgba(255, 170, 60, 0.9);
+  transform: scale(1.06);
+}
+
+.codex-fragment-btn--active:active {
+  transform: scale(0.94);
+}
+
+@keyframes fragmentGlow {
+  0%, 100% { box-shadow: 0 0 4px rgba(255, 140, 0, 0.2); }
+  50%       { box-shadow: 0 0 10px rgba(255, 160, 0, 0.5), 0 0 4px rgba(255, 120, 0, 0.3); }
 }
 
 /* 로딩 상태 */
