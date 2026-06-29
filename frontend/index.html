@@ -47,17 +47,6 @@
         <span class="hud-username" id="hudUsername">--</span>
       </div>
       <div class="hud-actions">
-        <button class="hud-btn hud-btn--codex" id="codexBtn" aria-label="캐릭터 도감">
-          <svg class="hud-codex-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <circle cx="5.5" cy="6" r="2" fill="currentColor" opacity="0.8"/>
-            <circle cx="12" cy="4.5" r="2" fill="currentColor" opacity="0.8"/>
-            <circle cx="18.5" cy="6" r="2" fill="currentColor" opacity="0.8"/>
-            <ellipse cx="12" cy="13" rx="4.5" ry="5.5" fill="currentColor"/>
-            <circle cx="9.5" cy="10.5" r="1.2" fill="rgba(10,0,30,0.5)"/>
-            <circle cx="14.5" cy="10.5" r="1.2" fill="rgba(10,0,30,0.5)"/>
-            <ellipse cx="12" cy="14" rx="1.5" ry="0.8" fill="rgba(10,0,30,0.5)"/>
-          </svg>
-        </button>
         <button class="hud-btn hud-btn--bgm" id="bgmBtn" aria-label="배경음악 켜기/끄기">
           <svg class="bgm-icon bgm-icon--pause" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="6" y="4" width="4" height="16" rx="1" fill="currentColor"/>
@@ -108,9 +97,9 @@
 
     <!-- 메타 사이드바 -->
     <aside class="meta-sidebar">
-      <button class="meta-btn" id="metaBtnFortune" aria-label="포춘쿠키">
-        <img class="meta-btn-img" id="metaIconFortune" src="" alt="">
-        <span class="meta-btn-label">포춘쿠키</span>
+      <button class="meta-btn" id="metaBtnHistory" aria-label="나의 기록">
+        <img class="meta-btn-img" id="metaIconHistory" src="" alt="">
+        <span class="meta-btn-label">나의 기록</span>
       </button>
       <button class="meta-btn" id="metaBtnRanking" aria-label="랭킹">
         <img class="meta-btn-img" id="metaIconRanking" src="" alt="">
@@ -123,15 +112,17 @@
 
     </aside>
 
-    <!-- 왼쪽 사이드바: 나의 기록 (데스크탑: 슬롯 왼쪽 / 모바일: 메타 아래) -->
+    <!-- 왼쪽 사이드바: 포춘쿠키 + 미니게임 (데스크탑: 슬롯 왼쪽 / 모바일: 메타 아래) -->
     <aside class="meta-sidebar-left" id="metaSidebarLeft">
-      <button class="meta-btn" id="metaBtnHistory" aria-label="나의 기록">
-        <img class="meta-btn-img" id="metaIconHistory" src="" alt="">
-        <span class="meta-btn-label">나의 기록</span>
+      <button class="meta-btn" id="metaBtnFortune" aria-label="포춘쿠키">
+        <img class="meta-btn-img" id="metaIconFortune" src="" alt="">
+        <span class="meta-btn-label">포춘쿠키</span>
+        <span class="meta-hot-badge">HOT</span>
       </button>
       <button class="meta-btn" id="metaBtnMinigame" aria-label="미니게임">
         <img class="meta-btn-img" id="metaIconMinigame" src="" alt="">
         <span class="meta-btn-label">미니게임</span>
+        <span class="meta-hot-badge">HOT</span>
       </button>
     </aside>
 
@@ -168,7 +159,7 @@
         <p class="daily-reward-msg1">오늘도 똥싸당을 방문해 주셔서 감사똥!</p>
         <p class="daily-reward-msg2">행운의 황금똥 주인은 바로 YOU</p>
         <img id="dailyRewardPoopImg" class="daily-reward-poop" src="" alt="황금똥">
-        <p class="daily-reward-spin-badge">🎰 10 SPIN 지급!</p>
+        <p class="daily-reward-spin-badge">🎰 30 SPIN 지급!</p>
         <div class="daily-reward-btn-wrap">
           <img id="dailyRewardBtnImg" class="daily-reward-btn-img" src="" alt="받기">
           <button id="dailyRewardBtn" class="daily-reward-btn" type="button" aria-label="스핀 받기"></button>
@@ -179,55 +170,6 @@
 
   <!-- Toast -->
   <div class="meta-toast" id="metaToast"></div>
-
-  <!-- 캐릭터 도감 팝업 -->
-  <div id="characterCodexOverlay" class="codex-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-label="캐릭터 도감">
-    <div class="codex-popup">
-      <button class="codex-close" id="codexCloseBtn" aria-label="닫기">✕</button>
-      <h2 class="codex-title">똥싸당 캐릭터 도감</h2>
-      <p class="codex-desc">수집한 캐릭터 정보를 조회합니다. 캐릭터 조각을 10개 모으면 프로필 업데이트가 가능합니다. 프로필 캐릭터 변경이 가능합니다.</p>
-      <div class="codex-grid" id="codexGrid"></div>
-    </div>
-  </div>
-
-  <!-- 미니게임 01 팝업 -->
-  <div id="minigame01Overlay" class="mg01-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-label="황금똥 찾기 미니게임">
-    <div class="mg01-popup">
-      <button class="mg01-close" id="mg01CloseBtn" aria-label="닫기">✕</button>
-
-      <!-- 시작 화면 -->
-      <div class="mg01-intro" id="mg01Intro">
-        <h2 class="mg01-title">💩 황금똥 찾기</h2>
-        <p class="mg01-desc">숨겨진 황금똥과 강아지를 찾아보세요!</p>
-        <button class="mg01-start-btn" id="mg01StartBtn" type="button">게임 시작</button>
-      </div>
-
-      <!-- 게임 화면 -->
-      <div class="mg01-game" id="mg01Game" style="display: none;">
-        <h2 class="mg01-title">💩 황금똥 찾기</h2>
-        <div class="mg01-hud">
-          <span class="mg01-hud-item">남은 선택: <strong id="mg01SelectionCount">10</strong></span>
-          <span class="mg01-hud-item mg01-hud-poop">황금똥: <strong id="mg01PoopCount">0</strong></span>
-          <span class="mg01-hud-item mg01-hud-dog">강아지: <strong id="mg01DogCount">0</strong></span>
-        </div>
-        <div class="mg01-grid" id="mg01Grid"></div>
-      </div>
-
-      <!-- 결과 화면 (게임 위 오버레이) -->
-      <div class="mg01-result" id="mg01Result">
-        <div class="mg01-result-card">
-          <button class="mg01-result-close" id="mg01ResultCloseBtn" aria-label="결과 닫기">✕</button>
-          <h2 class="mg01-title">게임 종료!</h2>
-          <div class="mg01-result-rows">
-            <p class="mg01-result-row">💩 황금똥 <strong id="mg01ResultPoop">0</strong>개 획득</p>
-            <p class="mg01-result-row">🎰 획득 예정 Spin: <strong id="mg01ResultSpin">0</strong></p>
-            <p class="mg01-result-row">🐕 새로운 강아지 <strong id="mg01ResultDog">0</strong>마리 발견</p>
-          </div>
-          <button class="mg01-start-btn" id="mg01ConfirmBtn" type="button">확인</button>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- 나의 기록 팝업 -->
   <div id="historyOverlay" class="history-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-label="나의 기록">

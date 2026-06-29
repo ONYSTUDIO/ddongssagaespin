@@ -210,7 +210,7 @@ body {
 /* ===== 결과 메시지(잔여 스핀 수) 박스: 프레임 어두운 결과 표시 바 (y=920~1060, 59.9%~69%) ===== */
 .result-box {
   position: absolute;
-  top: calc(68.5% + var(--slot-offset-y));
+  top: calc(68% + var(--slot-offset-y)); /* #TODO 해상도에 따라 위치 다름. (내 피씨 기준: 68.5) */
   left: 10%;
   width: 80%;
   height: 9%;

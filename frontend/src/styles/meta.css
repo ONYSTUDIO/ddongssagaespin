@@ -1,7 +1,5 @@
 /* ===== HUD: 상단 바 ===== */
 .game-hud {
-  position: relative;
-  z-index: 3;
   width: 100%;
   display: flex;
   align-items: center;
@@ -151,6 +149,7 @@
 
 /* ===== Meta 버튼 ===== */
 .meta-btn {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -192,6 +191,40 @@
   display: none;
 }
 
+/* ===== HOT 말풍선 뱃지 ===== */
+@keyframes hotBadgeFloat {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-4px); }
+}
+
+.meta-hot-badge {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background: #ff2525;
+  color: #fff;
+  font-size: 0.55rem;
+  font-weight: 900;
+  letter-spacing: 0.8px;
+  padding: 3px 6px;
+  border-radius: 7px;
+  line-height: 1;
+  pointer-events: none;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(255, 40, 40, 0.55);
+  animation: hotBadgeFloat 1.6s ease-in-out infinite;
+}
+
+.meta-hot-badge::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 7px;
+  border-width: 5px 4px 0;
+  border-style: solid;
+  border-color: #ff2525 transparent transparent;
+}
+
 /* BGM 아이콘 토글: 재생 중 ⏸ / 일시정지 중 ▶ */
 .bgm-icon--play  { display: none; }
 .bgm-icon--pause { display: block; }
@@ -217,10 +250,10 @@
     display: contents;
   }
 
-  /* 모바일 버튼 순서: [기록][미니게임][포춘쿠키][순위][후원하기] */
-  #metaBtnHistory  { order: 1; flex-shrink: 0; }
+  /* 모바일 버튼 순서: [포춘쿠키][미니게임][기록][순위][후원하기] */
+  #metaBtnFortune  { order: 1; flex-shrink: 0; }
   #metaBtnMinigame { order: 2; flex-shrink: 0; }
-  #metaBtnFortune  { order: 3; flex-shrink: 0; }
+  #metaBtnHistory  { order: 3; flex-shrink: 0; }
   #metaBtnRanking  { order: 4; flex-shrink: 0; }
   #metaBtnSupport  { order: 5; flex-shrink: 0; }
 }
