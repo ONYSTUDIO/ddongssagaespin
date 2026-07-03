@@ -270,7 +270,7 @@ body {
 }
 
 .spin-btn:disabled {
-  cursor: not-allowed;
+  cursor: default;
 }
 
 

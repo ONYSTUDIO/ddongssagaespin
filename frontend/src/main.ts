@@ -132,18 +132,26 @@ document.addEventListener('spinCountUpdated', (e) => {
 });
 
 // ── 호버 이벤트 ──────────────────────────────────────────────────
-btn.addEventListener('mouseenter', () => { if (!btn.disabled) setBtnState('focus'); });
-btn.addEventListener('mouseleave', () => { if (!btn.disabled) setBtnState('on');    });
+btn.addEventListener('mouseenter', () => { if (!btn.disabled && !isSpinning) setBtnState('focus'); });
+btn.addEventListener('mouseleave', () => { if (!btn.disabled && !isSpinning) setBtnState('on');    });
 
-// ── 릴 회전 중 화면 터치/클릭 → 즉시 결과 스킵 ─────────────────
+// ── 스핀 버튼 더블클릭/더블탭 → 즉시 결과 스킵 ─────────────────
 function handleSkip(): void {
   if (!isReelAnimating || isSkipRequested) return;
   isSkipRequested = true;
   reelCancelFns.forEach(fn => fn());
   reelCancelFns = [];
 }
-document.addEventListener('mousedown', handleSkip);
-document.addEventListener('touchstart', handleSkip, { passive: true });
+btn.addEventListener('dblclick', handleSkip);
+let lastTapTime = 0;
+btn.addEventListener('touchend', (e) => {
+  const now = Date.now();
+  if (now - lastTapTime < 350) {
+    handleSkip();
+    e.preventDefault();
+  }
+  lastTapTime = now;
+}, { passive: false });
 
 // ── SPIN 함수 ─────────────────────────────────────────────────────
 async function spin(): Promise<void> {
@@ -156,7 +164,6 @@ async function spin(): Promise<void> {
     pendingPopupTimer = null;
   }
 
-  btn.disabled = true;
   setBtnState('off');
   resultEl.className = 'result-text';
   resultEl.textContent = '두근두근... 🎰';
@@ -212,7 +219,8 @@ async function spin(): Promise<void> {
       return;
     }
 
-    // 히트 연출이 있는 경우: 팝업 닫힐 때 버튼 활성화
+    // 히트 연출이 있는 경우: 팝업 닫힐 때 버튼 활성화 (릴 종료 시점에 명시적 비활성화)
+    btn.disabled = true;
     hitLineEl.classList.add('active');
     showResult(fortuneResult);
 
