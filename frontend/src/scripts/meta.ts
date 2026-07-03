@@ -8,7 +8,7 @@ import minigameSrc       from '../assets/images/meta/icons/meta_minigame_01.png'
 import { fetchRanking, RankEntry } from './ranking';
 import { supabase } from './supabase';
 import { showLoginScreen } from './login';
-import { stopBgm } from './sound';
+import { stopBgm, playClick } from './sound';
 import {
   initFortuneCookie,
   showFortuneCookiePopup,
@@ -135,6 +135,7 @@ export function initMeta(): void {
   initCharacterCodex();
 
   document.getElementById('metaBtnFortune')?.addEventListener('click', async () => {
+    playClick();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { showFortuneCookiePopup(); return; }
 
@@ -153,28 +154,36 @@ export function initMeta(): void {
   });
 
   document.getElementById('metaBtnRanking')?.addEventListener('click', () => {
+    playClick();
     openRankingPopup();
   });
 
   document.getElementById('metaBtnSupport')?.addEventListener('click', () => {
+    playClick();
     showToast('후원 기능 준비중입니다 🎁');
   });
 
   document.getElementById('metaBtnHistory')?.addEventListener('click', () => {
+    playClick();
     showHistoryPopup();
   });
 
   document.getElementById('metaBtnMinigame')?.addEventListener('click', () => {
+    playClick();
     showMinigame01Popup();
   });
 
   document.getElementById('metaBtnLogout')?.addEventListener('click', async () => {
+    playClick();
     stopBgm();
     await supabase.auth.signOut();
     showLoginScreen();
   });
 
-  document.getElementById('rankingPopupClose')?.addEventListener('click', closeRankingPopup);
+  document.getElementById('rankingPopupClose')?.addEventListener('click', () => {
+    playClick();
+    closeRankingPopup();
+  });
   document.getElementById('rankingPopupOverlay')?.addEventListener('click', (e) => {
     if (e.target === e.currentTarget) closeRankingPopup();
   });

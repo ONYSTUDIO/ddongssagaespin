@@ -7,6 +7,7 @@ import dog04Src from '../assets/images/characters/dog_04.png';
 import dog05Src from '../assets/images/characters/dog_05.png';
 
 import { supabase } from './supabase';
+import { playClick } from './sound';
 
 const DOG_IMAGES: Record<number, string> = {
   1001: dog01Src,
@@ -202,11 +203,17 @@ async function renderGrid(): Promise<void> {
 
 // ── 초기화 ────────────────────────────────────────────────────────
 export function initCharacterCodex(): void {
-  getEl('codexCloseBtn').addEventListener('click', hideCharacterCodexPopup);
+  getEl('codexCloseBtn').addEventListener('click', () => {
+    playClick();
+    hideCharacterCodexPopup();
+  });
 
   getEl('characterCodexOverlay').addEventListener('click', (e) => {
     if (e.target === e.currentTarget) hideCharacterCodexPopup();
   });
 
-  getEl('codexBtn').addEventListener('click', showCharacterCodexPopup);
+  getEl('codexBtn').addEventListener('click', () => {
+    playClick();
+    showCharacterCodexPopup();
+  });
 }

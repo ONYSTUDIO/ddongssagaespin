@@ -13,7 +13,7 @@ import { initDailyReward, checkAndShowDailyReward } from './scripts/dailyReward'
 import { getCurrentSpinCount, consumeSpin } from './scripts/spinManager';
 import { saveSlotFortuneLog } from './scripts/history';
 import { initStars } from './scripts/stars';
-import { startBgm, stopBgm, initBgmBtn } from './scripts/sound';
+import { startBgm, stopBgm, initBgmBtn, playReelStop } from './scripts/sound';
 
 import spinOnSrc       from './assets/images/buttons/btn_spin_on.png';
 import spinOffSrc      from './assets/images/buttons/btn_spin_off.png';
@@ -270,6 +270,7 @@ async function spin(): Promise<void> {
   function onReelStop(index: number, item: SlotItem): void {
     results[index] = item;
     stoppedCount++;
+    playReelStop();  // 릴 하나 멈출 때마다 사운드
     if (stoppedCount < 3) return;
 
     // 릴 애니메이션 구간 종료
@@ -283,6 +284,7 @@ async function spin(): Promise<void> {
         nudgeReel(reelEls[nudgeIdx], dir, (newItem, newIdx) => {
           results[nudgeIdx]       = newItem;
           reelCenterIdx[nudgeIdx] = newIdx;
+          playReelStop();  // 넛지 릴 정착 시 사운드
           runJudgment();
         });
       }, 400);

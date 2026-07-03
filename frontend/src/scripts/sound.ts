@@ -1,5 +1,9 @@
 import bgmMp3 from '../assets/audio/bgm/bgm_ingame.mp3';
 import bgmOgg from '../assets/audio/bgm/bgm_ingame.ogg';
+import reelStopMp3 from '../assets/audio/reel/reel_stop.mp3';
+import reelStopOgg from '../assets/audio/reel/reel_stop.ogg';
+import buttonMp3 from '../assets/audio/ui/button.mp3';
+import buttonOgg from '../assets/audio/ui/button.ogg';
 
 // ── Web Audio API BGM ─────────────────────────────────────────────────────────
 // HTML Audio의 loop=true는 파일 끝에서 처음으로 seek하는 방식이라
@@ -36,6 +40,36 @@ async function loadBuffer(): Promise<void> {
 
 // 모듈 로드 시 백그라운드 사전 로딩
 loadBuffer().catch(() => {});
+
+// ── 릴 스탑 효과음 ───────────────────────────────────────────────
+let reelStopBuffer: AudioBuffer | null = null;
+
+async function loadReelStopBuffer(): Promise<void> {
+  if (reelStopBuffer) return;
+  const ac = getCtx();
+  const canOgg = new Audio().canPlayType('audio/ogg') !== '';
+  const url = canOgg ? reelStopOgg : reelStopMp3;
+  const res = await fetch(url);
+  const raw = await res.arrayBuffer();
+  reelStopBuffer = await ac.decodeAudioData(raw);
+}
+
+loadReelStopBuffer().catch(() => {});
+
+// ── 버튼 클릭 효과음 ─────────────────────────────────────────────
+let buttonBuffer: AudioBuffer | null = null;
+
+async function loadButtonBuffer(): Promise<void> {
+  if (buttonBuffer) return;
+  const ac = getCtx();
+  const canOgg = new Audio().canPlayType('audio/ogg') !== '';
+  const url = canOgg ? buttonOgg : buttonMp3;
+  const res = await fetch(url);
+  const raw = await res.arrayBuffer();
+  buttonBuffer = await ac.decodeAudioData(raw);
+}
+
+loadButtonBuffer().catch(() => {});
 
 function startSource(fromOffset = 0): void {
   if (!ctx || !gainNode || !buffer) return;
@@ -94,6 +128,7 @@ export function initBgmBtn(): void {
   btn.classList.add('bgm-paused');
 
   btn.addEventListener('click', () => {
+    playClick();
     if (!isPlaying) {
       startBgm().catch(() => {});
     } else {
@@ -111,10 +146,22 @@ export function syncBgmBtn(): void {
   syncBtn();
 }
 
-// ── 효과음 (추후 구현) ────────────────────────────────────────────────────────
+// ── 효과음 ───────────────────────────────────────────────────────────────────
 
-export function playClick(): void {}
+export function playClick(): void {
+  if (!ctx || !gainNode || !buttonBuffer) return;
+  const s = ctx.createBufferSource();
+  s.buffer = buttonBuffer;
+  s.connect(gainNode);
+  s.start();
+}
 export function playReelSpin(): void {}
-export function playReelStop(): void {}
+export function playReelStop(): void {
+  if (!ctx || !gainNode || !reelStopBuffer) return;
+  const s = ctx.createBufferSource();
+  s.buffer = reelStopBuffer;
+  s.connect(gainNode);
+  s.start();
+}
 export function playWin(): void {}
 export function playJackpot(): void {}

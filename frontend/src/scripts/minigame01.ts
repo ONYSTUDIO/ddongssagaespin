@@ -1,5 +1,6 @@
 import '../styles/minigame01.css';
 import { grantSpins } from './spinManager';
+import { playClick } from './sound';
 import { loadOwnedCharacters, isCharacterOwned, collectCharacter } from './characterManager';
 
 import dog01Src       from '../assets/images/characters/dog_01.png';
@@ -384,12 +385,12 @@ export function hideMinigame01Popup(): void {
 }
 
 export function initMinigame01(): void {
-  getEl('mg01CloseBtn').addEventListener('click', hideMinigame01Popup);
+  getEl('mg01CloseBtn').addEventListener('click', () => { playClick(); hideMinigame01Popup(); });
   getEl('mg01StartBtn').addEventListener('click', startGame);
 
   const confirmBtn = document.getElementById('mg01ConfirmBtn');
-  if (confirmBtn) confirmBtn.addEventListener('click', hideResultOverlay);
+  if (confirmBtn) confirmBtn.addEventListener('click', () => { playClick(); hideResultOverlay(); });
 
   const resultCloseBtn = document.getElementById('mg01ResultCloseBtn');
-  if (resultCloseBtn) resultCloseBtn.addEventListener('click', hideResultOverlay);
+  if (resultCloseBtn) resultCloseBtn.addEventListener('click', () => { playClick(); hideResultOverlay(); });
 }

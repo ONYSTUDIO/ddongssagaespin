@@ -1,6 +1,7 @@
 import '../styles/popup.css';
 import { Grade } from './game';
 import { FortuneResult } from './fortune';
+import { playClick } from './sound';
 
 // ── 이미지 에셋 임포트 ────────────────────────────────────────────────────────
 
@@ -309,7 +310,7 @@ export function initPopup(): void {
   const overlay  = getEl('resultPopup');
   const closeBtn = getEl('popupCloseBtn');
 
-  closeBtn.addEventListener('click', hideResultPopup);
+  closeBtn.addEventListener('click', () => { playClick(); hideResultPopup(); });
 
   overlay.addEventListener('click', (e) => {
     if (e.target === overlay) hideResultPopup();

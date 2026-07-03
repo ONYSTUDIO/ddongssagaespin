@@ -12,6 +12,7 @@ import { markFortuneCookieChecked, markFortuneCookieMessageWritten } from './for
 import { saveFortuneCookieLog } from './history';
 import { grantSpinsWithResult } from './spinManager';
 import { supabase } from './supabase';
+import { playClick } from './sound';
 
 const BREAK_FRAMES = [cookie01, cookie02, cookie03, cookie04, cookie05];
 const FRAME_DURATION = 250; // 4 transitions × 250ms = 1s
@@ -57,15 +58,16 @@ export function initFortuneCookie(): void {
   getEl<HTMLImageElement>('fcPaperImg').src  = paperSrc;
   getEl<HTMLImageElement>('fcCreatePaperImg').src = paperSrc;
 
-  getEl('fcCloseBtn').addEventListener('click', hideFortuneCookiePopup);
+  getEl('fcCloseBtn').addEventListener('click', () => { playClick(); hideFortuneCookiePopup(); });
   getEl('fortuneCookieOverlay').addEventListener('click', (e) => {
     if (e.target === e.currentTarget) hideFortuneCookiePopup();
   });
   getEl('fcHammerBtn').addEventListener('click', playCookieBreakAnimation);
 
   // 액션 버튼
-  getEl('fcActionConfirm').addEventListener('click', hideFortuneCookiePopup);
+  getEl('fcActionConfirm').addEventListener('click', () => { playClick(); hideFortuneCookiePopup(); });
   getEl('fcActionCreate').addEventListener('click', () => {
+    playClick();
     hideFortuneCookiePopup();
     setTimeout(openFortuneCookieCreatePopup, 350);
   });
@@ -74,8 +76,8 @@ export function initFortuneCookie(): void {
   initFortuneCookieCreate();
 
   // 제한 팝업
-  getEl('fcLimitCloseBtn').addEventListener('click', hideFortuneCookieLimitPopup);
-  getEl('fcLimitConfirmBtn').addEventListener('click', hideFortuneCookieLimitPopup);
+  getEl('fcLimitCloseBtn').addEventListener('click', () => { playClick(); hideFortuneCookieLimitPopup(); });
+  getEl('fcLimitConfirmBtn').addEventListener('click', () => { playClick(); hideFortuneCookieLimitPopup(); });
   getEl('fcLimitOverlay').addEventListener('click', (e) => {
     if (e.target === e.currentTarget) hideFortuneCookieLimitPopup();
   });
@@ -230,7 +232,7 @@ function initFortuneCookieCreate(): void {
     getEl('fcCreateError').textContent = '';
   });
 
-  getEl('fcCreateCloseBtn').addEventListener('click', closeFortuneCookieCreatePopup);
+  getEl('fcCreateCloseBtn').addEventListener('click', () => { playClick(); closeFortuneCookieCreatePopup(); });
   getEl('fcCreateOverlay').addEventListener('click', (e) => {
     if (e.target === e.currentTarget) closeFortuneCookieCreatePopup();
   });

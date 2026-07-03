@@ -1,5 +1,6 @@
 import '../styles/history.css';
 import { supabase } from './supabase';
+import { playClick } from './sound';
 import type { FortuneResult } from './fortune';
 
 const PAGE_SIZE = 10;
@@ -152,7 +153,7 @@ async function loadHistoryPage(page: number): Promise<void> {
 
 // ── 초기화 ──────────────────────────────────────────────────────────
 export function initHistory(): void {
-  getEl('historyCloseBtn').addEventListener('click', hideHistoryPopup);
+  getEl('historyCloseBtn').addEventListener('click', () => { playClick(); hideHistoryPopup(); });
   getEl('historyOverlay').addEventListener('click', (e) => {
     if (e.target === e.currentTarget) hideHistoryPopup();
   });
