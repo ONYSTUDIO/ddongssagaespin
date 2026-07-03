@@ -5,7 +5,7 @@ import { getRandomItem, SlotItem } from './scripts/game';
 import { judgeResult } from './scripts/rules';
 import { initReel, animateReel, nudgeReel, WIN_IDX } from './scripts/reel';
 import { showResult } from './scripts/effects';
-import { buildFortuneResult } from './scripts/fortune';
+import { buildFortuneResult, loadFortuneMessages } from './scripts/fortune';
 import { initPopup, showResultPopup, hideResultPopup } from './scripts/popup';
 import { saveScore } from './scripts/ranking';
 import { initMeta } from './scripts/meta';
@@ -94,6 +94,9 @@ async function onLoginSuccess(): Promise<void> {
   startBgm();
   isInitializing = true;
 
+  // 운세 메시지 DB 로드 (실패 시 하드코딩 폴백 유지)
+  await loadFortuneMessages();
+
   // 스핀 카운트 표시 (isInitializing=true 이므로 버튼 비활성화 차단)
   const count = await getCurrentSpinCount();
   updateSpinCountUI(count);
@@ -159,15 +162,6 @@ async function spin(): Promise<void> {
   resultEl.textContent = '두근두근... 🎰';
   hideResultPopup();
 
-  // 스핀 1개 차감
-  const { success, remaining } = await consumeSpin();
-  if (!success) {
-    isSpinning = false;
-    updateSpinCountUI(0);
-    return;
-  }
-  updateSpinCountUI(remaining);
-
   // 이전 히트 클론 제거 + 숨겨진 원본 심볼 복구
   const hitOverlay = document.getElementById('hitSymbolOverlay');
   if (hitOverlay) hitOverlay.innerHTML = '';
@@ -192,6 +186,9 @@ async function spin(): Promise<void> {
   let stoppedCount = 0;
 
   const reelEls = [reel1, reel2, reel3];
+
+  // consumeSpin() 완료 후 채워짐 — enableSpinBtn 클로저가 참조
+  let remaining = 0;
 
   // 연출 종료 후 버튼 활성화
   function enableSpinBtn(): void {
@@ -286,7 +283,7 @@ async function spin(): Promise<void> {
     }
   }
 
-  // 릴 애니메이션 시작 — 취소 함수 보관
+  // 릴 즉시 시작 — consumeSpin()과 병렬 실행
   isReelAnimating = true;
   isSkipRequested = false;
   reelCancelFns = [
@@ -294,6 +291,25 @@ async function spin(): Promise<void> {
     animateReel(reel2, 1100,  final1, (item) => onReelStop(1, item)),
     animateReel(reel3, 1550,  final2, (item) => onReelStop(2, item), suspenseMs),
   ];
+
+  // 스핀 차감 — 릴 애니메이션(최소 1550ms)과 병렬 실행
+  const { success, remaining: rem } = await consumeSpin();
+  if (!success) {
+    // 차감 실패(스핀 부족 또는 오류): 릴 즉시 중단
+    reelCancelFns.forEach(fn => fn());
+    reelCancelFns = [];
+    isReelAnimating = false;
+    isSpinning = false;
+    updateSpinCountUI(0);
+    return;
+  }
+  remaining = rem;
+  updateSpinCountUI(remaining);
+  // 네트워크 지연으로 애니메이션이 이미 끝난 경우 버튼 상태 보정
+  if (!isSpinning) {
+    btn.disabled = remaining <= 0;
+    if (remaining > 0) setBtnState('on');
+  }
 }
 
 btn.addEventListener('click', spin);
