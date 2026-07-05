@@ -256,12 +256,12 @@ async function spin(): Promise<void> {
         setTimeout(() => {
           clone.remove();
           symbol.style.opacity = '';
-        }, 3000);
+        }, 1500);
       });
       pendingPopupTimer = setTimeout(() => {
         pendingPopupTimer = null;
         showResultPopup(fortuneResult, enableSpinBtn);
-      }, 3100);
+      }, 1600);
     } else {
       showResultPopup(fortuneResult, enableSpinBtn);
     }

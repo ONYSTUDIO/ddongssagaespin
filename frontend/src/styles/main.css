@@ -169,7 +169,7 @@ body {
   object-fit: contain;
   padding: 6px;
   pointer-events: none;
-  animation: symbolHit 3s ease forwards;
+  animation: symbolHit 1.5s ease forwards;
 }
 
 

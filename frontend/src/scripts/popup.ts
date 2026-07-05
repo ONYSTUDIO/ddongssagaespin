@@ -175,7 +175,8 @@ function flipImg(imgEl: HTMLImageElement, newSrc: string): void {
 
 // 파티클 + 황금똥 이펙트: 코기 애니메이션 직후 stage 위에 오버레이
 // stageEl 기준 absolute 배치, 애니메이션 완료 후 resolve
-function playSuperLuckPoopEffect(stageEl: HTMLElement): Promise<void> {
+// corgiImgEl: 황금똥 등장 시작과 동시에 서서히 페이드아웃 (코기가 싸고 사라지는 느낌)
+function playSuperLuckPoopEffect(stageEl: HTMLElement, corgiImgEl: HTMLImageElement): Promise<void> {
   return new Promise((resolve) => {
     const particle = document.createElement('img');
     particle.src = particleSrc;
@@ -188,9 +189,11 @@ function playSuperLuckPoopEffect(stageEl: HTMLElement): Promise<void> {
     stageEl.appendChild(particle);
     stageEl.appendChild(poop);
 
-    // 파티클 먼저
+    // 파티클 먼저 + 코기 이미지 서서히 페이드아웃 (황금똥을 싸고 사라지는 느낌)
     requestAnimationFrame(() => requestAnimationFrame(() => {
       particle.classList.add('playing');
+      corgiImgEl.style.transition = 'opacity 0.5s ease-out';
+      corgiImgEl.style.opacity = '0';
     }));
 
     // 황금똥은 살짝 딜레이 후 등장
@@ -228,6 +231,8 @@ export function showResultPopup(result: FortuneResult, onClose?: () => void): vo
   stageImg.classList.remove('popup-flipping');
   cardImg.classList.remove('popup-flipping');
   stageImg.src = '';
+  stageImg.style.opacity = '';
+  stageImg.style.transition = '';
   cardImg.src  = '';
 
   // 결과 내용 채우기
@@ -248,18 +253,20 @@ export function showResultPopup(result: FortuneResult, onClose?: () => void): vo
   const cards = getCardAssetsByGrade(result.grade);
 
   if (result.grade === 'SUPER_LUCK') {
-    // 1. 복주머니 등장
-    after(300,  () => { stageImg.src = fortuneBagSrc; showEl(stage); });
-    // 2. 복주머니 퇴장
-    after(1100, () => hideEl(stage));
-    // 3. 코기 프레임 애니메이션 시작
+    // [복주머니 연출 비활성화 — 추후 복원 가능]
+    // // 1. 복주머니 등장
+    // after(300,  () => { stageImg.src = fortuneBagSrc; showEl(stage); });
+    // // 2. 복주머니 퇴장
+    // after(1100, () => hideEl(stage));
+
+    // 1. 코기 프레임 애니메이션 시작
     //    playCorgiAnimation 내부가 pending 타임아웃을 관리하므로
     //    hideResultPopup() 시 clearPending()으로 일괄 취소됨
-    after(1500, () => {
+    after(300, () => {
       showEl(stage);
       playCorgiAnimation(stageImg, CORGI_SEQUENCE, () => {
         // 코기 frame5 유지 종료 → 황금똥 이펙트
-        playSuperLuckPoopEffect(stage).then(() => {
+        playSuperLuckPoopEffect(stage, stageImg).then(() => {
           hideEl(stage);
           // 카드 뒷면 등장
           after(400,  () => { cardImg.src = cards.back; showEl(cardWrap); });
@@ -270,14 +277,17 @@ export function showResultPopup(result: FortuneResult, onClose?: () => void): vo
       });
     });
   } else {
-    // 1. 복주머니 등장
-    after(300,  () => { stageImg.src = fortuneBagSrc; showEl(stage); });
-    // 2. 복주머니 퇴장 → 카드 뒷면 등장
-    after(1100, () => hideEl(stage));
-    after(1400, () => { cardImg.src  = cards.back;    showEl(cardWrap); });
-    // 3. 카드 앞면 flip → 텍스트 오버레이 등장
-    after(2200, () => flipImg(cardImg, cards.front));
-    after(2800, () => { fitContentToCard(cardContentEl); showEl(cardContentEl); });
+    // [복주머니 연출 비활성화 — 추후 복원 가능]
+    // // 1. 복주머니 등장
+    // after(300,  () => { stageImg.src = fortuneBagSrc; showEl(stage); });
+    // // 2. 복주머니 퇴장 → 카드 뒷면 등장
+    // after(1100, () => hideEl(stage));
+
+    // 1. 카드 뒷면 등장
+    after(300,  () => { cardImg.src = cards.back; showEl(cardWrap); });
+    // 2. 카드 앞면 flip → 텍스트 오버레이 등장
+    after(1100, () => flipImg(cardImg, cards.front));
+    after(1700, () => { fitContentToCard(cardContentEl); showEl(cardContentEl); });
   }
 }
 
