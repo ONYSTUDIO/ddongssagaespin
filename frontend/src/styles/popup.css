@@ -71,16 +71,16 @@
 .popup-card-wrap.popup-visible {
   opacity: 1;
   transform: scale(1);
-  /* pointer-events는 항상 none 유지.
-     닫기 버튼(button)은 브라우저 기본값 auto라 부모 none에도 독립 동작. */
+  pointer-events: auto; /* 카드 영역 터치 활성화 — iOS Safari는 부모 none 시 자식 버튼도 막힘 */
 }
 
-/* ===== 닫기 버튼: 카드 우측 상단 바깥 ===== */
+/* ===== 닫기 버튼: 카드 우측 상단 ===== */
 .popup-close {
   position: absolute;
-  top: -14px;
-  right: -14px;
+  top: 8px;
+  right: 8px;
   z-index: 10;
+  pointer-events: auto; /* iOS Safari: 부모 pointer-events:none 무시하고 터치 수신 보장 */
   width: 32px;
   height: 32px;
   background: rgba(20, 0, 40, 0.85);
