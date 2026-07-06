@@ -2,6 +2,7 @@ import '../styles/profile.css';
 import { supabase } from './supabase';
 import { getCharacterSrc } from './characterCodex';
 import { playClick } from './sound';
+import { updateProfileRedDot } from './redDot';
 
 interface ProfileData {
   nickname:            string | null;
@@ -131,10 +132,11 @@ async function saveNickname(): Promise<void> {
   getEl('profileNicknameActions').setAttribute('hidden', '');
   setStatus('저장 완료!', 'success');
 
-  // HUD 닉네임 표시 업데이트
+  // HUD 닉네임 표시 + 레드닷 업데이트
   const userId = getEl('profilePopupId').textContent ?? '';
   const hudEl  = document.getElementById('hudUsername');
   if (hudEl) hudEl.textContent = nickname ? `${nickname} (${userId})` : userId;
+  updateProfileRedDot(!!nickname);
 }
 
 // ── 초기화 ──────────────────────────────────────────────────────────

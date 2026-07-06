@@ -40,6 +40,12 @@
   opacity: 0.7;
 }
 
+.hud-avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+}
+
 .hud-avatar {
   width: 36px;
   height: 36px;
@@ -47,7 +53,6 @@
   object-fit: cover;
   border: 2px solid rgba(255, 215, 0, 0.5);
   background: rgba(20, 0, 50, 0.6);
-  flex-shrink: 0;
 }
 
 .hud-username {

@@ -162,6 +162,16 @@ function updateRankingRedDot(): void {
   }
 }
 
+// ── 프로필 (nickname null 여부 기반) ─────────────────────────────────────────
+
+export function updateProfileRedDot(hasNickname: boolean): void {
+  if (hasNickname) {
+    hideRedDot('rdProfile');
+  } else {
+    showRedDot('rdProfile');
+  }
+}
+
 // ── 전체 초기화 (로그인 성공 시 호출) ────────────────────────────────────────
 
 export async function initRedDots(userId: string): Promise<void> {

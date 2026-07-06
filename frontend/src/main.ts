@@ -14,7 +14,7 @@ import { getCurrentSpinCount, consumeSpin } from './scripts/spinManager';
 import { saveSlotFortuneLog } from './scripts/history';
 import { initStars } from './scripts/stars';
 import { startBgm, stopBgm, initBgmBtn, playReelStop } from './scripts/sound';
-import { initRedDots, markSpinRecordUpdated } from './scripts/redDot';
+import { initRedDots, markSpinRecordUpdated, updateProfileRedDot } from './scripts/redDot';
 import { getCharacterSrc } from './scripts/characterCodex';
 import { initProfilePopup } from './scripts/profile';
 
@@ -96,6 +96,7 @@ async function setHudUser(): Promise<void> {
     if (avatarEl) avatarEl.src = getCharacterSrc(profile?.profile_character_id ?? 1001);
     const nickname = (profile as { nickname?: string | null } | null)?.nickname;
     if (usernameEl && nickname) usernameEl.textContent = `${nickname} (${username})`;
+    updateProfileRedDot(!!nickname);
   }
 }
 

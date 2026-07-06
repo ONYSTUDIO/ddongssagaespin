@@ -43,7 +43,10 @@
     <!-- HUD: 상단 바 -->
     <div class="game-hud" id="gameHud">
       <button class="hud-profile hud-profile-btn" id="hudProfileBtn" type="button" aria-label="프로필 정보">
-        <img class="hud-avatar" id="hudAvatarImg" src="" alt="프로필">
+        <span class="hud-avatar-wrap">
+          <img class="hud-avatar" id="hudAvatarImg" src="" alt="프로필">
+          <span class="red-dot red-dot--hidden" id="rdProfile" aria-hidden="true"></span>
+        </span>
         <span class="hud-username" id="hudUsername">--</span>
       </button>
       <div class="hud-actions">
