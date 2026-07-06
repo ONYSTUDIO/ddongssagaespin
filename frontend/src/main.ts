@@ -15,12 +15,12 @@ import { saveSlotFortuneLog } from './scripts/history';
 import { initStars } from './scripts/stars';
 import { startBgm, stopBgm, initBgmBtn, playReelStop } from './scripts/sound';
 import { initRedDots, markSpinRecordUpdated } from './scripts/redDot';
+import { getCharacterSrc } from './scripts/characterCodex';
 
 import spinOnSrc       from './assets/images/buttons/btn_spin_on.png';
 import spinOffSrc      from './assets/images/buttons/btn_spin_off.png';
 import spinFocusSrc    from './assets/images/buttons/btn_spin_focus.png';
 import machineFrameSrc from './assets/images/machine/machine_frame.png';
-import corgiAvatarSrc  from './assets/images/symbols/symbol_corgi.png';
 
 const btn            = document.getElementById('spinBtn')        as HTMLButtonElement;
 const btnImg         = document.getElementById('btnSpinImg')     as HTMLImageElement;
@@ -86,7 +86,14 @@ async function setHudUser(): Promise<void> {
   const usernameEl = document.getElementById('hudUsername');
   const avatarEl   = document.getElementById('hudAvatarImg') as HTMLImageElement | null;
   if (usernameEl) usernameEl.textContent = username;
-  if (avatarEl)   avatarEl.src = corgiAvatarSrc;
+  if (avatarEl && user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('profile_character_id')
+      .eq('id', user.id)
+      .single();
+    avatarEl.src = getCharacterSrc(profile?.profile_character_id ?? 1001);
+  }
 }
 
 // ── 로그인 성공 후 처리 ───────────────────────────────────────────

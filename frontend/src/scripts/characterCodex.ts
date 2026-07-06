@@ -23,6 +23,10 @@ const DOG_IMAGES: Record<number, string> = {
   1005: dog05Src,
 };
 
+export function getCharacterSrc(charId: number): string {
+  return DOG_IMAGES[charId] ?? DOG_IMAGES[1001];
+}
+
 const DEFINED_CHARACTERS = [1001, 1002, 1003, 1004, 1005];
 const TOTAL_SLOTS        = 9;
 const FRAGMENT_CAP       = 10;
@@ -71,6 +75,33 @@ export function hideCharacterCodexPopup(): void {
   setTimeout(() => overlay.setAttribute('aria-hidden', 'true'), 300);
   document.removeEventListener('keydown', handleEsc);
   markCodexSeen();
+}
+
+// ── 프로필 캐릭터 변경 ────────────────────────────────────────────────
+async function changeProfileCharacter(charId: number, btnEl: HTMLButtonElement): Promise<void> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
+  btnEl.disabled = true;
+  btnEl.textContent = '변경 중...';
+
+  const { error } = await supabase
+    .from('profiles')
+    .update({ profile_character_id: charId })
+    .eq('id', user.id);
+
+  btnEl.disabled = false;
+  btnEl.textContent = '변경';
+
+  if (error) {
+    showToast('프로필 변경 중 오류가 발생했습니다.');
+    return;
+  }
+
+  const avatarEl = document.getElementById('hudAvatarImg') as HTMLImageElement | null;
+  if (avatarEl) avatarEl.src = DOG_IMAGES[charId] ?? DOG_IMAGES[1001];
+
+  showToast('프로필 캐릭터가 변경됐어요! 🐾');
 }
 
 // ── 업그레이드 실행 ──────────────────────────────────────────────────
@@ -218,8 +249,8 @@ async function renderGrid(): Promise<void> {
 
   grid.querySelectorAll<HTMLButtonElement>('.codex-change-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      // TODO: 프로필 캐릭터 변경 기능 구현 예정
-      showToast('프로필 변경 기능은 준비 중입니다 🐾');
+      const charId = Number(btn.dataset.charId);
+      changeProfileCharacter(charId, btn);
     });
   });
 
