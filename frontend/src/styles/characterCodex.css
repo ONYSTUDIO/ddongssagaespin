@@ -204,6 +204,16 @@
   transform: scale(0.94);
 }
 
+/* 현재 프로필로 설정된 변경 버튼 (비활성) */
+.codex-change-btn--current,
+.codex-change-btn--current:hover {
+  background: rgba(20, 20, 60, 0.25);
+  border-color: rgba(80, 80, 130, 0.3);
+  color: rgba(150, 150, 200, 0.4);
+  cursor: default;
+  transform: none;
+}
+
 /* 조각/업그레이드 버튼 공통 */
 .codex-fragment-btn {
   padding: 4px 8px;
@@ -301,6 +311,75 @@
     border-color: rgba(255, 150, 40, 0.1);
     box-shadow: none;
   }
+}
+
+/* ===== 프로필 변경 확인 팝업 ===== */
+.codex-confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 350;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.codex-confirm-overlay.codex-confirm-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.codex-confirm-card {
+  background: rgba(16, 0, 40, 0.97);
+  border: 1px solid rgba(255, 215, 0, 0.35);
+  border-radius: 18px;
+  padding: 28px 32px 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  box-shadow:
+    0 0 40px rgba(120, 0, 255, 0.25),
+    0 4px 24px rgba(0, 0, 0, 0.6);
+  transform: scale(0.9);
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.codex-confirm-overlay.codex-confirm-open .codex-confirm-card {
+  transform: scale(1);
+}
+
+.codex-confirm-msg {
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.codex-confirm-btn {
+  padding: 8px 32px;
+  background: rgba(30, 90, 220, 0.35);
+  border: 1px solid rgba(80, 150, 255, 0.6);
+  border-radius: 20px;
+  color: rgba(160, 210, 255, 1);
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: background 0.18s, transform 0.12s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.codex-confirm-btn:hover {
+  background: rgba(40, 110, 255, 0.52);
+  transform: scale(1.04);
+}
+
+.codex-confirm-btn:active {
+  transform: scale(0.95);
 }
 
 /* 로딩 상태 */

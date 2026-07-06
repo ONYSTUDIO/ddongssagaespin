@@ -32,14 +32,17 @@ const TOTAL_SLOTS        = 9;
 const FRAGMENT_CAP       = 10;
 const MAX_GRADE          = 5;
 
+let currentProfileCharId = 1001;
+
 interface CharacterRow {
   character_id:   number;
   fragment_count: number;
 }
 
 interface CodexData {
-  characters:  Map<number, number>; // character_id → fragment_count
-  profileGrade: number;
+  characters:        Map<number, number>; // character_id → fragment_count
+  profileGrade:      number;
+  profileCharacterId: number;
 }
 
 function getEl<T extends HTMLElement>(id: string): T {
@@ -77,6 +80,21 @@ export function hideCharacterCodexPopup(): void {
   markCodexSeen();
 }
 
+// ── 확인 팝업 ────────────────────────────────────────────────────────
+function showCodexConfirm(): void {
+  const overlay = getEl('codexConfirmOverlay');
+  overlay.removeAttribute('aria-hidden');
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    overlay.classList.add('codex-confirm-open');
+  }));
+}
+
+function hideCodexConfirm(): void {
+  const overlay = getEl('codexConfirmOverlay');
+  overlay.classList.remove('codex-confirm-open');
+  setTimeout(() => overlay.setAttribute('aria-hidden', 'true'), 250);
+}
+
 // ── 프로필 캐릭터 변경 ────────────────────────────────────────────────
 async function changeProfileCharacter(charId: number, btnEl: HTMLButtonElement): Promise<void> {
   const { data: { user } } = await supabase.auth.getUser();
@@ -90,18 +108,33 @@ async function changeProfileCharacter(charId: number, btnEl: HTMLButtonElement):
     .update({ profile_character_id: charId })
     .eq('id', user.id);
 
-  btnEl.disabled = false;
-  btnEl.textContent = '변경';
-
   if (error) {
+    btnEl.disabled = false;
+    btnEl.textContent = '변경';
     showToast('프로필 변경 중 오류가 발생했습니다.');
     return;
   }
 
+  // HUD 아바타 업데이트
   const avatarEl = document.getElementById('hudAvatarImg') as HTMLImageElement | null;
   if (avatarEl) avatarEl.src = DOG_IMAGES[charId] ?? DOG_IMAGES[1001];
 
-  showToast('프로필 캐릭터가 변경됐어요! 🐾');
+  // 이전 프로필 버튼 활성화
+  const prevBtn = document.querySelector<HTMLButtonElement>(
+    `.codex-change-btn[data-char-id="${currentProfileCharId}"]`
+  );
+  if (prevBtn && prevBtn !== btnEl) {
+    prevBtn.disabled = false;
+    prevBtn.classList.remove('codex-change-btn--current');
+    prevBtn.textContent = '변경';
+  }
+
+  // 현재 프로필 ID 업데이트 + 새 버튼 비활성화
+  currentProfileCharId = charId;
+  btnEl.textContent = '변경';
+  btnEl.classList.add('codex-change-btn--current');
+
+  showCodexConfirm();
 }
 
 // ── 업그레이드 실행 ──────────────────────────────────────────────────
@@ -144,7 +177,7 @@ async function fetchCodexData(): Promise<CodexData> {
       .eq('user_id', user.id),
     supabase
       .from('profiles')
-      .select('profile_grade')
+      .select('profile_grade, profile_character_id')
       .eq('id', user.id)
       .single(),
   ]);
@@ -156,8 +189,10 @@ async function fetchCodexData(): Promise<CodexData> {
     }
   }
 
-  const profileGrade = (profileResult.data as { profile_grade: number } | null)?.profile_grade ?? 1;
-  return { characters, profileGrade };
+  const profileData = profileResult.data as { profile_grade: number; profile_character_id: number } | null;
+  const profileGrade       = profileData?.profile_grade       ?? 1;
+  const profileCharacterId = profileData?.profile_character_id ?? 1001;
+  return { characters, profileGrade, profileCharacterId };
 }
 
 // ── 깜빡임 클래스 1회 적용 헬퍼 ───────────────────────────────────
@@ -171,7 +206,8 @@ async function renderGrid(): Promise<void> {
   const grid = getEl('codexGrid');
   grid.innerHTML = '<p class="codex-loading">불러오는 중...</p>';
 
-  const { characters, profileGrade } = await fetchCodexData();
+  const { characters, profileGrade, profileCharacterId } = await fetchCodexData();
+  currentProfileCharId = profileCharacterId;
 
   const newCharIds     = getCodexNewCharIds();
   const newFragmentIds = getCodexNewFragmentIds();
@@ -204,6 +240,7 @@ async function renderGrid(): Promise<void> {
           ? 'codex-fragment-btn codex-fragment-btn--active'
           : 'codex-fragment-btn codex-fragment-btn--disabled';
 
+        const isCurrentProfile = charId === currentProfileCharId;
         slot.className = 'codex-slot codex-slot--collected';
         slot.dataset.charId = String(charId);
         slot.innerHTML = `
@@ -211,7 +248,7 @@ async function renderGrid(): Promise<void> {
             <img class="codex-char-img" src="${DOG_IMAGES[charId]}" alt="캐릭터 ${charId}">
           </div>
           <div class="codex-btn-row">
-            <button class="codex-change-btn" type="button" data-char-id="${charId}">변경</button>
+            <button class="codex-change-btn${isCurrentProfile ? ' codex-change-btn--current' : ''}" type="button" data-char-id="${charId}" ${isCurrentProfile ? 'disabled' : ''}>변경</button>
             <button class="${fragmentClass}" type="button" data-char-id="${charId}" ${canUpgrade ? '' : 'disabled'}>${fragmentLabel}</button>
           </div>
         `;
@@ -278,5 +315,10 @@ export function initCharacterCodex(): void {
   getEl('codexBtn').addEventListener('click', () => {
     playClick();
     showCharacterCodexPopup();
+  });
+
+  getEl('codexConfirmBtn').addEventListener('click', () => {
+    playClick();
+    hideCodexConfirm();
   });
 }
