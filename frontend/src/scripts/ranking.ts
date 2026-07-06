@@ -5,6 +5,7 @@ export interface RankEntry {
   best_score: number;
   profile_grade?: number;
   profile_character_id?: number;
+  nickname?: string | null;
 }
 
 export async function saveScore(grade: string, luckScore: number): Promise<void> {
@@ -21,7 +22,7 @@ export async function saveScore(grade: string, luckScore: number): Promise<void>
 export async function fetchRanking(): Promise<RankEntry[]> {
   const { data, error } = await supabase
     .from('daily_ranking_view')
-    .select('username, best_score, profile_grade, profile_character_id')
+    .select('username, best_score, profile_grade, profile_character_id, nickname')
     .order('best_score', { ascending: false })
     .limit(10);
 

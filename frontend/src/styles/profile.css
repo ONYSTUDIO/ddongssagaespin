@@ -1,0 +1,237 @@
+/* ===== 프로필 팝업 오버레이 ===== */
+.profile-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 0, 20, 0.78);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 260;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.profile-overlay.profile-popup-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ===== 팝업 카드 ===== */
+.profile-popup-card {
+  position: relative;
+  width: min(88vw, 320px);
+  background: rgba(16, 0, 40, 0.96);
+  border: 1px solid rgba(255, 215, 0, 0.32);
+  border-radius: 22px;
+  padding: 36px 24px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  backdrop-filter: blur(12px);
+  box-shadow:
+    0 0 48px rgba(120, 0, 255, 0.28),
+    0 4px 32px rgba(0, 0, 0, 0.6);
+  transform: scale(0.88);
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.profile-popup-open .profile-popup-card {
+  transform: scale(1);
+}
+
+/* ===== 닫기 버튼 ===== */
+.profile-popup-close {
+  position: absolute;
+  top: -13px;
+  right: -13px;
+  width: 32px;
+  height: 32px;
+  background: rgba(20, 0, 40, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 50%;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.profile-popup-close:hover {
+  background: rgba(70, 0, 120, 0.95);
+  color: #fff;
+}
+
+/* ===== 아바타 ===== */
+.profile-popup-avatar {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  background: rgba(20, 0, 50, 0.6);
+  flex-shrink: 0;
+}
+
+.profile-popup-avatar[data-grade="1"] { border-color: rgba(255, 255, 255, 0.35); }
+.profile-popup-avatar[data-grade="2"] { border-color: #c084fc; box-shadow: 0 0 10px rgba(192, 132, 252, 0.4); }
+.profile-popup-avatar[data-grade="3"] { border-color: #60a5fa; box-shadow: 0 0 10px rgba(96, 165, 250, 0.4); }
+.profile-popup-avatar[data-grade="4"] { border-color: #fbbf24; box-shadow: 0 0 10px rgba(251, 191, 36, 0.4); }
+.profile-popup-avatar[data-grade="5"] { border-color: #f87171; box-shadow: 0 0 12px rgba(248, 113, 113, 0.6); }
+
+.profile-popup-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ===== 정보 행 ===== */
+.profile-popup-rows {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.profile-popup-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+}
+
+.profile-popup-label {
+  color: rgba(200, 180, 255, 0.65);
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+  min-width: 42px;
+}
+
+.profile-popup-val {
+  flex: 1;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 0.88rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-popup-val--empty {
+  color: rgba(255, 255, 255, 0.3);
+  font-style: italic;
+}
+
+/* ===== 닉네임 입력 ===== */
+.profile-popup-input {
+  flex: 1;
+  min-width: 0;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 8px;
+  padding: 5px 8px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.85rem;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s, opacity 0.15s;
+}
+
+.profile-popup-input:focus {
+  border-color: rgba(255, 215, 0, 0.65);
+}
+
+.profile-popup-input::placeholder {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.profile-popup-input:disabled {
+  opacity: 0.55;
+  cursor: default;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ===== 변경 버튼 ===== */
+.profile-popup-edit-btn {
+  padding: 4px 10px;
+  background: rgba(30, 90, 220, 0.25);
+  border: 1px solid rgba(80, 150, 255, 0.5);
+  border-radius: 14px;
+  color: rgba(150, 200, 255, 0.9);
+  font-size: 0.7rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.profile-popup-edit-btn:hover {
+  background: rgba(40, 110, 255, 0.4);
+}
+
+.profile-popup-edit-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* ===== 저장/취소 버튼 행 ===== */
+.profile-popup-edit-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  padding: 0 4px;
+  margin-top: 8px;
+}
+
+.profile-popup-save-btn,
+.profile-popup-cancel-btn {
+  padding: 7px 24px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.profile-popup-save-btn {
+  background: rgba(220, 100, 20, 0.45);
+  border: 1px solid rgba(255, 140, 50, 0.7);
+  color: rgba(255, 200, 140, 1);
+}
+
+.profile-popup-save-btn:hover   { background: rgba(240, 120, 30, 0.6); }
+.profile-popup-save-btn:active  { transform: scale(0.95); }
+.profile-popup-save-btn:disabled { opacity: 0.5; cursor: default; }
+
+.profile-popup-cancel-btn {
+  background: rgba(60, 20, 80, 0.4);
+  border: 1px solid rgba(160, 80, 255, 0.35);
+  color: rgba(200, 160, 255, 0.8);
+}
+
+.profile-popup-cancel-btn:hover  { background: rgba(80, 30, 120, 0.55); }
+.profile-popup-cancel-btn:active { transform: scale(0.95); }
+
+/* ===== 닉네임 상태 메시지 (저장 중 / 저장 완료 / 에러) ===== */
+.profile-popup-status {
+  font-size: 0.75rem;
+  text-align: center;
+  height: 1em;
+  padding: 0 4px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.profile-popup-status--saving  { color: rgba(255, 255, 255, 0.55); }
+.profile-popup-status--success { color: rgba(100, 220, 130, 0.9); }
+.profile-popup-status--error   { color: rgba(255, 100, 100, 0.9); }

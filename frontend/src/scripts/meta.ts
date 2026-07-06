@@ -72,14 +72,15 @@ function renderPopupList(rows: RankEntry[]): void {
   listEl.innerHTML = rows.map((row, i) => {
     const medal   = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}`;
     const charId  = row.profile_character_id ?? 1001;
-    const charSrc = DOG_IMAGES[charId] ?? DOG_IMAGES[1001];
-    const grade   = row.profile_grade ?? 1;
+    const charSrc     = DOG_IMAGES[charId] ?? DOG_IMAGES[1001];
+    const grade       = row.profile_grade ?? 1;
+    const displayName = row.nickname || row.username;
     return `<li class="ranking-popup-item">
       <span class="ranking-popup-rank">${medal}</span>
       <span class="ranking-popup-avatar ranking-popup-avatar--grade-${grade}">
         <img class="ranking-popup-avatar-img" src="${charSrc}" alt="">
       </span>
-      <span class="ranking-popup-name">${escapeHtml(row.username)}</span>
+      <span class="ranking-popup-name">${escapeHtml(displayName)}</span>
       <span class="ranking-popup-score">${row.best_score}</span>
     </li>`;
   }).join('');

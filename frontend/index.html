@@ -42,10 +42,10 @@
 
     <!-- HUD: 상단 바 -->
     <div class="game-hud" id="gameHud">
-      <div class="hud-profile">
+      <button class="hud-profile hud-profile-btn" id="hudProfileBtn" type="button" aria-label="프로필 정보">
         <img class="hud-avatar" id="hudAvatarImg" src="" alt="프로필">
         <span class="hud-username" id="hudUsername">--</span>
-      </div>
+      </button>
       <div class="hud-actions">
         <button class="hud-btn hud-btn--codex" id="codexBtn" aria-label="캐릭터 도감">
           <svg class="hud-codex-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -164,6 +164,37 @@
       <ul class="ranking-popup-list" id="rankingPopupList">
         <li class="ranking-popup-empty">불러오는 중...</li>
       </ul>
+    </div>
+  </div>
+
+  <!-- 프로필 정보 팝업 -->
+  <div id="profilePopupOverlay" class="profile-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-label="프로필 정보">
+    <div class="profile-popup-card">
+      <button class="profile-popup-close" id="profilePopupClose" aria-label="닫기">✕</button>
+
+      <div class="profile-popup-avatar" id="profilePopupAvatar" data-grade="1">
+        <img class="profile-popup-avatar-img" id="profilePopupAvatarImg" src="" alt="프로필 이미지">
+      </div>
+
+      <div class="profile-popup-rows">
+        <!-- 아이디 (변경 불가) -->
+        <div class="profile-popup-row">
+          <span class="profile-popup-label">아이디</span>
+          <span class="profile-popup-val" id="profilePopupId">--</span>
+        </div>
+
+        <!-- 닉네임 -->
+        <div class="profile-popup-row">
+          <span class="profile-popup-label">닉네임</span>
+          <input class="profile-popup-input" id="profileNicknameInput" type="text" maxlength="10" placeholder="닉네임 입력 (최대 10자)">
+          <button class="profile-popup-edit-btn" id="profileNicknameEditBtn" type="button">변경</button>
+        </div>
+        <p class="profile-popup-status" id="profileNicknameStatus"></p>
+        <div class="profile-popup-edit-actions" id="profileNicknameActions" hidden>
+          <button class="profile-popup-save-btn" id="profileNicknameSaveBtn" type="button">저장</button>
+          <button class="profile-popup-cancel-btn" id="profileNicknameCancelBtn" type="button">취소</button>
+        </div>
+      </div>
     </div>
   </div>
 

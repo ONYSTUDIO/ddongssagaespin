@@ -34,3 +34,23 @@ GROUP  BY p.username, p.profile_grade, p.profile_character_id
 ORDER  BY best_score DESC;
 
 GRANT SELECT ON public.daily_ranking_view TO anon, authenticated;
+
+
+-- ── 닉네임 대응: nickname 컬럼 추가 ──
+-- 닉네임이 설정된 경우 랭킹 팝업에서 닉네임으로 표시하기 위해 뷰에 포함시킨다.
+
+CREATE OR REPLACE VIEW public.daily_ranking_view AS
+SELECT
+  p.username,
+  MAX(gs.luck_score) AS best_score,
+  p.profile_grade,
+  p.profile_character_id,
+  p.nickname
+FROM   public.game_scores gs
+JOIN   public.profiles    p ON p.id = gs.user_id
+WHERE  (gs.played_at AT TIME ZONE 'Asia/Seoul')::date
+         = (NOW() AT TIME ZONE 'Asia/Seoul')::date
+GROUP  BY p.username, p.profile_grade, p.profile_character_id, p.nickname
+ORDER  BY best_score DESC;
+
+GRANT SELECT ON public.daily_ranking_view TO anon, authenticated;

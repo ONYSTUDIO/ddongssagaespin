@@ -16,6 +16,7 @@ import { initStars } from './scripts/stars';
 import { startBgm, stopBgm, initBgmBtn, playReelStop } from './scripts/sound';
 import { initRedDots, markSpinRecordUpdated } from './scripts/redDot';
 import { getCharacterSrc } from './scripts/characterCodex';
+import { initProfilePopup } from './scripts/profile';
 
 import spinOnSrc       from './assets/images/buttons/btn_spin_on.png';
 import spinOffSrc      from './assets/images/buttons/btn_spin_off.png';
@@ -86,13 +87,15 @@ async function setHudUser(): Promise<void> {
   const usernameEl = document.getElementById('hudUsername');
   const avatarEl   = document.getElementById('hudAvatarImg') as HTMLImageElement | null;
   if (usernameEl) usernameEl.textContent = username;
-  if (avatarEl && user) {
+  if (user) {
     const { data: profile } = await supabase
       .from('profiles')
-      .select('profile_character_id')
+      .select('profile_character_id, nickname')
       .eq('id', user.id)
       .single();
-    avatarEl.src = getCharacterSrc(profile?.profile_character_id ?? 1001);
+    if (avatarEl) avatarEl.src = getCharacterSrc(profile?.profile_character_id ?? 1001);
+    const nickname = (profile as { nickname?: string | null } | null)?.nickname;
+    if (usernameEl && nickname) usernameEl.textContent = `${nickname} (${username})`;
   }
 }
 
@@ -129,6 +132,7 @@ async function onLoginSuccess(): Promise<void> {
 }
 
 initStars();
+initProfilePopup();
 initLogin(
   onLoginSuccess,
   () => startBgm(),  // await 전 동기 구간 호출 → 웹/Android/iOS 모두 user gesture로 인정
