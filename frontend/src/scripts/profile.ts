@@ -56,13 +56,6 @@ function enterEdit(): void {
   setStatus('');
 }
 
-function exitEdit(restore: boolean): void {
-  const input = getEl<HTMLInputElement>('profileNicknameInput');
-  if (restore) input.value = originalNickname;
-  input.disabled = true;
-  getEl('profileNicknameActions').setAttribute('hidden', '');
-  setStatus('');
-}
 
 // ── 프로필 데이터 로드 ───────────────────────────────────────────────
 async function loadProfile(): Promise<void> {

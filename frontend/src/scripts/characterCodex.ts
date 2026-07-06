@@ -168,7 +168,7 @@ async function executeUpgrade(charId: number, currentGrade: number): Promise<voi
 // profile_grade는 profiles의 전역 컬럼 — user_characters에 추가 불필요
 async function fetchCodexData(): Promise<CodexData> {
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { characters: new Map(), profileGrade: 1 };
+  if (!user) return { characters: new Map(), profileGrade: 1, profileCharacterId: 1001 };
 
   const [charResult, profileResult] = await Promise.all([
     supabase
