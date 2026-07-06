@@ -14,8 +14,6 @@ function getEl<T extends HTMLElement>(id: string): T {
   return document.getElementById(id) as T;
 }
 
-// 편집 취소 시 되돌릴 원본 닉네임
-let originalNickname = '';
 
 function handleEsc(e: KeyboardEvent): void {
   if (e.key === 'Escape') hideProfilePopup();
@@ -48,7 +46,6 @@ function setStatus(msg: string, type: 'saving' | 'success' | 'error' | '' = ''):
 
 function enterEdit(): void {
   const input = getEl<HTMLInputElement>('profileNicknameInput');
-  originalNickname = input.value;
   input.disabled = false;
   input.focus();
   input.select();
