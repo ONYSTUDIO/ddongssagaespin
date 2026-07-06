@@ -49,6 +49,7 @@
 }
 
 .hud-btn {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -61,6 +62,34 @@
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
   transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* ===== 레드닷: 아이콘 우측 상단 신규/미완료 알림 ===== */
+.red-dot {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background-color: #ff3b30;
+  border: 1.5px solid rgba(10, 0, 30, 0.8);
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  transform-origin: center;
+  box-shadow: 0 0 5px 1px rgba(255, 59, 48, 0.55);
+}
+
+.red-dot--hidden {
+  opacity: 0;
+  transform: scale(0);
+}
+
+/* 레드닷이 표시된 아이콘 테두리 네온 효과 */
+.meta-btn:has(.red-dot:not(.red-dot--hidden)),
+.hud-btn:has(.red-dot:not(.red-dot--hidden)) {
+  border-color: rgba(255, 59, 48, 0.45);
+  box-shadow: 0 0 6px 1px rgba(255, 59, 48, 0.3);
 }
 
 .hud-btn:hover {

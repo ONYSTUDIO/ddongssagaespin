@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { markNewCharacterAcquired } from './redDot';
 
 // 세션 내 캐시: 팝업 열릴 때 DB에서 로드
 let ownedCharacterIds: Set<number> = new Set();
@@ -36,7 +37,10 @@ export async function collectCharacter(characterId: number): Promise<void> {
       .from('user_characters')
       .insert({ user_id: user.id, character_id: characterId, fragment_count: 0 });
 
-    if (!error) ownedCharacterIds.add(characterId);
+    if (!error) {
+      ownedCharacterIds.add(characterId);
+      markNewCharacterAcquired();
+    }
     return;
   }
 

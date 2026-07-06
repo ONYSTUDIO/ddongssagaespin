@@ -8,6 +8,7 @@ import dog05Src from '../assets/images/characters/dog_05.png';
 
 import { supabase } from './supabase';
 import { playClick } from './sound';
+import { markCodexSeen } from './redDot';
 
 const DOG_IMAGES: Record<number, string> = {
   1001: dog01Src,
@@ -64,6 +65,7 @@ export function hideCharacterCodexPopup(): void {
   overlay.classList.remove('codex-open');
   setTimeout(() => overlay.setAttribute('aria-hidden', 'true'), 300);
   document.removeEventListener('keydown', handleEsc);
+  markCodexSeen();
 }
 
 // ── 업그레이드 실행 ──────────────────────────────────────────────────

@@ -2,6 +2,7 @@ import '../styles/minigame01.css';
 import { grantSpins } from './spinManager';
 import { playClick } from './sound';
 import { loadOwnedCharacters, isCharacterOwned, collectCharacter } from './characterManager';
+import { markMinigameCompleted } from './redDot';
 
 import dog01Src       from '../assets/images/characters/dog_01.png';
 import dog02Src       from '../assets/images/characters/dog_02.png';
@@ -238,6 +239,7 @@ async function showResultScreen(): Promise<void> {
 
   // 게임 화면은 그대로 두고 위에 오버레이로 표시 (네트워크 전에 먼저 표시)
   requestAnimationFrame(() => resultEl.classList.add('mg01-result--open'));
+  markMinigameCompleted();
 
   // 획득한 스핀 지급 및 HUD 갱신 (오버레이 표시 후 비동기 처리)
   if (goldenPoopCount > 0) {

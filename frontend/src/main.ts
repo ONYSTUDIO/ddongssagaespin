@@ -14,6 +14,7 @@ import { getCurrentSpinCount, consumeSpin } from './scripts/spinManager';
 import { saveSlotFortuneLog } from './scripts/history';
 import { initStars } from './scripts/stars';
 import { startBgm, stopBgm, initBgmBtn, playReelStop } from './scripts/sound';
+import { initRedDots } from './scripts/redDot';
 
 import spinOnSrc       from './assets/images/buttons/btn_spin_on.png';
 import spinOffSrc      from './assets/images/buttons/btn_spin_off.png';
@@ -106,6 +107,10 @@ async function onLoginSuccess(): Promise<void> {
     updateSpinCountUI(newCount);
   });
   await checkAndShowDailyReward();
+
+  // 레드닷 초기화
+  const { data: { user: currentUser } } = await supabase.auth.getUser();
+  if (currentUser) initRedDots(currentUser.id).catch(() => { /* silent */ });
 
   isInitializing = false;
 

@@ -13,6 +13,7 @@ import { saveFortuneCookieLog } from './history';
 import { grantSpinsWithResult } from './spinManager';
 import { supabase } from './supabase';
 import { playClick } from './sound';
+import { updateFortuneCookieRedDot } from './redDot';
 
 const BREAK_FRAMES = [cookie01, cookie02, cookie03, cookie04, cookie05];
 const FRAME_DURATION = 250; // 4 transitions × 250ms = 1s
@@ -182,6 +183,7 @@ export function showFortunePaper(): void {
     if (user) {
       try { await markFortuneCookieChecked(user.id); } catch (_) { /* silent */ }
       try { await saveFortuneCookieLog(msg.message); } catch (_) { /* silent */ }
+      updateFortuneCookieRedDot(user.id).catch(() => { /* silent */ });
     }
 
     // 메시지 표시 후 액션 버튼 등장
@@ -320,6 +322,7 @@ async function submitFortuneCookieMessage(): Promise<void> {
   // 3. wrote_message 처리
   if (user) {
     try { await markFortuneCookieMessageWritten(user.id); } catch (_) { /* silent */ }
+    updateFortuneCookieRedDot(user.id).catch(() => { /* silent */ });
   }
 
   // 4. 인게임 스핀 UI 갱신
