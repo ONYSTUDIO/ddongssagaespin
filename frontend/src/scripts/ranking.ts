@@ -3,6 +3,8 @@ import { supabase } from './supabase';
 export interface RankEntry {
   username: string;
   best_score: number;
+  profile_grade?: number;
+  profile_character_id?: number;
 }
 
 export async function saveScore(grade: string, luckScore: number): Promise<void> {
@@ -19,7 +21,7 @@ export async function saveScore(grade: string, luckScore: number): Promise<void>
 export async function fetchRanking(): Promise<RankEntry[]> {
   const { data, error } = await supabase
     .from('daily_ranking_view')
-    .select('username, best_score')
+    .select('username, best_score, profile_grade, profile_character_id')
     .order('best_score', { ascending: false })
     .limit(10);
 

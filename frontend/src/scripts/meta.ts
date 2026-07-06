@@ -5,6 +5,21 @@ import rankingSrc        from '../assets/images/meta/icons/meta_ranking.png';
 import supportSrc        from '../assets/images/meta/icons/meta_support_gift.png';
 import historySrc        from '../assets/images/meta/icons/meta_my_history_2.png';
 import minigameSrc       from '../assets/images/meta/icons/meta_minigame_01.png';
+
+import dog01Src from '../assets/images/characters/dog_01.png';
+import dog02Src from '../assets/images/characters/dog_02.png';
+import dog03Src from '../assets/images/characters/dog_03.png';
+import dog04Src from '../assets/images/characters/dog_04.png';
+import dog05Src from '../assets/images/characters/dog_05.png';
+
+const DOG_IMAGES: Record<number, string> = {
+  1001: dog01Src,
+  1002: dog02Src,
+  1003: dog03Src,
+  1004: dog04Src,
+  1005: dog05Src,
+};
+
 import { fetchRanking, RankEntry } from './ranking';
 import { supabase } from './supabase';
 import { showLoginScreen } from './login';
@@ -22,8 +37,8 @@ import { initCharacterCodex } from './characterCodex';
 import { markHistorySeen, markRankingSeen } from './redDot';
 
 const MOCK_RANKING: RankEntry[] = [
-  { username: 'testuser2', best_score: 95 },
-  { username: 'hey',       best_score: 95 },
+  { username: 'testuser2', best_score: 95, profile_grade: 1, profile_character_id: 1001 },
+  { username: 'hey',       best_score: 95, profile_grade: 1, profile_character_id: 1001 },
 ];
 
 // ── Toast ──────────────────────────────────────────────────────────
@@ -55,9 +70,15 @@ function renderPopupList(rows: RankEntry[]): void {
   }
 
   listEl.innerHTML = rows.map((row, i) => {
-    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}`;
+    const medal   = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}`;
+    const charId  = row.profile_character_id ?? 1001;
+    const charSrc = DOG_IMAGES[charId] ?? DOG_IMAGES[1001];
+    const grade   = row.profile_grade ?? 1;
     return `<li class="ranking-popup-item">
       <span class="ranking-popup-rank">${medal}</span>
+      <span class="ranking-popup-avatar ranking-popup-avatar--grade-${grade}">
+        <img class="ranking-popup-avatar-img" src="${charSrc}" alt="">
+      </span>
       <span class="ranking-popup-name">${escapeHtml(row.username)}</span>
       <span class="ranking-popup-score">${row.best_score}</span>
     </li>`;
