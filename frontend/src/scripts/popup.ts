@@ -5,7 +5,6 @@ import { playClick } from './sound';
 
 // ── 이미지 에셋 임포트 ────────────────────────────────────────────────────────
 
-import fortuneBagSrc  from '../assets/images/popup/fortune_bag_idle.png';
 import particleSrc    from '../assets/images/effects/particle_01.png';
 
 import corgiSymSrc       from '../assets/images/symbols/symbol_corgi.png';
