@@ -8,7 +8,12 @@ import dog05Src from '../assets/images/characters/dog_05.png';
 
 import { supabase } from './supabase';
 import { playClick } from './sound';
-import { markCodexSeen } from './redDot';
+import {
+  markCodexSeen,
+  getCodexNewCharIds,
+  getCodexNewFragmentIds,
+  getCodexNewUpgradeIds,
+} from './redDot';
 
 const DOG_IMAGES: Record<number, string> = {
   1001: dog01Src,
@@ -124,6 +129,12 @@ async function fetchCodexData(): Promise<CodexData> {
   return { characters, profileGrade };
 }
 
+// ── 깜빡임 클래스 1회 적용 헬퍼 ───────────────────────────────────
+function addBlink(el: Element | null, cls: string): void {
+  if (!el) return;
+  el.classList.add(cls);
+}
+
 // ── 그리드 렌더링 ─────────────────────────────────────────────────
 async function renderGrid(): Promise<void> {
   const grid = getEl('codexGrid');
@@ -131,18 +142,25 @@ async function renderGrid(): Promise<void> {
 
   const { characters, profileGrade } = await fetchCodexData();
 
+  const newCharIds     = getCodexNewCharIds();
+  const newFragmentIds = getCodexNewFragmentIds();
+  const newUpgradeIds  = getCodexNewUpgradeIds();
+
   grid.innerHTML = '';
 
   for (let i = 0; i < TOTAL_SLOTS; i++) {
     const slot = document.createElement('div');
+    let charId      = 0;
+    let isCollected = false;
+    let canUpgrade  = false;
 
     if (i < DEFINED_CHARACTERS.length) {
-      const charId    = DEFINED_CHARACTERS[i];
+      charId = DEFINED_CHARACTERS[i];
       const fragments = characters.get(charId);
-      const isCollected = fragments !== undefined;
+      isCollected = fragments !== undefined;
 
       if (isCollected) {
-        const canUpgrade = fragments >= FRAGMENT_CAP && profileGrade < MAX_GRADE;
+        canUpgrade = fragments! >= FRAGMENT_CAP && profileGrade < MAX_GRADE;
         const isMaxGrade = profileGrade >= MAX_GRADE;
 
         const fragmentLabel = canUpgrade
@@ -184,6 +202,18 @@ async function renderGrid(): Promise<void> {
     }
 
     grid.appendChild(slot);
+
+    if (isCollected && charId > 0) {
+      if (newCharIds.includes(charId)) {
+        addBlink(slot.querySelector('.codex-circle'), 'codex-circle--blink');
+      }
+      const fragBtn = slot.querySelector('.codex-fragment-btn');
+      if (!canUpgrade && newFragmentIds.includes(charId)) {
+        addBlink(fragBtn, 'codex-fragment-btn--blink');
+      } else if (canUpgrade && newUpgradeIds.includes(charId)) {
+        addBlink(fragBtn, 'codex-fragment-btn--upgrade-blink');
+      }
+    }
   }
 
   grid.querySelectorAll<HTMLButtonElement>('.codex-change-btn').forEach(btn => {

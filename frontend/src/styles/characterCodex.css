@@ -249,6 +249,60 @@
   50%       { box-shadow: 0 0 10px rgba(255, 160, 0, 0.5), 0 0 4px rgba(255, 120, 0, 0.3); }
 }
 
+/* ── 신규 캐릭터: 원형 라인 깜빡임 (6회 후 정적 네온으로 복귀) ── */
+.codex-circle--blink {
+  animation: codexCircleBlink 0.7s ease-in-out infinite;
+}
+
+@keyframes codexCircleBlink {
+  0%, 100% {
+    border-color: rgba(255, 215, 0, 0.95);
+    box-shadow:
+      0 0 18px rgba(255, 215, 0, 0.7),
+      0 0 8px  rgba(180, 80, 255, 0.5);
+  }
+  50% {
+    border-color: rgba(255, 215, 0, 0.1);
+    box-shadow: none;
+  }
+}
+
+/* ── 신규 조각: 조각 버튼 라인 깜빡임 ── */
+.codex-fragment-btn--blink {
+  animation: codexFragBlink 0.7s ease-in-out infinite;
+}
+
+@keyframes codexFragBlink {
+  0%, 100% {
+    border-color: rgba(220, 130, 30, 0.9);
+    box-shadow:
+      0 0 8px rgba(220, 130, 30, 0.65),
+      0 0 4px rgba(255, 140,  0, 0.4);
+  }
+  50% {
+    border-color: rgba(220, 120, 30, 0.1);
+    box-shadow: none;
+  }
+}
+
+/* ── 업그레이드 도달: 업그레이드 버튼 라인 깜빡임 (fragmentGlow 일시 오버라이드) ── */
+.codex-fragment-btn--active.codex-fragment-btn--upgrade-blink {
+  animation: codexUpgradeBlink 0.7s ease-in-out infinite;
+}
+
+@keyframes codexUpgradeBlink {
+  0%, 100% {
+    border-color: rgba(255, 160, 40, 1);
+    box-shadow:
+      0 0 14px rgba(255, 150,  0, 0.85),
+      0 0  6px rgba(255, 120,  0, 0.6);
+  }
+  50% {
+    border-color: rgba(255, 150, 40, 0.1);
+    box-shadow: none;
+  }
+}
+
 /* 로딩 상태 */
 .codex-loading {
   text-align: center;

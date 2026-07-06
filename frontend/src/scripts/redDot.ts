@@ -49,15 +49,50 @@ export function updateMinigameRedDot(): void {
 // TODO 장기 개선: user_characters 테이블에 is_seen(boolean) 컬럼 추가
 //   → 기기 변경 시에도 유지, 신규 획득 여부를 서버에서 정확히 관리 가능
 
-const CODEX_NEW_KEY = 'codex_has_new_character';
+const CODEX_NEW_KEY         = 'codex_has_new';
+const CODEX_NEW_CHAR_IDS    = 'codex_new_char_ids';
+const CODEX_NEW_FRAG_IDS    = 'codex_new_fragment_ids';
+const CODEX_NEW_UPGRADE_IDS = 'codex_new_upgrade_ids';
 
-export function markNewCharacterAcquired(): void {
+function addToCodexSet(key: string, id: number): void {
+  const arr: number[] = JSON.parse(localStorage.getItem(key) ?? '[]');
+  if (!arr.includes(id)) arr.push(id);
+  localStorage.setItem(key, JSON.stringify(arr));
+}
+
+export function getCodexNewCharIds(): number[] {
+  return JSON.parse(localStorage.getItem(CODEX_NEW_CHAR_IDS) ?? '[]');
+}
+export function getCodexNewFragmentIds(): number[] {
+  return JSON.parse(localStorage.getItem(CODEX_NEW_FRAG_IDS) ?? '[]');
+}
+export function getCodexNewUpgradeIds(): number[] {
+  return JSON.parse(localStorage.getItem(CODEX_NEW_UPGRADE_IDS) ?? '[]');
+}
+
+export function markCodexNewChar(charId: number): void {
+  addToCodexSet(CODEX_NEW_CHAR_IDS, charId);
+  localStorage.setItem(CODEX_NEW_KEY, 'true');
+  showRedDot('rdCodex');
+}
+
+export function markCodexNewFragment(charId: number): void {
+  addToCodexSet(CODEX_NEW_FRAG_IDS, charId);
+  localStorage.setItem(CODEX_NEW_KEY, 'true');
+  showRedDot('rdCodex');
+}
+
+export function markCodexNewUpgrade(charId: number): void {
+  addToCodexSet(CODEX_NEW_UPGRADE_IDS, charId);
   localStorage.setItem(CODEX_NEW_KEY, 'true');
   showRedDot('rdCodex');
 }
 
 export function markCodexSeen(): void {
   localStorage.removeItem(CODEX_NEW_KEY);
+  localStorage.removeItem(CODEX_NEW_CHAR_IDS);
+  localStorage.removeItem(CODEX_NEW_FRAG_IDS);
+  localStorage.removeItem(CODEX_NEW_UPGRADE_IDS);
   hideRedDot('rdCodex');
 }
 
@@ -120,7 +155,7 @@ function updateRankingRedDot(): void {
 export async function initRedDots(userId: string): Promise<void> {
   await updateFortuneCookieRedDot(userId);
   updateMinigameRedDot();
-  markNewCharacterAcquired(); // TEST: 도감 레드닷 강제 표시 — 테스트 후 updateCodexRedDot()로 원복
+  markCodexNewChar(1001); // TEST: 도감 레드닷 강제 표시 — 테스트 후 updateCodexRedDot()로 원복
   updateHistoryRedDot();
   updateRankingRedDot();
 }

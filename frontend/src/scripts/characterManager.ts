@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import { markNewCharacterAcquired } from './redDot';
+import { markCodexNewChar, markCodexNewFragment, markCodexNewUpgrade } from './redDot';
 
 // 세션 내 캐시: 팝업 열릴 때 DB에서 로드
 let ownedCharacterIds: Set<number> = new Set();
@@ -39,7 +39,7 @@ export async function collectCharacter(characterId: number): Promise<void> {
 
     if (!error) {
       ownedCharacterIds.add(characterId);
-      markNewCharacterAcquired();
+      markCodexNewChar(characterId);
     }
     return;
   }
@@ -61,7 +61,13 @@ export async function collectCharacter(characterId: number): Promise<void> {
     .update({ fragment_count: newCount })
     .eq('id', existing.id);
 
-  if (!updateError) markNewCharacterAcquired();
+  if (!updateError) {
+    if (newCount === 10) {
+      markCodexNewUpgrade(characterId);
+    } else if (newCount < 10) {
+      markCodexNewFragment(characterId);
+    }
+  }
 
   // 조각 10개마다 프로필 등급 업
   if (newCount % 10 === 0) {
