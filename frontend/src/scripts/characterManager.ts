@@ -56,10 +56,12 @@ export async function collectCharacter(characterId: number): Promise<void> {
 
   const newCount = existing.fragment_count + 1;
 
-  await supabase
+  const { error: updateError } = await supabase
     .from('user_characters')
     .update({ fragment_count: newCount })
     .eq('id', existing.id);
+
+  if (!updateError) markNewCharacterAcquired();
 
   // 조각 10개마다 프로필 등급 업
   if (newCount % 10 === 0) {

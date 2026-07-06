@@ -14,7 +14,7 @@ import { getCurrentSpinCount, consumeSpin } from './scripts/spinManager';
 import { saveSlotFortuneLog } from './scripts/history';
 import { initStars } from './scripts/stars';
 import { startBgm, stopBgm, initBgmBtn, playReelStop } from './scripts/sound';
-import { initRedDots } from './scripts/redDot';
+import { initRedDots, markSpinRecordUpdated } from './scripts/redDot';
 
 import spinOnSrc       from './assets/images/buttons/btn_spin_on.png';
 import spinOffSrc      from './assets/images/buttons/btn_spin_off.png';
@@ -213,6 +213,7 @@ async function spin(): Promise<void> {
     const judgment      = judgeResult(results[0].id, results[1].id, results[2].id);
     const fortuneResult = buildFortuneResult(judgment.grade, results[0].id, results[1].id, results[2].id);
 
+    markSpinRecordUpdated();
     saveScore(judgment.grade, fortuneResult.luckScore);
     saveSlotFortuneLog(fortuneResult).catch(() => { /* silent */ });
 

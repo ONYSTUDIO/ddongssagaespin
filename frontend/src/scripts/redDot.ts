@@ -69,10 +69,58 @@ export function updateCodexRedDot(): void {
   }
 }
 
+// ── 나의기록 / 순위 (localStorage 기반) ──────────────────────────────────────
+// 오늘 첫 스핀 완료 시 레드닷 표시, 아이콘 눌러 확인하면 제거
+
+const SPIN_RECORD_KEY  = 'spin_record_date';
+const HISTORY_SEEN_KEY = 'history_seen_date';
+const RANKING_SEEN_KEY = 'ranking_seen_date';
+
+export function markSpinRecordUpdated(): void {
+  const today = getTodayKstDate();
+  if (localStorage.getItem(SPIN_RECORD_KEY) !== today) {
+    localStorage.setItem(SPIN_RECORD_KEY, today);
+    showRedDot('rdHistory');
+    showRedDot('rdRanking');
+  }
+}
+
+export function markHistorySeen(): void {
+  localStorage.setItem(HISTORY_SEEN_KEY, getTodayKstDate());
+  hideRedDot('rdHistory');
+}
+
+export function markRankingSeen(): void {
+  localStorage.setItem(RANKING_SEEN_KEY, getTodayKstDate());
+  hideRedDot('rdRanking');
+}
+
+function updateHistoryRedDot(): void {
+  const today = getTodayKstDate();
+  if (localStorage.getItem(SPIN_RECORD_KEY) === today &&
+      localStorage.getItem(HISTORY_SEEN_KEY) !== today) {
+    showRedDot('rdHistory');
+  } else {
+    hideRedDot('rdHistory');
+  }
+}
+
+function updateRankingRedDot(): void {
+  const today = getTodayKstDate();
+  if (localStorage.getItem(SPIN_RECORD_KEY) === today &&
+      localStorage.getItem(RANKING_SEEN_KEY) !== today) {
+    showRedDot('rdRanking');
+  } else {
+    hideRedDot('rdRanking');
+  }
+}
+
 // ── 전체 초기화 (로그인 성공 시 호출) ────────────────────────────────────────
 
 export async function initRedDots(userId: string): Promise<void> {
   await updateFortuneCookieRedDot(userId);
   updateMinigameRedDot();
   markNewCharacterAcquired(); // TEST: 도감 레드닷 강제 표시 — 테스트 후 updateCodexRedDot()로 원복
+  updateHistoryRedDot();
+  updateRankingRedDot();
 }

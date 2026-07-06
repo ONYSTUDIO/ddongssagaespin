@@ -19,6 +19,7 @@ import { ensureFortuneCookieDailyState } from './fortuneCookieDaily';
 import { initHistory, showHistoryPopup } from './history';
 import { initMinigame01, showMinigame01Popup } from './minigame01';
 import { initCharacterCodex } from './characterCodex';
+import { markHistorySeen, markRankingSeen } from './redDot';
 
 const MOCK_RANKING: RankEntry[] = [
   { username: 'testuser2', best_score: 95 },
@@ -155,6 +156,7 @@ export function initMeta(): void {
 
   document.getElementById('metaBtnRanking')?.addEventListener('click', () => {
     playClick();
+    markRankingSeen();
     openRankingPopup();
   });
 
@@ -165,6 +167,7 @@ export function initMeta(): void {
 
   document.getElementById('metaBtnHistory')?.addEventListener('click', () => {
     playClick();
+    markHistorySeen();
     showHistoryPopup();
   });
 
