@@ -102,9 +102,11 @@
           <p class="result-text" id="resultText"></p>
         </div>
 
-        <button class="spin-btn" id="spinBtn">
-          <img id="btnSpinImg" src="" alt="SPIN">
-        </button>
+        <div id="spinBtnWrap">
+          <button class="spin-btn" id="spinBtn">
+            <img id="btnSpinImg" src="" alt="SPIN">
+          </button>
+        </div>
       </div>
 
 
@@ -157,6 +159,26 @@
       <li>2개 일치 → <strong>C급 소길 🍀</strong></li>
       <li>👻 유령 3개 / 🍠 고구마 3개 / 전부 다름 → <strong>꽝 😢</strong></li>
     </ul>
+  </div>
+
+  <!-- 스핀 부족 안내 팝업 -->
+  <div class="no-spin-overlay" id="noSpinOverlay" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="no-spin-card">
+      <button class="no-spin-close" id="noSpinClose" aria-label="닫기">✕</button>
+      <p class="no-spin-title">스핀이 부족해요!</p>
+      <p class="no-spin-sub">아직 포기하긴 이르죠! 아래 미션으로 스핀을 충전해보세요.</p>
+      <ul class="no-spin-list">
+        <li>
+          <span>🍪 포춘 쿠키 메세지 작성 시 <strong>10스핀</strong> 겟또!</span>
+          <button class="no-spin-btn no-spin-btn--fortune" id="noSpinGotoFortune" type="button">🍪 ㄱㄱ</button>
+        </li>
+        <li>
+          <span>💩 황금똥 찾기 게임 하고 스핀 수 <strong>마구마구</strong> 겟또!</span>
+          <button class="no-spin-btn no-spin-btn--minigame" id="noSpinGotoMinigame" type="button">💩 ㄱㄱ</button>
+        </li>
+      </ul>
+      <button class="no-spin-confirm" id="noSpinConfirm" type="button">확인</button>
+    </div>
   </div>
 
   <!-- 랭킹 팝업 -->

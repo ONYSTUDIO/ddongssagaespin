@@ -37,8 +37,24 @@ let isSpinning     = false;  // 스핀 전체 진행 중 (릴 + 연출 포함)
 let isReelAnimating = false;  // 릴 애니메이션 중에만 true (스킵 가능 구간)
 let isSkipRequested = false;  // 스킵 중복 방지
 let isInitializing  = false;  // 로그인 초기화 중 — 스핀 버튼 비활성화 차단
+let noSpinMode      = false;  // 스핀 0개 상태 — 래퍼 클릭 시 안내 팝업 표시
 let reelCancelFns: Array<() => void> = [];
 let pendingPopupTimer: ReturnType<typeof setTimeout> | null = null;
+
+// ── 스핀 부족 안내 팝업 ───────────────────────────────────────────
+function showNoSpinPopup(): void {
+  const overlay = document.getElementById('noSpinOverlay');
+  if (!overlay) return;
+  overlay.setAttribute('aria-hidden', 'false');
+  overlay.classList.add('no-spin-open');
+}
+
+function hideNoSpinPopup(): void {
+  const overlay = document.getElementById('noSpinOverlay');
+  if (!overlay) return;
+  overlay.classList.remove('no-spin-open');
+  overlay.setAttribute('aria-hidden', 'true');
+}
 
 // ── 특수 연출 확률 (나중에 실제 확률로 조정) ──────────────────────
 // 0 ~ SUSPENSE_THRESH: 서스펜스 / SUSPENSE_THRESH ~ NUDGE_THRESH: 넛지 / 나머지: 일반
@@ -56,7 +72,8 @@ function updateSpinCountUI(count: number): void {
     spinCountEl.classList.add('spin-normal');
   }
   if (!isSpinning && !isInitializing) {
-    btn.disabled = count <= 0;
+    noSpinMode = count <= 0;
+    btn.disabled = false;  // 스핀 0이어도 클릭 허용 — spin()에서 팝업 처리
     if (count <= 0) setBtnState('off');
   }
 }
@@ -149,8 +166,8 @@ document.addEventListener('spinCountUpdated', (e) => {
 });
 
 // ── 호버 이벤트 ──────────────────────────────────────────────────
-btn.addEventListener('mouseenter', () => { if (!btn.disabled && !isSpinning) setBtnState('focus'); });
-btn.addEventListener('mouseleave', () => { if (!btn.disabled && !isSpinning) setBtnState('on');    });
+btn.addEventListener('mouseenter', () => { if (!isSpinning && !noSpinMode) setBtnState('focus'); });
+btn.addEventListener('mouseleave', () => { if (!isSpinning && !noSpinMode) setBtnState('on');    });
 
 // ── 스핀 버튼 더블클릭/더블탭 → 즉시 결과 스킵 ─────────────────
 function handleSkip(): void {
@@ -173,6 +190,7 @@ btn.addEventListener('touchend', (e) => {
 // ── SPIN 함수 ─────────────────────────────────────────────────────
 async function spin(): Promise<void> {
   if (isSpinning) return;
+  if (noSpinMode) { showNoSpinPopup(); return; }
   isSpinning = true;
 
   // 이전 스핀의 지연 팝업 타이머가 살아 있으면 취소
@@ -217,8 +235,10 @@ async function spin(): Promise<void> {
   // 연출 종료 후 버튼 활성화
   function enableSpinBtn(): void {
     isSpinning = false;
-    btn.disabled = remaining <= 0;
+    noSpinMode = remaining <= 0;
+    btn.disabled = false;
     if (remaining > 0) setBtnState('on');
+    else setBtnState('off');
   }
 
   function runJudgment(): void {
@@ -335,9 +355,24 @@ async function spin(): Promise<void> {
   updateSpinCountUI(remaining);
   // 네트워크 지연으로 애니메이션이 이미 끝난 경우 버튼 상태 보정
   if (!isSpinning) {
-    btn.disabled = remaining <= 0;
+    noSpinMode = remaining <= 0;
+    btn.disabled = false;
     if (remaining > 0) setBtnState('on');
   }
 }
 
 btn.addEventListener('click', spin);
+
+document.getElementById('noSpinClose')?.addEventListener('click', hideNoSpinPopup);
+document.getElementById('noSpinConfirm')?.addEventListener('click', hideNoSpinPopup);
+document.getElementById('noSpinOverlay')?.addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) hideNoSpinPopup();
+});
+document.getElementById('noSpinGotoFortune')?.addEventListener('click', () => {
+  hideNoSpinPopup();
+  document.getElementById('metaBtnFortune')?.click();
+});
+document.getElementById('noSpinGotoMinigame')?.addEventListener('click', () => {
+  hideNoSpinPopup();
+  document.getElementById('metaBtnMinigame')?.click();
+});

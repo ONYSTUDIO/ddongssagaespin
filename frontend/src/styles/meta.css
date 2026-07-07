@@ -487,6 +487,168 @@
   padding: 20px 0;
 }
 
+/* ===== 스핀 부족 팝업 ===== */
+.no-spin-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 0, 20, 0.75);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 250;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s ease;
+}
+
+.no-spin-overlay.no-spin-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.no-spin-card {
+  position: relative;
+  width: min(94vw, 460px);
+  background: rgba(16, 0, 40, 0.96);
+  border: 1px solid rgba(255, 215, 0, 0.32);
+  border-radius: 20px;
+  padding: 32px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  backdrop-filter: blur(12px);
+  box-shadow:
+    0 0 40px rgba(120, 0, 255, 0.25),
+    0 4px 28px rgba(0, 0, 0, 0.55);
+  transform: scale(0.88);
+  transition: transform 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.no-spin-open .no-spin-card {
+  transform: scale(1);
+}
+
+.no-spin-close {
+  position: absolute;
+  top: -13px;
+  right: -13px;
+  width: 32px;
+  height: 32px;
+  background: rgba(20, 0, 40, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 50%;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.no-spin-close:hover {
+  background: rgba(70, 0, 120, 0.95);
+  color: #fff;
+}
+
+.no-spin-title {
+  color: #ffd700;
+  font-size: 1rem;
+  font-weight: bold;
+  text-align: center;
+  letter-spacing: 1px;
+  text-shadow: 0 0 12px rgba(255, 215, 0, 0.45);
+}
+
+.no-spin-sub {
+  color: #e0b0ff;
+  text-align: center;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.no-spin-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.no-spin-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.no-spin-list li span {
+  flex: 1;
+  min-width: 0;
+}
+
+.no-spin-list li strong {
+  color: #ffd700;
+  font-weight: 700;
+}
+
+.no-spin-btn {
+  flex-shrink: 0;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.no-spin-btn:active { transform: scale(0.95); }
+
+.no-spin-btn--fortune {
+  background: rgba(200, 100, 20, 0.4);
+  border: 1px solid rgba(255, 160, 60, 0.65);
+  color: rgba(255, 200, 130, 1);
+}
+
+.no-spin-btn--fortune:hover { background: rgba(220, 120, 30, 0.55); }
+
+.no-spin-btn--minigame {
+  background: rgba(80, 20, 160, 0.4);
+  border: 1px solid rgba(160, 80, 255, 0.65);
+  color: rgba(200, 160, 255, 1);
+}
+
+.no-spin-btn--minigame:hover { background: rgba(100, 30, 200, 0.55); }
+
+.no-spin-confirm {
+  align-self: center;
+  padding: 8px 32px;
+  background: rgba(30, 90, 220, 0.35);
+  border: 1px solid rgba(80, 150, 255, 0.6);
+  border-radius: 20px;
+  color: rgba(160, 210, 255, 1);
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: background 0.18s, transform 0.12s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.no-spin-confirm:hover  { background: rgba(40, 110, 255, 0.52); transform: scale(1.04); }
+.no-spin-confirm:active { transform: scale(0.95); }
+
 /* ===== Toast ===== */
 .meta-toast {
   position: fixed;
