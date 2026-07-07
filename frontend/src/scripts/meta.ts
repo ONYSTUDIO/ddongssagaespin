@@ -11,6 +11,8 @@ import dog02Src from '../assets/images/characters/dog_02.png';
 import dog03Src from '../assets/images/characters/dog_03.png';
 import dog04Src from '../assets/images/characters/dog_04.png';
 import dog05Src from '../assets/images/characters/dog_05.png';
+import dog06Src from '../assets/images/characters/dog_06.png';
+import dog07Src from '../assets/images/characters/dog_07.png';
 
 const DOG_IMAGES: Record<number, string> = {
   1001: dog01Src,
@@ -18,6 +20,8 @@ const DOG_IMAGES: Record<number, string> = {
   1003: dog03Src,
   1004: dog04Src,
   1005: dog05Src,
+  1006: dog06Src,
+  1007: dog07Src,
 };
 
 import { fetchRanking, RankEntry } from './ranking';

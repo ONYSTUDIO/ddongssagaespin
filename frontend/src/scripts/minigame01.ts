@@ -9,6 +9,8 @@ import dog02Src       from '../assets/images/characters/dog_02.png';
 import dog03Src       from '../assets/images/characters/dog_03.png';
 import dog04Src       from '../assets/images/characters/dog_04.png';
 import dog05Src       from '../assets/images/characters/dog_05.png';
+import dog06Src       from '../assets/images/characters/dog_06.png';
+import dog07Src       from '../assets/images/characters/dog_07.png';
 import ghostSrc       from '../assets/images/symbols/symbol_ghost.png';
 import sweetPotatoSrc from '../assets/images/symbols/symbol_sweetpotato.png';
 import goldenPoopSrc  from '../assets/images/symbols/symbol_poop_gold.png';
@@ -29,10 +31,12 @@ export const DOG_CHARACTER_ID = {
   DOG_03: 1003,
   DOG_04: 1004,
   DOG_05: 1005,
+  DOG_06: 1006,
+  DOG_07: 1007,
 } as const;
 
 type FixedCellType   = 0 | 1 | 2 | 3 | 4;
-type DogCharacterId  = 1001 | 1002 | 1003 | 1004 | 1005;
+type DogCharacterId  = 1001 | 1002 | 1003 | 1004 | 1005 | 1006 | 1007;
 export type CellType = FixedCellType | DogCharacterId;
 
 export const isDogCell = (t: number): t is DogCharacterId => t >= 1001;
@@ -48,6 +52,8 @@ const CELL_ASSETS: Record<number, string> = {
   [DOG_CHARACTER_ID.DOG_03]: dog03Src,
   [DOG_CHARACTER_ID.DOG_04]: dog04Src,
   [DOG_CHARACTER_ID.DOG_05]: dog05Src,
+  [DOG_CHARACTER_ID.DOG_06]: dog06Src,
+  [DOG_CHARACTER_ID.DOG_07]: dog07Src,
 };
 
 // ── Game Config ────────────────────────────────────────────────────
@@ -92,7 +98,7 @@ function getNeighbors(idx: number): number[] {
 // ── Map Generation ────────────────────────────────────────────────
 function generateMap(): CellType[] {
   const dogPool = Object.values(DOG_CHARACTER_ID) as DogCharacterId[];
-  const shuffledDogs = [...dogPool].sort(() => Math.random() - 0.5).slice(0, 3);
+  const shuffledDogs = [...dogPool].sort(() => Math.random() - 0.5).slice(0, 4);
 
   const items: CellType[] = [
     CELL_TYPE.GOLDEN_POOP, CELL_TYPE.GOLDEN_POOP, CELL_TYPE.GOLDEN_POOP, CELL_TYPE.GOLDEN_POOP,
