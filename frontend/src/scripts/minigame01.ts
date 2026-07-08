@@ -232,6 +232,16 @@ function hideResultOverlay(): void {
   if (resultEl) resultEl.classList.remove('mg01-result--open');
 }
 
+function showRestartBtn(): void {
+  const btn = document.getElementById('mg01RestartBtn');
+  if (btn) btn.classList.add('mg01-restart-btn--visible');
+}
+
+function hideRestartBtn(): void {
+  const btn = document.getElementById('mg01RestartBtn');
+  if (btn) btn.classList.remove('mg01-restart-btn--visible');
+}
+
 async function showResultScreen(): Promise<void> {
   const resultEl = document.getElementById('mg01Result');
   if (!resultEl) return;
@@ -245,6 +255,7 @@ async function showResultScreen(): Promise<void> {
 
   // 게임 화면은 그대로 두고 위에 오버레이로 표시 (네트워크 전에 먼저 표시)
   requestAnimationFrame(() => resultEl.classList.add('mg01-result--open'));
+  showRestartBtn();
   markMinigameCompleted();
 
   // 획득한 스핀 지급 및 HUD 갱신 (오버레이 표시 후 비동기 처리)
@@ -358,6 +369,7 @@ function startGame(): void {
   if (introEl)  introEl.style.display = 'none';
   if (resultEl) resultEl.classList.remove('mg01-result--open');
   if (gameEl)   gameEl.style.display   = '';
+  hideRestartBtn();
 
   buildGrid();
   updateHUD();
@@ -371,6 +383,7 @@ function showIntro(): void {
   if (introEl)  introEl.style.display  = '';
   if (gameEl)   gameEl.style.display   = 'none';
   if (resultEl) resultEl.classList.remove('mg01-result--open');
+  hideRestartBtn();
 }
 
 export function showMinigame01Popup(): void {
@@ -401,4 +414,7 @@ export function initMinigame01(): void {
 
   const resultCloseBtn = document.getElementById('mg01ResultCloseBtn');
   if (resultCloseBtn) resultCloseBtn.addEventListener('click', () => { playClick(); hideResultOverlay(); });
+
+  const restartBtn = document.getElementById('mg01RestartBtn');
+  if (restartBtn) restartBtn.addEventListener('click', () => { playClick(); startGame(); });
 }

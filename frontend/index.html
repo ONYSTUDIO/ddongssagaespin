@@ -275,16 +275,29 @@
 
       <!-- 게임 화면 -->
       <div class="mg01-game" id="mg01Game" style="display: none;">
-        <h2 class="mg01-title">💩 황금똥 찾기</h2>
-        <div class="mg01-hud">
-          <span class="mg01-hud-item">남은 선택: <strong id="mg01SelectionCount">10</strong></span>
-          <span class="mg01-hud-item mg01-hud-poop">황금똥: <strong id="mg01PoopCount">0</strong></span>
-          <span class="mg01-hud-item mg01-hud-dog">강아지: <strong id="mg01DogCount">0</strong></span>
+
+        <!-- 게임 콘텐츠 영역 -->
+        <div class="mg01-game-content">
+          <h2 class="mg01-title">💩 황금똥 찾기</h2>
+          <div class="mg01-hud">
+            <span class="mg01-hud-item">남은 선택: <strong id="mg01SelectionCount">10</strong></span>
+            <span class="mg01-hud-item mg01-hud-poop">황금똥: <strong id="mg01PoopCount">0</strong></span>
+            <span class="mg01-hud-item mg01-hud-dog">강아지: <strong id="mg01DogCount">0</strong></span>
+          </div>
+          <div class="mg01-grid" id="mg01Grid"></div>
         </div>
-        <div class="mg01-grid" id="mg01Grid"></div>
+
+        <!-- 하단 공간: 게임 중 비워두고, 게임 종료 후 다시하기 버튼 노출 -->
+        <div class="mg01-bottom-bar">
+          <button class="mg01-restart-btn" id="mg01RestartBtn" type="button">
+            <span class="mg01-restart-icon" aria-hidden="true"></span>
+            다시하기
+          </button>
+        </div>
+
       </div>
 
-      <!-- 결과 화면 (게임 위 오버레이) -->
+      <!-- 결과 화면: 팝업 전체를 덮는 오버레이 (닫기·다시하기 버튼 조작 차단) -->
       <div class="mg01-result" id="mg01Result">
         <div class="mg01-result-card">
           <button class="mg01-result-close" id="mg01ResultCloseBtn" aria-label="결과 닫기">✕</button>
