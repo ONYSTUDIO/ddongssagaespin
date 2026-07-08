@@ -102,8 +102,6 @@ function openRankingPopup(): void {
   fetchRanking()
     .then(rows => renderPopupList(rows.length > 0 ? rows : MOCK_RANKING))
     .catch(() => renderPopupList(MOCK_RANKING));
-
-  document.addEventListener('keydown', handleEsc);
 }
 
 function closeRankingPopup(): void {
@@ -111,11 +109,6 @@ function closeRankingPopup(): void {
   if (!overlay) return;
   overlay.setAttribute('aria-hidden', 'true');
   overlay.classList.remove('ranking-popup-open');
-  document.removeEventListener('keydown', handleEsc);
-}
-
-function handleEsc(e: KeyboardEvent): void {
-  if (e.key === 'Escape') closeRankingPopup();
 }
 
 // ── 사이드바 상단을 슬롯 머신 상단에 정렬 ─────────────────────────
@@ -212,9 +205,6 @@ export function initMeta(): void {
   document.getElementById('rankingPopupClose')?.addEventListener('click', () => {
     playClick();
     closeRankingPopup();
-  });
-  document.getElementById('rankingPopupOverlay')?.addEventListener('click', (e) => {
-    if (e.target === e.currentTarget) closeRankingPopup();
   });
 
   // 머신 프레임 이미지 로드 완료 후 정렬 (이미지 높이가 확정된 이후 측정)

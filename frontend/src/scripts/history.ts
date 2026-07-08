@@ -18,10 +18,6 @@ function getEl<T extends HTMLElement>(id: string): T {
   return document.getElementById(id) as T;
 }
 
-function handleHistoryEsc(e: KeyboardEvent): void {
-  if (e.key === 'Escape') hideHistoryPopup();
-}
-
 // ── 팝업 열기/닫기 ──────────────────────────────────────────────────
 export function showHistoryPopup(): void {
   const overlay = getEl('historyOverlay');
@@ -29,7 +25,6 @@ export function showHistoryPopup(): void {
   requestAnimationFrame(() => requestAnimationFrame(() => {
     overlay.classList.add('history-popup-open');
   }));
-  document.addEventListener('keydown', handleHistoryEsc);
   currentPage = 1;
   loadHistoryPage(currentPage);
 }
@@ -38,7 +33,6 @@ export function hideHistoryPopup(): void {
   const overlay = getEl('historyOverlay');
   overlay.classList.remove('history-popup-open');
   setTimeout(() => overlay.setAttribute('aria-hidden', 'true'), 300);
-  document.removeEventListener('keydown', handleHistoryEsc);
 }
 
 // ── DB 조회 ─────────────────────────────────────────────────────────
@@ -154,9 +148,6 @@ async function loadHistoryPage(page: number): Promise<void> {
 // ── 초기화 ──────────────────────────────────────────────────────────
 export function initHistory(): void {
   getEl('historyCloseBtn').addEventListener('click', () => { playClick(); hideHistoryPopup(); });
-  getEl('historyOverlay').addEventListener('click', (e) => {
-    if (e.target === e.currentTarget) hideHistoryPopup();
-  });
   getEl('historyPrevBtn').addEventListener('click', () => {
     if (currentPage > 1) {
       currentPage--;

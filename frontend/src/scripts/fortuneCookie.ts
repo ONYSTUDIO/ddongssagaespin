@@ -24,15 +24,6 @@ function getEl<T extends HTMLElement>(id: string): T {
   return document.getElementById(id) as T;
 }
 
-// ── ESC 핸들러 ────────────────────────────────────────────────────────────────
-function handleEscKey(e: KeyboardEvent): void {
-  if (e.key === 'Escape') hideFortuneCookiePopup();
-}
-
-function handleCreateEscKey(e: KeyboardEvent): void {
-  if (e.key === 'Escape') closeFortuneCookieCreatePopup();
-}
-
 // ── 폰트 크기 자동 조절 ──────────────────────────────────────────────────────
 function adjustMsgFontSize(el: HTMLElement, text: string): void {
   const len = text.length;
@@ -60,9 +51,6 @@ export function initFortuneCookie(): void {
   getEl<HTMLImageElement>('fcCreatePaperImg').src = paperSrc;
 
   getEl('fcCloseBtn').addEventListener('click', () => { playClick(); hideFortuneCookiePopup(); });
-  getEl('fortuneCookieOverlay').addEventListener('click', (e) => {
-    if (e.target === e.currentTarget) hideFortuneCookiePopup();
-  });
   getEl('fcHammerBtn').addEventListener('click', playCookieBreakAnimation);
 
   // 액션 버튼
@@ -79,9 +67,6 @@ export function initFortuneCookie(): void {
   // 제한 팝업
   getEl('fcLimitCloseBtn').addEventListener('click', () => { playClick(); hideFortuneCookieLimitPopup(); });
   getEl('fcLimitConfirmBtn').addEventListener('click', () => { playClick(); hideFortuneCookieLimitPopup(); });
-  getEl('fcLimitOverlay').addEventListener('click', (e) => {
-    if (e.target === e.currentTarget) hideFortuneCookieLimitPopup();
-  });
 }
 
 // ── 메인 팝업 열기/닫기/리셋 ─────────────────────────────────────────────────
@@ -92,14 +77,12 @@ export function showFortuneCookiePopup(): void {
   requestAnimationFrame(() => requestAnimationFrame(() => {
     overlay.classList.add('fc-open');
   }));
-  document.addEventListener('keydown', handleEscKey);
 }
 
 export function hideFortuneCookiePopup(): void {
   const overlay = getEl('fortuneCookieOverlay');
   overlay.classList.remove('fc-open');
   setTimeout(() => overlay.setAttribute('aria-hidden', 'true'), 350);
-  document.removeEventListener('keydown', handleEscKey);
 }
 
 export function resetFortuneCookiePopup(): void {
@@ -197,24 +180,18 @@ function showFortuneCookieResultActions(): void {
 }
 
 // ── 제한 팝업 열기/닫기 ──────────────────────────────────────────────────────
-function handleLimitEscKey(e: KeyboardEvent): void {
-  if (e.key === 'Escape') hideFortuneCookieLimitPopup();
-}
-
 export function showFortuneCookieLimitPopup(): void {
   const overlay = getEl('fcLimitOverlay');
   overlay.removeAttribute('aria-hidden');
   requestAnimationFrame(() => requestAnimationFrame(() => {
     overlay.classList.add('fc-open');
   }));
-  document.addEventListener('keydown', handleLimitEscKey);
 }
 
 export function hideFortuneCookieLimitPopup(): void {
   const overlay = getEl('fcLimitOverlay');
   overlay.classList.remove('fc-open');
   setTimeout(() => overlay.setAttribute('aria-hidden', 'true'), 350);
-  document.removeEventListener('keydown', handleLimitEscKey);
 }
 
 // ── 작성 팝업 초기화 ─────────────────────────────────────────────────────────
@@ -235,9 +212,6 @@ function initFortuneCookieCreate(): void {
   });
 
   getEl('fcCreateCloseBtn').addEventListener('click', () => { playClick(); closeFortuneCookieCreatePopup(); });
-  getEl('fcCreateOverlay').addEventListener('click', (e) => {
-    if (e.target === e.currentTarget) closeFortuneCookieCreatePopup();
-  });
   getEl('fcCreateSubmitBtn').addEventListener('click', submitFortuneCookieMessage);
 }
 
@@ -257,7 +231,6 @@ export function openFortuneCookieCreatePopup(): void {
   requestAnimationFrame(() => requestAnimationFrame(() => {
     overlay.classList.add('fc-create-open');
   }));
-  document.addEventListener('keydown', handleCreateEscKey);
   setTimeout(() => textarea.focus(), 350);
 }
 
@@ -265,7 +238,6 @@ export function closeFortuneCookieCreatePopup(): void {
   const overlay = getEl('fcCreateOverlay');
   overlay.classList.remove('fc-create-open');
   setTimeout(() => overlay.setAttribute('aria-hidden', 'true'), 350);
-  document.removeEventListener('keydown', handleCreateEscKey);
 }
 
 // ── 메시지 유효성 검사 ────────────────────────────────────────────────────────

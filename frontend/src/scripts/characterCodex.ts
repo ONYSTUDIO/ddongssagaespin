@@ -61,10 +61,6 @@ function showToast(msg: string): void {
   setTimeout(() => el.classList.remove('meta-toast--visible'), 2500);
 }
 
-function handleEsc(e: KeyboardEvent): void {
-  if (e.key === 'Escape') hideCharacterCodexPopup();
-}
-
 // ── 팝업 열기/닫기 ──────────────────────────────────────────────────
 export function showCharacterCodexPopup(): void {
   const overlay = getEl('characterCodexOverlay');
@@ -72,7 +68,6 @@ export function showCharacterCodexPopup(): void {
   requestAnimationFrame(() => requestAnimationFrame(() => {
     overlay.classList.add('codex-open');
   }));
-  document.addEventListener('keydown', handleEsc);
   renderGrid();
 }
 
@@ -80,7 +75,6 @@ export function hideCharacterCodexPopup(): void {
   const overlay = getEl('characterCodexOverlay');
   overlay.classList.remove('codex-open');
   setTimeout(() => overlay.setAttribute('aria-hidden', 'true'), 300);
-  document.removeEventListener('keydown', handleEsc);
   markCodexSeen();
 }
 
@@ -310,10 +304,6 @@ export function initCharacterCodex(): void {
   getEl('codexCloseBtn').addEventListener('click', () => {
     playClick();
     hideCharacterCodexPopup();
-  });
-
-  getEl('characterCodexOverlay').addEventListener('click', (e) => {
-    if (e.target === e.currentTarget) hideCharacterCodexPopup();
   });
 
   getEl('codexBtn').addEventListener('click', () => {

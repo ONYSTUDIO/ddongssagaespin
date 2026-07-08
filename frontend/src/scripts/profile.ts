@@ -15,10 +15,6 @@ function getEl<T extends HTMLElement>(id: string): T {
 }
 
 
-function handleEsc(e: KeyboardEvent): void {
-  if (e.key === 'Escape') hideProfilePopup();
-}
-
 // ── 팝업 열기/닫기 ──────────────────────────────────────────────────
 export function showProfilePopup(): void {
   const overlay = getEl('profilePopupOverlay');
@@ -26,7 +22,6 @@ export function showProfilePopup(): void {
   requestAnimationFrame(() => requestAnimationFrame(() => {
     overlay.classList.add('profile-popup-open');
   }));
-  document.addEventListener('keydown', handleEsc);
   loadProfile();
 }
 
@@ -34,7 +29,6 @@ export function hideProfilePopup(): void {
   const overlay = getEl('profilePopupOverlay');
   overlay.classList.remove('profile-popup-open');
   setTimeout(() => overlay.setAttribute('aria-hidden', 'true'), 250);
-  document.removeEventListener('keydown', handleEsc);
 }
 
 // ── 편집 진입/해제 ───────────────────────────────────────────────────
@@ -141,10 +135,6 @@ export function initProfilePopup(): void {
     hideProfilePopup();
   });
 
-  getEl('profilePopupOverlay').addEventListener('click', (e) => {
-    if (e.target === e.currentTarget) hideProfilePopup();
-  });
-
   getEl('profileNicknameEditBtn').addEventListener('click', () => {
     playClick();
     enterEdit();
@@ -162,6 +152,5 @@ export function initProfilePopup(): void {
 
   getEl<HTMLInputElement>('profileNicknameInput').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') saveNickname();
-    if (e.key === 'Escape') hideProfilePopup();
   });
 }

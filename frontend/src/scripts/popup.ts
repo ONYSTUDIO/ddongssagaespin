@@ -85,8 +85,6 @@ export function getCardAssetsByGrade(grade: Grade): CardAssets {
 
 let pending: ReturnType<typeof setTimeout>[] = [];
 let popupOnClose: (() => void) | null = null;
-let animationComplete = false;
-let currentCards: CardAssets | null = null;
 
 function clearPending(): void {
   pending.forEach(clearTimeout);
@@ -114,45 +112,6 @@ function hideEl(element: HTMLElement): void {
   element.classList.remove('popup-visible');
   element.classList.add('popup-hiding');
   after(400, () => element.classList.remove('popup-hiding'));
-}
-
-// 연출 진행 중 스킵: 타이머 취소 후 카드 앞면 + 운세 문구 즉시 표시
-function skipToResult(): void {
-  if (!currentCards) return;
-  clearPending();
-
-  const stage         = getEl('popupStage');
-  const stageImg      = getEl<HTMLImageElement>('popupStageImg');
-  const cardWrap      = getEl('popupCardWrap');
-  const cardImg       = getEl<HTMLImageElement>('popupCardImg');
-  const cardContentEl = getEl('popupCardContent');
-
-  // stage 즉시 숨김 (코기·파티클 등 정리)
-  stage.classList.remove('popup-visible', 'popup-hiding');
-  stage.querySelectorAll('.popup-effect-element').forEach(el => el.remove());
-  stageImg.style.opacity = '';
-  stageImg.style.transition = '';
-
-  // 카드 앞면 즉시 세팅 (플립 애니메이션 스킵)
-  cardImg.classList.remove('popup-flipping');
-  cardImg.src = currentCards.front;
-
-  // cardWrap이 아직 안 보이면 등장
-  if (!cardWrap.classList.contains('popup-visible')) {
-    cardWrap.classList.remove('popup-hiding');
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      cardWrap.classList.add('popup-visible');
-    }));
-  }
-
-  // 운세 문구 즉시 등장
-  fitContentToCard(cardContentEl);
-  cardContentEl.classList.remove('popup-hiding');
-  requestAnimationFrame(() => requestAnimationFrame(() => {
-    cardContentEl.classList.add('popup-visible');
-  }));
-
-  animationComplete = true;
 }
 
 // 배열 기반 프레임 애니메이션: 각 step의 src를 duration 간격으로 순서 재생
@@ -252,8 +211,6 @@ function playSuperLuckPoopEffect(stageEl: HTMLElement, corgiImgEl: HTMLImageElem
 
 export function showResultPopup(result: FortuneResult, onClose?: () => void): void {
   popupOnClose = onClose ?? null;
-  animationComplete = false;
-  currentCards = null;
   clearPending();
 
   const overlay        = getEl('resultPopup');
@@ -293,7 +250,6 @@ export function showResultPopup(result: FortuneResult, onClose?: () => void): vo
   }));
 
   const cards = getCardAssetsByGrade(result.grade);
-  currentCards = cards;
 
   if (result.grade === 'SUPER_LUCK') {
     // [복주머니 연출 비활성화 — 추후 복원 가능]
@@ -315,7 +271,7 @@ export function showResultPopup(result: FortuneResult, onClose?: () => void): vo
           after(400,  () => { cardImg.src = cards.back; showEl(cardWrap); });
           // 카드 앞면 flip → 텍스트 오버레이 등장
           after(1200, () => flipImg(cardImg, cards.front));
-          after(1800, () => { fitContentToCard(cardContentEl); showEl(cardContentEl); animationComplete = true; });
+          after(1800, () => { fitContentToCard(cardContentEl); showEl(cardContentEl); });
         });
       });
     });
@@ -330,13 +286,11 @@ export function showResultPopup(result: FortuneResult, onClose?: () => void): vo
     after(300,  () => { cardImg.src = cards.back; showEl(cardWrap); });
     // 2. 카드 앞면 flip → 텍스트 오버레이 등장
     after(1100, () => flipImg(cardImg, cards.front));
-    after(1700, () => { fitContentToCard(cardContentEl); showEl(cardContentEl); animationComplete = true; });
+    after(1700, () => { fitContentToCard(cardContentEl); showEl(cardContentEl); });
   }
 }
 
 export function hideResultPopup(): void {
-  animationComplete = false;
-  currentCards = null;
   clearPending();
   const overlay = getEl('resultPopup');
   overlay.classList.remove('popup-open');
@@ -362,24 +316,5 @@ export function hideResultPopup(): void {
 
 // 한 번만 호출: 이벤트 리스너 등록
 export function initPopup(): void {
-  const overlay  = getEl('resultPopup');
-  const closeBtn = getEl('popupCloseBtn');
-
-  closeBtn.addEventListener('click', () => { playClick(); hideResultPopup(); });
-
-  overlay.addEventListener('click', (e) => {
-    if (e.target !== overlay) return;
-    if (animationComplete) {
-      // 연출 종료 후 팝업 외 영역 클릭 시 닫힘 — 닫기 버튼 전용으로 변경하여 주석처리
-      // hideResultPopup();
-    } else {
-      skipToResult();
-    }
-  });
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && !overlay.hasAttribute('aria-hidden')) {
-      hideResultPopup();
-    }
-  });
+  getEl('popupCloseBtn').addEventListener('click', () => { playClick(); hideResultPopup(); });
 }
