@@ -17,6 +17,7 @@ import { startBgm, stopBgm, initBgmBtn, playReelStop } from './scripts/sound';
 import { initRedDots, markSpinRecordUpdated, updateProfileRedDot } from './scripts/redDot';
 import { getCharacterSrc } from './scripts/characterCodex';
 import { initProfilePopup } from './scripts/profile';
+import { showSpinGuide, hideSpinGuide, hasSeenSpinGuide } from './scripts/spinGuide';
 
 import spinOnSrc       from './assets/images/buttons/btn_spin_on.png';
 import spinOffSrc      from './assets/images/buttons/btn_spin_off.png';
@@ -133,6 +134,8 @@ async function onLoginSuccess(): Promise<void> {
   // 일일 보상 팝업 초기화 및 표시
   initDailyReward((newCount) => {
     updateSpinCountUI(newCount);
+    // 스핀 가이드 표시 (팝업 닫힘 애니메이션 후) — TODO: 출시 시 if (!hasSeenSpinGuide()) 조건 복원
+    setTimeout(() => showSpinGuide(), 450);
   });
   await checkAndShowDailyReward();
 
@@ -189,6 +192,7 @@ btn.addEventListener('touchend', (e) => {
 
 // ── SPIN 함수 ─────────────────────────────────────────────────────
 async function spin(): Promise<void> {
+  hideSpinGuide();  // 가이드 표시 중이면 해제 (안내 팝업이 btn.click()을 호출한 경우 no-op)
   if (isSpinning) return;
   if (noSpinMode) { showNoSpinPopup(); return; }
   isSpinning = true;
