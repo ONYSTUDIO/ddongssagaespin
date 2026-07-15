@@ -113,6 +113,21 @@ function showFortuneHammerGuide(): void {
   );
 }
 
+// 미니게임 아이콘 가이드 (onboarding step 2)
+export function showMinigameIconGuide(onComplete?: () => void): void {
+  const btn = document.getElementById('metaBtnMinigame');
+  if (!btn) return;
+
+  showGuide(
+    btn,
+    '슬롯이 지루할 때 미니게임도 즐겨보아요!',
+    () => {
+      onComplete?.();
+      btn.click();
+    },
+  );
+}
+
 // Step 3: 메세지 작성 버튼 가이드
 function showFortuneCreateGuide(): void {
   const btn = document.getElementById('fcActionCreate');

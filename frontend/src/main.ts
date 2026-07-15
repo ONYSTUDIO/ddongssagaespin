@@ -18,7 +18,7 @@ import { initRedDots, markSpinRecordUpdated, updateProfileRedDot } from './scrip
 import { getCharacterSrc } from './scripts/characterCodex';
 import { initProfilePopup } from './scripts/profile';
 import { consumeSpinGuideConfirm, showSpinGuide, hideSpinGuide } from './scripts/spinGuide';
-import { showFortuneCookieIconGuide, hideFortuneGuide } from './scripts/fortuneGuide';
+import { showFortuneCookieIconGuide, hideFortuneGuide, showMinigameIconGuide } from './scripts/fortuneGuide';
 import { fetchGuideStep, saveGuideStep, GUIDE_STEP } from './scripts/onboardingGuide';
 
 import spinOnSrc       from './assets/images/buttons/btn_spin_on.png';
@@ -144,10 +144,15 @@ async function onLoginSuccess(): Promise<void> {
     guideStep = await fetchGuideStep(currentUserId);
   }
 
-  // step 1 재진입 시 포춘쿠키 가이드를 직접 시작하는 헬퍼
+  // step 재진입 시 해당 가이드를 직접 시작하는 헬퍼들
   const uid = currentUserId;
   const startFortuneGuide = () => {
     setTimeout(() => showFortuneCookieIconGuide(() => {
+      if (uid) saveGuideStep(uid, GUIDE_STEP.MINIGAME).catch(() => {});
+    }), 450);
+  };
+  const startMinigameGuide = () => {
+    setTimeout(() => showMinigameIconGuide(() => {
       if (uid) saveGuideStep(uid, GUIDE_STEP.DONE).catch(() => {});
     }), 450);
   };
@@ -155,16 +160,18 @@ async function onLoginSuccess(): Promise<void> {
   // 일일 보상 팝업 초기화 — 게임 시작 버튼 확인 후 해당 step 가이드 실행
   initDailyReward((newCount) => {
     updateSpinCountUI(newCount);
-    if      (guideStep === GUIDE_STEP.SPIN)    setTimeout(() => showSpinGuide(), 450);
-    else if (guideStep === GUIDE_STEP.FORTUNE) startFortuneGuide();
+    if      (guideStep === GUIDE_STEP.SPIN)     setTimeout(() => showSpinGuide(), 450);
+    else if (guideStep === GUIDE_STEP.FORTUNE)  startFortuneGuide();
+    else if (guideStep === GUIDE_STEP.MINIGAME) startMinigameGuide();
   });
   await checkAndShowDailyReward();
 
-  // 일일 보상 팝업이 없는 경우: step 1이면 포춘쿠키 가이드 즉시 진행
-  if (guideStep === GUIDE_STEP.FORTUNE) {
+  // 일일 보상 팝업이 없는 경우: 해당 step 가이드 즉시 진행
+  if (guideStep === GUIDE_STEP.FORTUNE || guideStep === GUIDE_STEP.MINIGAME) {
     const rewardPopup = document.getElementById('dailyRewardPopup');
     if (!rewardPopup?.classList.contains('daily-reward-open')) {
-      startFortuneGuide();
+      if (guideStep === GUIDE_STEP.FORTUNE)  startFortuneGuide();
+      else                                   startMinigameGuide();
     }
   }
 
@@ -285,7 +292,7 @@ async function spin(): Promise<void> {
     pendingFortuneGuide = false;
     const uid = currentUserId;
     setTimeout(() => showFortuneCookieIconGuide(() => {
-      if (uid) saveGuideStep(uid, GUIDE_STEP.DONE).catch(() => {});
+      if (uid) saveGuideStep(uid, GUIDE_STEP.MINIGAME).catch(() => {});
     }), 300);
   }
 

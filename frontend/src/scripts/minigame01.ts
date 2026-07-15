@@ -1,6 +1,6 @@
 import '../styles/minigame01.css';
 import { grantSpins } from './spinManager';
-import { playClick } from './sound';
+import { playClick, isBgmEnabled, startBgm, stopBgm, startMinigameBgm, stopMinigameBgm } from './sound';
 import { loadOwnedCharacters, isCharacterOwned, collectCharacter } from './characterManager';
 import { markMinigameCompleted } from './redDot';
 
@@ -15,6 +15,9 @@ import ghostSrc       from '../assets/images/symbols/symbol_ghost.png';
 import sweetPotatoSrc from '../assets/images/symbols/symbol_sweetpotato.png';
 import goldenPoopSrc  from '../assets/images/symbols/symbol_poop_gold.png';
 import corgiSrc       from '../assets/images/symbols/symbol_corgi.png';
+
+// 게임 시작 시 ingame BGM이 켜져 있었으면 true → 팝업 닫을 때 복원
+let resumeIngameBgm = false;
 
 // ── Cell Type Constants ────────────────────────────────────────────
 export const CELL_TYPE = {
@@ -403,11 +406,23 @@ export function hideMinigame01Popup(): void {
   const overlay = getEl('minigame01Overlay');
   overlay.classList.remove('mg01-open');
   setTimeout(() => overlay.setAttribute('aria-hidden', 'true'), 300);
+  // 미니게임 BGM 종료 → ingame BGM 복원 (게임 시작 전에 켜져 있었던 경우)
+  stopMinigameBgm();
+  if (resumeIngameBgm) {
+    resumeIngameBgm = false;
+    startBgm().catch(() => {});
+  }
 }
 
 export function initMinigame01(): void {
   getEl('mg01CloseBtn').addEventListener('click', () => { playClick(); hideMinigame01Popup(); });
-  getEl('mg01StartBtn').addEventListener('click', startGame);
+  getEl('mg01StartBtn').addEventListener('click', () => {
+    // ingame BGM 상태 저장 → 정지 → 미니게임 BGM 시작 (BGM 꺼진 상태면 재생 안 함)
+    resumeIngameBgm = isBgmEnabled();
+    stopBgm();
+    if (resumeIngameBgm) startMinigameBgm().catch(() => {});
+    startGame();
+  });
 
   const confirmBtn = document.getElementById('mg01ConfirmBtn');
   if (confirmBtn) confirmBtn.addEventListener('click', () => { playClick(); hideResultOverlay(); });

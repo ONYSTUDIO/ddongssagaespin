@@ -1,9 +1,10 @@
 import { supabase } from './supabase';
 
 export const GUIDE_STEP = {
-  SPIN:    0,
-  FORTUNE: 1,
-  DONE:    2,
+  SPIN:     0,
+  FORTUNE:  1,
+  MINIGAME: 2,
+  DONE:     3,
 } as const;
 
 export async function fetchGuideStep(userId: string): Promise<number> {

@@ -4,6 +4,7 @@ import reelStopMp3 from '../assets/audio/reel/reel_stop.mp3';
 import reelStopOgg from '../assets/audio/reel/reel_stop.ogg';
 import buttonMp3 from '../assets/audio/ui/button.mp3';
 import buttonOgg from '../assets/audio/ui/button.ogg';
+import minigameBgmOgg from '../assets/audio/minigame/bgm_minigame.ogg';
 
 // ── Web Audio API BGM ─────────────────────────────────────────────────────────
 // HTML Audio의 loop=true는 파일 끝에서 처음으로 seek하는 방식이라
@@ -144,6 +145,48 @@ export function initBgmBtn(): void {
 
 export function syncBgmBtn(): void {
   syncBtn();
+}
+
+// 현재 ingame BGM이 재생 중인지 (= 사용자가 BGM ON 상태인지)
+export function isBgmEnabled(): boolean {
+  return isPlaying;
+}
+
+// ── 미니게임 BGM ─────────────────────────────────────────────────────────────
+
+let mgBuffer: AudioBuffer | null = null;
+let mgSource: AudioBufferSourceNode | null = null;
+let isMgPlaying = false;
+
+async function loadMgBuffer(): Promise<void> {
+  if (mgBuffer) return;
+  const ac = getCtx();
+  const res = await fetch(minigameBgmOgg);
+  const raw = await res.arrayBuffer();
+  mgBuffer = await ac.decodeAudioData(raw);
+}
+
+loadMgBuffer().catch(() => {});
+
+export async function startMinigameBgm(): Promise<void> {
+  if (isMgPlaying) return;
+  const ac = getCtx();
+  if (ac.state === 'suspended') await ac.resume();
+  await loadMgBuffer();
+  if (!gainNode || !mgBuffer) return;
+  mgSource = ac.createBufferSource();
+  mgSource.buffer = mgBuffer;
+  mgSource.loop = true;
+  mgSource.connect(gainNode);
+  mgSource.start(0);
+  isMgPlaying = true;
+}
+
+export function stopMinigameBgm(): void {
+  mgSource?.stop();
+  mgSource?.disconnect();
+  mgSource = null;
+  isMgPlaying = false;
 }
 
 // ── 효과음 ───────────────────────────────────────────────────────────────────
