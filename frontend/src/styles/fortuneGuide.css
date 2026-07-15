@@ -67,10 +67,38 @@
   z-index: 1;
 }
 
+/* 위 방향 꼬리 (HUD 등 상단 요소용) */
+.fortune-guide-bubble.fortune-guide-bubble--above-target::after {
+  top: auto;
+  bottom: 100%;
+  border-top-color: transparent;
+  border-bottom-color: rgba(255, 215, 0, 0.38);
+}
+.fortune-guide-bubble.fortune-guide-bubble--above-target::before {
+  top: auto;
+  bottom: calc(100% - 1px);
+  border-top-color: transparent;
+  border-bottom-color: rgba(16, 0, 40, 0.96);
+}
+.fortune-guide-bubble.fortune-guide-bubble--above-target {
+  animation-name: fortuneGuidePopDown;
+}
+
 @keyframes fortuneGuidePop {
   from {
     opacity: 0;
     transform: translateX(-50%) scale(0.75) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) scale(1) translateY(0);
+  }
+}
+
+@keyframes fortuneGuidePopDown {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.75) translateY(-8px);
   }
   to {
     opacity: 1;

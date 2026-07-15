@@ -18,8 +18,9 @@ import { initRedDots, markSpinRecordUpdated, updateProfileRedDot } from './scrip
 import { getCharacterSrc } from './scripts/characterCodex';
 import { initProfilePopup } from './scripts/profile';
 import { consumeSpinGuideConfirm, showSpinGuide, hideSpinGuide } from './scripts/spinGuide';
-import { showFortuneCookieIconGuide, hideFortuneGuide, showMinigameIconGuide } from './scripts/fortuneGuide';
+import { showFortuneCookieIconGuide, hideFortuneGuide, showMinigameIconGuide, showCodexGuide, showRankingGuide } from './scripts/fortuneGuide';
 import { fetchGuideStep, saveGuideStep, GUIDE_STEP } from './scripts/onboardingGuide';
+import { setOnMinigameCloseCallback } from './scripts/minigame01';
 
 import spinOnSrc       from './assets/images/buttons/btn_spin_on.png';
 import spinOffSrc      from './assets/images/buttons/btn_spin_off.png';
@@ -152,7 +153,20 @@ async function onLoginSuccess(): Promise<void> {
     }), 450);
   };
   const startMinigameGuide = () => {
-    setTimeout(() => showMinigameIconGuide(() => {
+    // 미니게임 팝업 닫힐 때 신규 캐릭터 획득 여부로 다음 step 결정
+    setOnMinigameCloseCallback((charObtained) => {
+      const nextStep = charObtained ? GUIDE_STEP.CODEX : GUIDE_STEP.RANKING;
+      if (uid) saveGuideStep(uid, nextStep).catch(() => {});
+    });
+    setTimeout(() => showMinigameIconGuide(), 450);
+  };
+  const startCodexGuide = () => {
+    setTimeout(() => showCodexGuide(() => {
+      if (uid) saveGuideStep(uid, GUIDE_STEP.RANKING).catch(() => {});
+    }), 450);
+  };
+  const startRankingGuide = () => {
+    setTimeout(() => showRankingGuide(() => {
       if (uid) saveGuideStep(uid, GUIDE_STEP.DONE).catch(() => {});
     }), 450);
   };
@@ -163,15 +177,23 @@ async function onLoginSuccess(): Promise<void> {
     if      (guideStep === GUIDE_STEP.SPIN)     setTimeout(() => showSpinGuide(), 450);
     else if (guideStep === GUIDE_STEP.FORTUNE)  startFortuneGuide();
     else if (guideStep === GUIDE_STEP.MINIGAME) startMinigameGuide();
+    else if (guideStep === GUIDE_STEP.CODEX)    startCodexGuide();
+    else if (guideStep === GUIDE_STEP.RANKING)  startRankingGuide();
   });
   await checkAndShowDailyReward();
 
   // 일일 보상 팝업이 없는 경우: 해당 step 가이드 즉시 진행
-  if (guideStep === GUIDE_STEP.FORTUNE || guideStep === GUIDE_STEP.MINIGAME) {
+  const needsGuide = guideStep === GUIDE_STEP.FORTUNE
+    || guideStep === GUIDE_STEP.MINIGAME
+    || guideStep === GUIDE_STEP.CODEX
+    || guideStep === GUIDE_STEP.RANKING;
+  if (needsGuide) {
     const rewardPopup = document.getElementById('dailyRewardPopup');
     if (!rewardPopup?.classList.contains('daily-reward-open')) {
-      if (guideStep === GUIDE_STEP.FORTUNE)  startFortuneGuide();
-      else                                   startMinigameGuide();
+      if      (guideStep === GUIDE_STEP.FORTUNE)  startFortuneGuide();
+      else if (guideStep === GUIDE_STEP.MINIGAME) startMinigameGuide();
+      else if (guideStep === GUIDE_STEP.CODEX)    startCodexGuide();
+      else                                        startRankingGuide();
     }
   }
 

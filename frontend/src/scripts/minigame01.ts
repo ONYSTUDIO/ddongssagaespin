@@ -19,6 +19,15 @@ import corgiSrc       from '../assets/images/symbols/symbol_corgi.png';
 // 게임 시작 시 ingame BGM이 켜져 있었으면 true → 팝업 닫을 때 복원
 let resumeIngameBgm = false;
 
+// 이번 팝업 세션에서 신규 캐릭터를 획득했는지 (온보딩 분기용)
+let charObtainedInSession = false;
+// 팝업 닫힐 때 한 번만 실행되는 콜백 (캐릭터 획득 여부 전달)
+let onMinigameCloseCallback: ((charObtained: boolean) => void) | null = null;
+
+export function setOnMinigameCloseCallback(cb: (charObtained: boolean) => void): void {
+  onMinigameCloseCallback = cb;
+}
+
 // ── Cell Type Constants ────────────────────────────────────────────
 export const CELL_TYPE = {
   EMPTY:        0,
@@ -310,6 +319,7 @@ function handleCellClick(idx: number): void {
     const isNewToCollection = !isCharacterOwned(cellType);
     if (isNewToCollection) {
       newCharacterCount++;
+      charObtainedInSession = true;
       if (cellEl) showSelectionBubble(cellEl, 'New', 'new');
     }
     collectCharacter(cellType).catch(() => {});
@@ -393,8 +403,9 @@ export function showMinigame01Popup(): void {
   const overlay = getEl('minigame01Overlay');
   overlay.removeAttribute('aria-hidden');
   // Reset to intro screen each time popup opens
-  mapData     = [];
-  isGameOver  = false;
+  mapData                = [];
+  isGameOver             = false;
+  charObtainedInSession  = false;  // 세션마다 리셋
   showIntro();
   loadOwnedCharacters().catch(() => {}); // 보유 캐릭터 캐시 갱신
   requestAnimationFrame(() => requestAnimationFrame(() => {
@@ -412,6 +423,10 @@ export function hideMinigame01Popup(): void {
     resumeIngameBgm = false;
     startBgm().catch(() => {});
   }
+  // 온보딩 콜백: 신규 캐릭터 획득 여부 전달 후 소비
+  const cb = onMinigameCloseCallback;
+  onMinigameCloseCallback = null;
+  if (cb) cb(charObtainedInSession);
 }
 
 export function initMinigame01(): void {

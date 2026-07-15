@@ -27,7 +27,7 @@ export function hideFortuneGuide(): void {
       clickHandler = null;
     }
   }
-  bubble?.classList.remove('fortune-guide-bubble-open');
+  bubble?.classList.remove('fortune-guide-bubble-open', 'fortune-guide-bubble--above-target');
   bubble?.setAttribute('aria-hidden', 'true');
 }
 
@@ -56,11 +56,22 @@ function showGuide(
   overlay.setAttribute('aria-hidden', 'false');
   overlay.classList.add('fortune-guide-open');
 
-  bubble.textContent = bubbleText;
+  bubble.innerHTML = bubbleText.replace(/\n/g, '<br>');
   const bubbleHalfW = 160;
   const clampedX = Math.max(bubbleHalfW, Math.min(cx, window.innerWidth - bubbleHalfW));
-  bubble.style.left   = `${clampedX}px`;
-  bubble.style.bottom = `${window.innerHeight - rect.top + 16}px`;
+  bubble.style.left = `${clampedX}px`;
+
+  const isTopHalf = rect.top < window.innerHeight / 2;
+  if (isTopHalf) {
+    bubble.classList.add('fortune-guide-bubble--above-target');
+    bubble.style.top    = `${rect.bottom + 16}px`;
+    bubble.style.bottom = '';
+  } else {
+    bubble.classList.remove('fortune-guide-bubble--above-target');
+    bubble.style.top    = '';
+    bubble.style.bottom = `${window.innerHeight - rect.top + 16}px`;
+  }
+
   bubble.setAttribute('aria-hidden', 'false');
   bubble.classList.add('fortune-guide-bubble-open');
 
@@ -110,6 +121,36 @@ function showFortuneHammerGuide(): void {
     btn,
     '망치를 클릭해 포춘쿠키를 깨부수자!',
     () => btn.click(),
+  );
+}
+
+// 도감 아이콘 가이드 (onboarding step 3 — 미니게임 신규 캐릭터 획득 경로)
+export function showCodexGuide(onComplete?: () => void): void {
+  const btn = document.getElementById('codexBtn');
+  if (!btn) return;
+
+  showGuide(
+    btn,
+    '새로운 똥싸개를 얻었어요!\n도감을 확인해보세요!',
+    () => {
+      onComplete?.();
+      btn.click();
+    },
+  );
+}
+
+// 순위 아이콘 가이드 (onboarding step 4)
+export function showRankingGuide(onComplete?: () => void): void {
+  const btn = document.getElementById('metaBtnRanking');
+  if (!btn) return;
+
+  showGuide(
+    btn,
+    '다른 똥싸개들과 순위를 비교해 보세요!',
+    () => {
+      onComplete?.();
+      btn.click();
+    },
   );
 }
 
