@@ -4,6 +4,14 @@ const GUIDE_KEY = 'ddong_spin_guide_shown';
 
 let active = false;
 let clickHandler: ((e: MouseEvent) => void) | null = null;
+let confirmedFromGuide = false;
+
+// 가이드에서 스핀 버튼을 클릭해 진입했는지 여부를 소비 방식으로 반환
+export function consumeSpinGuideConfirm(): boolean {
+  const val = confirmedFromGuide;
+  confirmedFromGuide = false;
+  return val;
+}
 
 export function hasSeenSpinGuide(): boolean {
   return localStorage.getItem(GUIDE_KEY) === 'true';
@@ -50,6 +58,7 @@ export function showSpinGuide(): void {
       e.clientX >= r2.left && e.clientX <= r2.right &&
       e.clientY >= r2.top  && e.clientY <= r2.bottom
     ) {
+      confirmedFromGuide = true;
       hideSpinGuide();
       btn.click();
     }

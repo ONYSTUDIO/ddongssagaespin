@@ -1,0 +1,79 @@
+/* ── 포춘쿠키 가이드 오버레이 ── */
+
+.fortune-guide-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 710;  /* 포춘쿠키 팝업(700) 위에 렌더링 */
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  cursor: pointer;
+}
+
+.fortune-guide-overlay.fortune-guide-open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* 말풍선 */
+.fortune-guide-bubble {
+  position: fixed;
+  z-index: 712;
+  background: rgba(16, 0, 40, 0.96);
+  color: #ffd700;
+  font-size: 0.95rem;
+  font-weight: 700;
+  padding: 14px 24px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 215, 0, 0.38);
+  white-space: nowrap;
+  box-shadow:
+    0 0 28px rgba(120, 0, 255, 0.35),
+    0 4px 20px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  pointer-events: none;
+  transform: translateX(-50%);
+  display: none;
+  letter-spacing: 0.4px;
+  text-align: center;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.fortune-guide-bubble.fortune-guide-bubble-open {
+  display: block;
+  animation: fortuneGuidePop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* 아래 방향 삼각형 꼬리 - 테두리 레이어 */
+.fortune-guide-bubble::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 10px solid transparent;
+  border-top-color: rgba(255, 215, 0, 0.38);
+}
+
+/* 아래 방향 삼각형 꼬리 - 배경 레이어 */
+.fortune-guide-bubble::before {
+  content: '';
+  position: absolute;
+  top: calc(100% - 1px);
+  left: 50%;
+  transform: translateX(-50%);
+  border: 9px solid transparent;
+  border-top-color: rgba(16, 0, 40, 0.96);
+  z-index: 1;
+}
+
+@keyframes fortuneGuidePop {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.75) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) scale(1) translateY(0);
+  }
+}

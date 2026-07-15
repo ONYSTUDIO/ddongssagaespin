@@ -20,6 +20,18 @@ const FRAME_DURATION = 250; // 4 transitions × 250ms = 1s
 const MAX_FORTUNE_COOKIE_MESSAGE_LENGTH = 50;
 const FORTUNE_COOKIE_SPIN_REWARD = 10;
 
+// ── 가이드 콜백 훅 ────────────────────────────────────────────────────────────
+let onPopupOpenCallback:    (() => void) | null = null;
+let onResultActionsCallback: (() => void) | null = null;
+
+export function setOnFortuneCookieOpenCallback(cb: () => void): void {
+  onPopupOpenCallback = cb;
+}
+
+export function setOnFortuneCookieActionsCallback(cb: () => void): void {
+  onResultActionsCallback = cb;
+}
+
 function getEl<T extends HTMLElement>(id: string): T {
   return document.getElementById(id) as T;
 }
@@ -77,6 +89,10 @@ export function showFortuneCookiePopup(): void {
   requestAnimationFrame(() => requestAnimationFrame(() => {
     overlay.classList.add('fc-open');
   }));
+  // 팝업 트랜지션(0.3s) 완료 후 가이드 콜백 실행
+  const cb = onPopupOpenCallback;
+  onPopupOpenCallback = null;
+  if (cb) setTimeout(cb, 380);
 }
 
 export function hideFortuneCookiePopup(): void {
@@ -177,6 +193,10 @@ export function showFortunePaper(): void {
 // ── 결과 액션 버튼 표시 ──────────────────────────────────────────────────────
 function showFortuneCookieResultActions(): void {
   getEl('fcActions').classList.add('fc-actions--visible');
+  // 액션 등장 애니메이션(0.4s) 후 가이드 콜백 실행
+  const cb = onResultActionsCallback;
+  onResultActionsCallback = null;
+  if (cb) setTimeout(cb, 450);
 }
 
 // ── 제한 팝업 열기/닫기 ──────────────────────────────────────────────────────
