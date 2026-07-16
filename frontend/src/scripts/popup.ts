@@ -1,7 +1,7 @@
 import '../styles/popup.css';
 import { Grade } from './game';
 import { FortuneResult } from './fortune';
-import { playClick } from './sound';
+import { playClick, playCardPayout } from './sound';
 
 // ── 이미지 에셋 임포트 ────────────────────────────────────────────────────────
 
@@ -270,7 +270,7 @@ export function showResultPopup(result: FortuneResult, onClose?: () => void): vo
           // 카드 뒷면 등장
           after(400,  () => { cardImg.src = cards.back; showEl(cardWrap); });
           // 카드 앞면 flip → 텍스트 오버레이 등장
-          after(1200, () => flipImg(cardImg, cards.front));
+          after(1200, () => { flipImg(cardImg, cards.front); playCardPayout(); });
           after(1800, () => { fitContentToCard(cardContentEl); showEl(cardContentEl); });
         });
       });
@@ -285,7 +285,7 @@ export function showResultPopup(result: FortuneResult, onClose?: () => void): vo
     // 1. 카드 뒷면 등장
     after(300,  () => { cardImg.src = cards.back; showEl(cardWrap); });
     // 2. 카드 앞면 flip → 텍스트 오버레이 등장
-    after(1100, () => flipImg(cardImg, cards.front));
+    after(1100, () => { flipImg(cardImg, cards.front); playCardPayout(); });
     after(1700, () => { fitContentToCard(cardContentEl); showEl(cardContentEl); });
   }
 }

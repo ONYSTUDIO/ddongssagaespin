@@ -13,7 +13,7 @@ import { initDailyReward, checkAndShowDailyReward } from './scripts/dailyReward'
 import { getCurrentSpinCount, consumeSpin } from './scripts/spinManager';
 import { saveSlotFortuneLog } from './scripts/history';
 import { initStars } from './scripts/stars';
-import { startBgm, stopBgm, initBgmBtn, playReelStop, playSpinButton } from './scripts/sound';
+import { startBgm, stopBgm, initBgmBtn, playReelStop, playSpinButton, playHit } from './scripts/sound';
 import { initRedDots, markSpinRecordUpdated, updateProfileRedDot } from './scripts/redDot';
 import { getCharacterSrc, setOnCodexCloseCallback } from './scripts/characterCodex';
 import { initProfilePopup } from './scripts/profile';
@@ -382,6 +382,7 @@ async function spin(): Promise<void> {
     }
 
     // 히트 연출이 있는 경우: 팝업 닫힐 때 버튼 활성화 (릴 종료 시점에 명시적 비활성화)
+    playHit();
     btn.disabled = true;
     hitLineEl.classList.add('active');
     showResult(fortuneResult);

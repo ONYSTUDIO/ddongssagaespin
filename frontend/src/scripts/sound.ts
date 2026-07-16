@@ -4,6 +4,8 @@ import loginBgmOgg from '../assets/audio/bgm/login_login.ogg';
 import reelStopMp3 from '../assets/audio/reel/reel_stop.mp3';
 import reelStopOgg from '../assets/audio/reel/reel_stop.ogg';
 import spinButtonOgg from '../assets/audio/reel/spin_button.ogg';
+import hitSoundWav from '../assets/audio/reel/sx_counter_end.wav';
+import cardPayoutWav from '../assets/audio/reel/sx_symbol_payout.wav';
 import buttonMp3 from '../assets/audio/ui/button.mp3';
 import buttonOgg from '../assets/audio/ui/button.ogg';
 import minigameBgmOgg from '../assets/audio/minigame/bgm_minigame.ogg';
@@ -60,6 +62,32 @@ async function loadReelStopBuffer(): Promise<void> {
 }
 
 loadReelStopBuffer().catch(() => {});
+
+// ── 히트 효과음 ──────────────────────────────────────────────────
+let hitSoundBuffer: AudioBuffer | null = null;
+
+async function loadHitSoundBuffer(): Promise<void> {
+  if (hitSoundBuffer) return;
+  const ac = getCtx();
+  const res = await fetch(hitSoundWav);
+  const raw = await res.arrayBuffer();
+  hitSoundBuffer = await ac.decodeAudioData(raw);
+}
+
+loadHitSoundBuffer().catch(() => {});
+
+// ── 카드 페이아웃 효과음 ──────────────────────────────────────────
+let cardPayoutBuffer: AudioBuffer | null = null;
+
+async function loadCardPayoutBuffer(): Promise<void> {
+  if (cardPayoutBuffer) return;
+  const ac = getCtx();
+  const res = await fetch(cardPayoutWav);
+  const raw = await res.arrayBuffer();
+  cardPayoutBuffer = await ac.decodeAudioData(raw);
+}
+
+loadCardPayoutBuffer().catch(() => {});
 
 // ── 스핀 버튼 효과음 ─────────────────────────────────────────────
 let spinButtonBuffer: AudioBuffer | null = null;
@@ -312,6 +340,20 @@ export function playReelStop(): void {
   if (!ctx || !gainNode || !reelStopBuffer) return;
   const s = ctx.createBufferSource();
   s.buffer = reelStopBuffer;
+  s.connect(gainNode);
+  s.start();
+}
+export function playCardPayout(): void {
+  if (!ctx || !gainNode || !cardPayoutBuffer) return;
+  const s = ctx.createBufferSource();
+  s.buffer = cardPayoutBuffer;
+  s.connect(gainNode);
+  s.start();
+}
+export function playHit(): void {
+  if (!ctx || !gainNode || !hitSoundBuffer) return;
+  const s = ctx.createBufferSource();
+  s.buffer = hitSoundBuffer;
   s.connect(gainNode);
   s.start();
 }
