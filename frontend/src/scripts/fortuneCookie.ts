@@ -21,8 +21,9 @@ const MAX_FORTUNE_COOKIE_MESSAGE_LENGTH = 50;
 const FORTUNE_COOKIE_SPIN_REWARD = 10;
 
 // ── 가이드 콜백 훅 ────────────────────────────────────────────────────────────
-let onPopupOpenCallback:    (() => void) | null = null;
+let onPopupOpenCallback:     (() => void) | null = null;
 let onResultActionsCallback: (() => void) | null = null;
+let onCreateCloseCallback:   (() => void) | null = null;
 
 export function setOnFortuneCookieOpenCallback(cb: () => void): void {
   onPopupOpenCallback = cb;
@@ -30,6 +31,10 @@ export function setOnFortuneCookieOpenCallback(cb: () => void): void {
 
 export function setOnFortuneCookieActionsCallback(cb: () => void): void {
   onResultActionsCallback = cb;
+}
+
+export function setOnFortuneCookieCreateCloseCallback(cb: () => void): void {
+  onCreateCloseCallback = cb;
 }
 
 function getEl<T extends HTMLElement>(id: string): T {
@@ -258,6 +263,9 @@ export function closeFortuneCookieCreatePopup(): void {
   const overlay = getEl('fcCreateOverlay');
   overlay.classList.remove('fc-create-open');
   setTimeout(() => overlay.setAttribute('aria-hidden', 'true'), 350);
+  const cb = onCreateCloseCallback;
+  onCreateCloseCallback = null;
+  cb?.();
 }
 
 // ── 메시지 유효성 검사 ────────────────────────────────────────────────────────

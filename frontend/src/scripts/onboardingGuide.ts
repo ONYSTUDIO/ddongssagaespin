@@ -6,6 +6,7 @@ export const GUIDE_STEP = {
   MINIGAME: 2,
   CODEX:    3,  // 미니게임에서 신규 캐릭터 획득 시에만 삽입
   RANKING:  4,
+  PROFILE:  5,
   DONE:     99,
 } as const;
 

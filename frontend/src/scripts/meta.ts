@@ -47,6 +47,11 @@ const MOCK_RANKING: RankEntry[] = [
 
 // ── Toast ──────────────────────────────────────────────────────────
 let toastTimer: ReturnType<typeof setTimeout> | null = null;
+let onRankingPopupCloseCallback: (() => void) | null = null;
+
+export function setOnRankingPopupCloseCallback(cb: () => void): void {
+  onRankingPopupCloseCallback = cb;
+}
 
 function showToast(msg: string): void {
   const el = document.getElementById('metaToast');
@@ -109,6 +114,9 @@ function closeRankingPopup(): void {
   if (!overlay) return;
   overlay.setAttribute('aria-hidden', 'true');
   overlay.classList.remove('ranking-popup-open');
+  const cb = onRankingPopupCloseCallback;
+  onRankingPopupCloseCallback = null;
+  cb?.();
 }
 
 // ── 사이드바 상단을 슬롯 머신 상단에 정렬 ─────────────────────────

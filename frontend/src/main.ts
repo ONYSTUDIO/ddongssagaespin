@@ -8,7 +8,7 @@ import { showResult } from './scripts/effects';
 import { buildFortuneResult, loadFortuneMessages } from './scripts/fortune';
 import { initPopup, showResultPopup, hideResultPopup } from './scripts/popup';
 import { saveScore } from './scripts/ranking';
-import { initMeta } from './scripts/meta';
+import { initMeta, setOnRankingPopupCloseCallback } from './scripts/meta';
 import { initDailyReward, checkAndShowDailyReward } from './scripts/dailyReward';
 import { getCurrentSpinCount, consumeSpin } from './scripts/spinManager';
 import { saveSlotFortuneLog } from './scripts/history';
@@ -18,7 +18,7 @@ import { initRedDots, markSpinRecordUpdated, updateProfileRedDot } from './scrip
 import { getCharacterSrc } from './scripts/characterCodex';
 import { initProfilePopup } from './scripts/profile';
 import { consumeSpinGuideConfirm, showSpinGuide, hideSpinGuide } from './scripts/spinGuide';
-import { showFortuneCookieIconGuide, hideFortuneGuide, showMinigameIconGuide, showCodexGuide, showRankingGuide } from './scripts/fortuneGuide';
+import { showFortuneCookieIconGuide, hideFortuneGuide, showMinigameIconGuide, showCodexGuide, showRankingGuide, showProfileGuide, setOnFortuneChainDoneCallback } from './scripts/fortuneGuide';
 import { fetchGuideStep, saveGuideStep, GUIDE_STEP } from './scripts/onboardingGuide';
 import { setOnMinigameCloseCallback } from './scripts/minigame01';
 
@@ -148,15 +148,19 @@ async function onLoginSuccess(): Promise<void> {
   // step 재진입 시 해당 가이드를 직접 시작하는 헬퍼들
   const uid = currentUserId;
   const startFortuneGuide = () => {
-    setTimeout(() => showFortuneCookieIconGuide(() => {
+    setOnFortuneChainDoneCallback(() => {
       if (uid) saveGuideStep(uid, GUIDE_STEP.MINIGAME).catch(() => {});
-    }), 450);
+      startMinigameGuide();
+    });
+    setTimeout(() => showFortuneCookieIconGuide(), 450);
   };
   const startMinigameGuide = () => {
-    // 미니게임 팝업 닫힐 때 신규 캐릭터 획득 여부로 다음 step 결정
+    // 미니게임 팝업 닫힐 때 신규 캐릭터 획득 여부로 다음 step 결정 후 다음 가이드 실행
     setOnMinigameCloseCallback((charObtained) => {
       const nextStep = charObtained ? GUIDE_STEP.CODEX : GUIDE_STEP.RANKING;
       if (uid) saveGuideStep(uid, nextStep).catch(() => {});
+      if (charObtained) startCodexGuide();
+      else startRankingGuide();
     });
     setTimeout(() => showMinigameIconGuide(), 450);
   };
@@ -167,6 +171,12 @@ async function onLoginSuccess(): Promise<void> {
   };
   const startRankingGuide = () => {
     setTimeout(() => showRankingGuide(() => {
+      if (uid) saveGuideStep(uid, GUIDE_STEP.PROFILE).catch(() => {});
+      setOnRankingPopupCloseCallback(() => startProfileGuide());
+    }), 450);
+  };
+  const startProfileGuide = () => {
+    setTimeout(() => showProfileGuide(() => {
       if (uid) saveGuideStep(uid, GUIDE_STEP.DONE).catch(() => {});
     }), 450);
   };
@@ -179,6 +189,7 @@ async function onLoginSuccess(): Promise<void> {
     else if (guideStep === GUIDE_STEP.MINIGAME) startMinigameGuide();
     else if (guideStep === GUIDE_STEP.CODEX)    startCodexGuide();
     else if (guideStep === GUIDE_STEP.RANKING)  startRankingGuide();
+    else if (guideStep === GUIDE_STEP.PROFILE)  startProfileGuide();
   });
   await checkAndShowDailyReward();
 
@@ -186,14 +197,16 @@ async function onLoginSuccess(): Promise<void> {
   const needsGuide = guideStep === GUIDE_STEP.FORTUNE
     || guideStep === GUIDE_STEP.MINIGAME
     || guideStep === GUIDE_STEP.CODEX
-    || guideStep === GUIDE_STEP.RANKING;
+    || guideStep === GUIDE_STEP.RANKING
+    || guideStep === GUIDE_STEP.PROFILE;
   if (needsGuide) {
     const rewardPopup = document.getElementById('dailyRewardPopup');
     if (!rewardPopup?.classList.contains('daily-reward-open')) {
       if      (guideStep === GUIDE_STEP.FORTUNE)  startFortuneGuide();
       else if (guideStep === GUIDE_STEP.MINIGAME) startMinigameGuide();
       else if (guideStep === GUIDE_STEP.CODEX)    startCodexGuide();
-      else                                        startRankingGuide();
+      else if (guideStep === GUIDE_STEP.RANKING)  startRankingGuide();
+      else                                        startProfileGuide();
     }
   }
 
@@ -313,9 +326,37 @@ async function spin(): Promise<void> {
     if (!pendingFortuneGuide) return;
     pendingFortuneGuide = false;
     const uid = currentUserId;
-    setTimeout(() => showFortuneCookieIconGuide(() => {
+    setOnFortuneChainDoneCallback(() => {
       if (uid) saveGuideStep(uid, GUIDE_STEP.MINIGAME).catch(() => {});
-    }), 300);
+      setOnMinigameCloseCallback((charObtained) => {
+        const nextStep = charObtained ? GUIDE_STEP.CODEX : GUIDE_STEP.RANKING;
+        if (uid) saveGuideStep(uid, nextStep).catch(() => {});
+        if (charObtained) {
+          setTimeout(() => showCodexGuide(() => {
+            if (uid) saveGuideStep(uid, GUIDE_STEP.RANKING).catch(() => {});
+            setTimeout(() => showRankingGuide(() => {
+              if (uid) saveGuideStep(uid, GUIDE_STEP.PROFILE).catch(() => {});
+              setOnRankingPopupCloseCallback(() => {
+                setTimeout(() => showProfileGuide(() => {
+                  if (uid) saveGuideStep(uid, GUIDE_STEP.DONE).catch(() => {});
+                }), 450);
+              });
+            }), 450);
+          }), 450);
+        } else {
+          setTimeout(() => showRankingGuide(() => {
+            if (uid) saveGuideStep(uid, GUIDE_STEP.PROFILE).catch(() => {});
+            setOnRankingPopupCloseCallback(() => {
+              setTimeout(() => showProfileGuide(() => {
+                if (uid) saveGuideStep(uid, GUIDE_STEP.DONE).catch(() => {});
+              }), 450);
+            });
+          }), 450);
+        }
+      });
+      setTimeout(() => showMinigameIconGuide(), 450);
+    });
+    setTimeout(() => showFortuneCookieIconGuide(), 300);
   }
 
   function runJudgment(): void {
