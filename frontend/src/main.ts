@@ -140,7 +140,7 @@ async function onLoginSuccess(): Promise<void> {
   const { data: { user: authUser } } = await supabase.auth.getUser();
   currentUserId = authUser?.id ?? null;
 
-  let guideStep = GUIDE_STEP.DONE;
+  let guideStep: number = GUIDE_STEP.DONE;
   if (currentUserId) {
     guideStep = await fetchGuideStep(currentUserId);
   }
