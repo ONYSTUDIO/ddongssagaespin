@@ -82,7 +82,12 @@ export function initLogin(
   // 기존 세션 확인 → 있으면 바로 게임 화면으로
   supabase.auth.getSession().then(({ data: { session } }) => {
     if (session) { hideLoginScreen(); onLoginSuccess?.(); }
-    else { startLoginBgm().catch(() => {}); }  // 세션 없음 = 로그인 화면 유지 → BGM 시작
+    else {
+      // 브라우저 자동재생 정책: getSession 콜백은 사용자 제스처 컨텍스트가 없어 차단될 수 있음
+      // 즉시 시도 (일부 데스크톱 브라우저는 허용) + 첫 상호작용 시 재시도
+      startLoginBgm().catch(() => {});
+      screen.addEventListener('pointerdown', () => startLoginBgm().catch(() => {}), { once: true });
+    }
   });
 
   loginBtn.addEventListener('click', async () => {
