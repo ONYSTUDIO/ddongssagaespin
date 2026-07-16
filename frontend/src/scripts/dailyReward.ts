@@ -6,6 +6,7 @@ import btnOnSrc      from '../assets/images/buttons/btn_today_play_on.png';
 import btnFocusSrc   from '../assets/images/buttons/btn_today_play_focus.png';
 
 import { checkDailyReward, grantDailySpinReward, DAILY_SPIN_REWARD } from './spinManager';
+import { playClick } from './sound';
 
 type OnGrantCallback = (newSpinCount: number) => void;
 
@@ -30,6 +31,7 @@ export function initDailyReward(onGrant: OnGrantCallback): void {
   btn.addEventListener('mouseleave', () => { btnImg.src = btnOnSrc; });
 
   btn.addEventListener('click', async () => {
+    playClick();
     btn.disabled = true;
     const newCount = await grantDailySpinReward();
     hideDailyRewardPopup();

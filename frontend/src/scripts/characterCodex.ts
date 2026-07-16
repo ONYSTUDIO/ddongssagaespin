@@ -294,6 +294,7 @@ async function renderGrid(): Promise<void> {
 
   grid.querySelectorAll<HTMLButtonElement>('.codex-change-btn').forEach(btn => {
     btn.addEventListener('click', () => {
+      playClick();
       const charId = Number(btn.dataset.charId);
       changeProfileCharacter(charId, btn);
     });
@@ -301,6 +302,7 @@ async function renderGrid(): Promise<void> {
 
   grid.querySelectorAll<HTMLButtonElement>('.codex-fragment-btn--active').forEach(btn => {
     btn.addEventListener('click', () => {
+      playClick();
       const charId = Number(btn.dataset.charId);
       btn.disabled = true;
       btn.textContent = '처리 중...';

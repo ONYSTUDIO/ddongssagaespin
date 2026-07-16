@@ -117,7 +117,7 @@ export function initFortuneCookie(): void {
   getEl<HTMLImageElement>('fcCreatePaperImg').src = paperSrc;
 
   getEl('fcCloseBtn').addEventListener('click', () => { playClick(); hideFortuneCookiePopup(); });
-  getEl('fcHammerBtn').addEventListener('click', playCookieBreakAnimation);
+  getEl('fcHammerBtn').addEventListener('click', () => { playClick(); playCookieBreakAnimation(); });
 
   // 액션 버튼
   getEl('fcActionConfirm').addEventListener('click', () => { playClick(); hideFortuneCookiePopup(); });
@@ -288,7 +288,7 @@ function initFortuneCookieCreate(): void {
   });
 
   getEl('fcCreateCloseBtn').addEventListener('click', () => { playClick(); closeFortuneCookieCreatePopup(); });
-  getEl('fcCreateSubmitBtn').addEventListener('click', submitFortuneCookieMessage);
+  getEl('fcCreateSubmitBtn').addEventListener('click', () => { playClick(); submitFortuneCookieMessage(); });
 }
 
 // ── 작성 팝업 열기/닫기 ──────────────────────────────────────────────────────

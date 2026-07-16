@@ -5,7 +5,7 @@ import inputBgSrc  from '../assets/images/popup/login/input_bg.png';
 import loginBtnSrc from '../assets/images/popup/login/login_button.png';
 import corgiSrc    from '../assets/images/popup/login/main_corgi.png';
 import { supabase } from './supabase';
-import { startLoginBgm, stopLoginBgm } from './sound';
+import { playClick, startLoginBgm, stopLoginBgm } from './sound';
 
 function getEl<T extends HTMLElement>(id: string): T {
   return document.getElementById(id) as T;
@@ -101,6 +101,7 @@ export function initLogin(
       return;
     }
 
+    playClick();
     loginBtn.disabled = true;
     if (errorEl) errorEl.textContent = '';
 

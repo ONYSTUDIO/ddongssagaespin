@@ -149,12 +149,14 @@ async function loadHistoryPage(page: number): Promise<void> {
 export function initHistory(): void {
   getEl('historyCloseBtn').addEventListener('click', () => { playClick(); hideHistoryPopup(); });
   getEl('historyPrevBtn').addEventListener('click', () => {
+    playClick();
     if (currentPage > 1) {
       currentPage--;
       loadHistoryPage(currentPage);
     }
   });
   getEl('historyNextBtn').addEventListener('click', () => {
+    playClick();
     const totalPages = Math.ceil(totalCount / PAGE_SIZE);
     if (currentPage < totalPages) {
       currentPage++;
