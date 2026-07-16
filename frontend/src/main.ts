@@ -15,7 +15,7 @@ import { saveSlotFortuneLog } from './scripts/history';
 import { initStars } from './scripts/stars';
 import { startBgm, stopBgm, initBgmBtn, playReelStop } from './scripts/sound';
 import { initRedDots, markSpinRecordUpdated, updateProfileRedDot } from './scripts/redDot';
-import { getCharacterSrc } from './scripts/characterCodex';
+import { getCharacterSrc, setOnCodexCloseCallback } from './scripts/characterCodex';
 import { initProfilePopup } from './scripts/profile';
 import { consumeSpinGuideConfirm, showSpinGuide, hideSpinGuide } from './scripts/spinGuide';
 import { showFortuneCookieIconGuide, hideFortuneGuide, showMinigameIconGuide, showCodexGuide, showRankingGuide, showProfileGuide, setOnFortuneChainDoneCallback } from './scripts/fortuneGuide';
@@ -167,6 +167,7 @@ async function onLoginSuccess(): Promise<void> {
   const startCodexGuide = () => {
     setTimeout(() => showCodexGuide(() => {
       if (uid) saveGuideStep(uid, GUIDE_STEP.RANKING).catch(() => {});
+      setOnCodexCloseCallback(() => startRankingGuide());
     }), 450);
   };
   const startRankingGuide = () => {
@@ -334,14 +335,16 @@ async function spin(): Promise<void> {
         if (charObtained) {
           setTimeout(() => showCodexGuide(() => {
             if (uid) saveGuideStep(uid, GUIDE_STEP.RANKING).catch(() => {});
-            setTimeout(() => showRankingGuide(() => {
-              if (uid) saveGuideStep(uid, GUIDE_STEP.PROFILE).catch(() => {});
-              setOnRankingPopupCloseCallback(() => {
-                setTimeout(() => showProfileGuide(() => {
-                  if (uid) saveGuideStep(uid, GUIDE_STEP.DONE).catch(() => {});
-                }), 450);
-              });
-            }), 450);
+            setOnCodexCloseCallback(() => {
+              setTimeout(() => showRankingGuide(() => {
+                if (uid) saveGuideStep(uid, GUIDE_STEP.PROFILE).catch(() => {});
+                setOnRankingPopupCloseCallback(() => {
+                  setTimeout(() => showProfileGuide(() => {
+                    if (uid) saveGuideStep(uid, GUIDE_STEP.DONE).catch(() => {});
+                  }), 450);
+                });
+              }), 450);
+            });
           }), 450);
         } else {
           setTimeout(() => showRankingGuide(() => {

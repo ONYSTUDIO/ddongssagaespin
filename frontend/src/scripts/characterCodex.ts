@@ -61,6 +61,13 @@ function showToast(msg: string): void {
   setTimeout(() => el.classList.remove('meta-toast--visible'), 2500);
 }
 
+// ── 가이드 콜백 훅 ──────────────────────────────────────────────────
+let onCodexCloseCallback: (() => void) | null = null;
+
+export function setOnCodexCloseCallback(cb: () => void): void {
+  onCodexCloseCallback = cb;
+}
+
 // ── 팝업 열기/닫기 ──────────────────────────────────────────────────
 export function showCharacterCodexPopup(): void {
   const overlay = getEl('characterCodexOverlay');
@@ -76,6 +83,9 @@ export function hideCharacterCodexPopup(): void {
   overlay.classList.remove('codex-open');
   setTimeout(() => overlay.setAttribute('aria-hidden', 'true'), 300);
   markCodexSeen();
+  const cb = onCodexCloseCallback;
+  onCodexCloseCallback = null;
+  cb?.();
 }
 
 // ── 확인 팝업 ────────────────────────────────────────────────────────
