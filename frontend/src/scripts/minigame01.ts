@@ -1,6 +1,6 @@
 import '../styles/minigame01.css';
 import { grantSpins } from './spinManager';
-import { playClick, isBgmEnabled, startBgm, stopBgm, startMinigameBgm, stopMinigameBgm } from './sound';
+import { playClick, playObtain, isBgmEnabled, startBgm, stopBgm, startMinigameBgm, stopMinigameBgm } from './sound';
 import { loadOwnedCharacters, isCharacterOwned, collectCharacter } from './characterManager';
 import { markMinigameCompleted } from './redDot';
 
@@ -312,9 +312,11 @@ function handleCellClick(idx: number): void {
   const cellType = mapData[idx];
 
   if (cellType === CELL_TYPE.GOLDEN_POOP) {
+    playObtain();
     goldenPoopCount++;
 
   } else if (isDogCell(cellType)) {
+    playObtain();
     if (!foundDogIds.includes(cellType)) foundDogIds.push(cellType);
     const isNewToCollection = !isCharacterOwned(cellType);
     if (isNewToCollection) {
@@ -325,20 +327,24 @@ function handleCellClick(idx: number): void {
     collectCharacter(cellType).catch(() => {});
 
   } else if (cellType === CELL_TYPE.CORGI) {
+    playClick();
     selectionCount += 2; // net +1 after base -1
     if (cellEl) showSelectionBubble(cellEl, '+1', 'bonus');
     // TODO: 코기 발견 시 주변 일부 칸 공개 효과 검토
 
   } else if (cellType === CELL_TYPE.GHOST) {
+    playClick();
     selectionCount--; // additional -1, total -2
     if (cellEl) showSelectionBubble(cellEl, '-1', 'danger');
 
   } else if (cellType === CELL_TYPE.SWEET_POTATO) {
+    playClick();
     selectionCount--; // additional -1, total -2 (ghost와 동일)
     if (cellEl) showSelectionBubble(cellEl, '-1', 'danger');
 
-  } else if (cellType === CELL_TYPE.EMPTY && hintNumbers[idx] === 0) {
-    autoExpand(idx);
+  } else if (cellType === CELL_TYPE.EMPTY) {
+    playClick();
+    if (hintNumbers[idx] === 0) autoExpand(idx);
   }
 
   updateHUD();
@@ -432,6 +438,7 @@ export function hideMinigame01Popup(): void {
 export function initMinigame01(): void {
   getEl('mg01CloseBtn').addEventListener('click', () => { playClick(); hideMinigame01Popup(); });
   getEl('mg01StartBtn').addEventListener('click', () => {
+    playClick();
     // ingame BGM 상태 저장 → 정지 → 미니게임 BGM 시작 (BGM 꺼진 상태면 재생 안 함)
     resumeIngameBgm = isBgmEnabled();
     stopBgm();

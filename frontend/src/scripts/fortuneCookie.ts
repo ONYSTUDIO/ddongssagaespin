@@ -12,13 +12,62 @@ import { markFortuneCookieChecked, markFortuneCookieMessageWritten } from './for
 import { saveFortuneCookieLog } from './history';
 import { grantSpinsWithResult } from './spinManager';
 import { supabase } from './supabase';
-import { playClick } from './sound';
+import { playClick, startFortuneCookieBgm, stopFortuneCookieBgm, isBgmEnabled, stopBgm, startBgm } from './sound';
 import { updateFortuneCookieRedDot } from './redDot';
 
 const BREAK_FRAMES = [cookie01, cookie02, cookie03, cookie04, cookie05];
 const FRAME_DURATION = 250; // 4 transitions × 250ms = 1s
 const MAX_FORTUNE_COOKIE_MESSAGE_LENGTH = 50;
 const FORTUNE_COOKIE_SPIN_REWARD = 10;
+
+// ── BGM 상태 ──────────────────────────────────────────────────────────────────
+let resumeIngameBgmFortune = false;
+let isFcBgmActive = false;
+let stopFcBgmTimer: ReturnType<typeof setTimeout> | null = null;
+
+// 포춘쿠키 팝업이 열릴 때 호출 — 팝업 간 체인 중이면 예약된 정지를 취소하고 유지
+function openFcBgm(): void {
+  if (stopFcBgmTimer !== null) {
+    clearTimeout(stopFcBgmTimer);
+    stopFcBgmTimer = null;
+    return; // BGM이 이미 재생 중, 그대로 유지
+  }
+  if (isFcBgmActive) return;
+  if (!isBgmEnabled()) return; // HUD에서 BGM 꺼져 있으면 재생 안 함
+  resumeIngameBgmFortune = true;
+  stopBgm();
+  startFortuneCookieBgm().catch(() => {});
+  isFcBgmActive = true;
+}
+
+// 포춘쿠키 팝업이 닫힐 때 호출 — 팝업 2가 곧 열릴 수 있으므로 400ms 후 정지
+function scheduleFcBgmStop(): void {
+  if (!isFcBgmActive) return;
+  stopFcBgmTimer = setTimeout(() => {
+    stopFcBgmTimer = null;
+    stopFortuneCookieBgm();
+    isFcBgmActive = false;
+    if (resumeIngameBgmFortune) {
+      resumeIngameBgmFortune = false;
+      startBgm().catch(() => {});
+    }
+  }, 400);
+}
+
+// 마지막 팝업이 닫힐 때 호출 — 즉시 정지
+function immediateFcBgmStop(): void {
+  if (stopFcBgmTimer !== null) {
+    clearTimeout(stopFcBgmTimer);
+    stopFcBgmTimer = null;
+  }
+  if (!isFcBgmActive) return;
+  stopFortuneCookieBgm();
+  isFcBgmActive = false;
+  if (resumeIngameBgmFortune) {
+    resumeIngameBgmFortune = false;
+    startBgm().catch(() => {});
+  }
+}
 
 // ── 가이드 콜백 훅 ────────────────────────────────────────────────────────────
 let onPopupOpenCallback:     (() => void) | null = null;
@@ -88,6 +137,7 @@ export function initFortuneCookie(): void {
 
 // ── 메인 팝업 열기/닫기/리셋 ─────────────────────────────────────────────────
 export function showFortuneCookiePopup(): void {
+  openFcBgm();
   resetFortuneCookiePopup();
   const overlay = getEl('fortuneCookieOverlay');
   overlay.removeAttribute('aria-hidden');
@@ -101,6 +151,7 @@ export function showFortuneCookiePopup(): void {
 }
 
 export function hideFortuneCookiePopup(): void {
+  scheduleFcBgmStop();
   const overlay = getEl('fortuneCookieOverlay');
   overlay.classList.remove('fc-open');
   setTimeout(() => overlay.setAttribute('aria-hidden', 'true'), 350);
@@ -242,6 +293,7 @@ function initFortuneCookieCreate(): void {
 
 // ── 작성 팝업 열기/닫기 ──────────────────────────────────────────────────────
 export function openFortuneCookieCreatePopup(): void {
+  openFcBgm();
   const overlay  = getEl('fcCreateOverlay');
   const textarea = getEl<HTMLTextAreaElement>('fcCreateTextarea');
   const countEl  = getEl('fcCreateCount');
@@ -260,6 +312,7 @@ export function openFortuneCookieCreatePopup(): void {
 }
 
 export function closeFortuneCookieCreatePopup(): void {
+  immediateFcBgmStop();
   const overlay = getEl('fcCreateOverlay');
   overlay.classList.remove('fc-create-open');
   setTimeout(() => overlay.setAttribute('aria-hidden', 'true'), 350);

@@ -13,7 +13,7 @@ import { initDailyReward, checkAndShowDailyReward } from './scripts/dailyReward'
 import { getCurrentSpinCount, consumeSpin } from './scripts/spinManager';
 import { saveSlotFortuneLog } from './scripts/history';
 import { initStars } from './scripts/stars';
-import { startBgm, stopBgm, initBgmBtn, playReelStop } from './scripts/sound';
+import { startBgm, stopBgm, initBgmBtn, playReelStop, playSpinButton } from './scripts/sound';
 import { initRedDots, markSpinRecordUpdated, updateProfileRedDot } from './scripts/redDot';
 import { getCharacterSrc, setOnCodexCloseCallback } from './scripts/characterCodex';
 import { initProfilePopup } from './scripts/profile';
@@ -129,15 +129,16 @@ async function onLoginSuccess(): Promise<void> {
   startBgm();
   isInitializing = true;
 
-  // 운세 메시지 DB 로드 (실패 시 하드코딩 폴백 유지)
-  await loadFortuneMessages();
+  // 병렬 로드: 독립적인 초기화 작업을 동시에 실행해 팝업 표시 지연 최소화
+  const [
+    [, count],
+    { data: { user: authUser } },
+  ] = await Promise.all([
+    Promise.all([loadFortuneMessages(), getCurrentSpinCount()]),
+    supabase.auth.getUser(),
+  ]);
 
-  // 스핀 카운트 표시 (isInitializing=true 이므로 버튼 비활성화 차단)
-  const count = await getCurrentSpinCount();
   updateSpinCountUI(count);
-
-  // 사용자 ID 취득 및 가이드 step 조회
-  const { data: { user: authUser } } = await supabase.auth.getUser();
   currentUserId = authUser?.id ?? null;
 
   let guideStep: number = GUIDE_STEP.DONE;
@@ -202,7 +203,7 @@ async function onLoginSuccess(): Promise<void> {
     || guideStep === GUIDE_STEP.PROFILE;
   if (needsGuide) {
     const rewardPopup = document.getElementById('dailyRewardPopup');
-    if (!rewardPopup?.classList.contains('daily-reward-open')) {
+    if (!rewardPopup || rewardPopup.hasAttribute('aria-hidden')) {
       if      (guideStep === GUIDE_STEP.FORTUNE)  startFortuneGuide();
       else if (guideStep === GUIDE_STEP.MINIGAME) startMinigameGuide();
       else if (guideStep === GUIDE_STEP.CODEX)    startCodexGuide();
@@ -217,8 +218,9 @@ async function onLoginSuccess(): Promise<void> {
   isInitializing = false;
 
   // 일일 보상 팝업이 떠 있으면 버튼 상태를 건드리지 않음 (팝업 수령 시 콜백이 처리)
+  // aria-hidden 속성으로 체크 — showDailyRewardPopup이 동기로 removeAttribute하므로 RAF 전에도 정확함
   const rewardPopup = document.getElementById('dailyRewardPopup');
-  if (!rewardPopup?.classList.contains('daily-reward-open')) {
+  if (!rewardPopup || rewardPopup.hasAttribute('aria-hidden')) {
     updateSpinCountUI(count);
   }
 }
@@ -273,6 +275,7 @@ async function spin(): Promise<void> {
   if (isSpinning) return;
   if (noSpinMode) { showNoSpinPopup(); return; }
   isSpinning = true;
+  playSpinButton();
 
   // 이전 스핀의 지연 팝업 타이머가 살아 있으면 취소
   if (pendingPopupTimer !== null) {

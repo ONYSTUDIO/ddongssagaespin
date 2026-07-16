@@ -5,6 +5,7 @@ import inputBgSrc  from '../assets/images/popup/login/input_bg.png';
 import loginBtnSrc from '../assets/images/popup/login/login_button.png';
 import corgiSrc    from '../assets/images/popup/login/main_corgi.png';
 import { supabase } from './supabase';
+import { startLoginBgm, stopLoginBgm } from './sound';
 
 function getEl<T extends HTMLElement>(id: string): T {
   return document.getElementById(id) as T;
@@ -26,9 +27,11 @@ export function showLoginScreen(): void {
   const btn = document.getElementById('loginBtn') as HTMLButtonElement | null;
   if (btn) btn.disabled = false;
   requestAnimationFrame(() => screen.classList.remove('login-screen--out'));
+  startLoginBgm().catch(() => {});
 }
 
 export function hideLoginScreen(): void {
+  stopLoginBgm();
   const screen = getEl('loginScreen');
   screen.classList.add('login-screen--out');
   screen.setAttribute('aria-hidden', 'true');
@@ -79,6 +82,7 @@ export function initLogin(
   // 기존 세션 확인 → 있으면 바로 게임 화면으로
   supabase.auth.getSession().then(({ data: { session } }) => {
     if (session) { hideLoginScreen(); onLoginSuccess?.(); }
+    else { startLoginBgm().catch(() => {}); }  // 세션 없음 = 로그인 화면 유지 → BGM 시작
   });
 
   loginBtn.addEventListener('click', async () => {
@@ -100,6 +104,9 @@ export function initLogin(
     loginBtn.disabled = true;
     if (errorEl) errorEl.textContent = '';
 
+    // 로그인 시도 시 로그인 BGM 정지
+    stopLoginBgm();
+
     // await 전 동기 구간에서 호출 → 모든 브라우저/iOS에서 user gesture로 인정
     onLoginAttempt?.();
 
@@ -108,6 +115,7 @@ export function initLogin(
       if (errorEl) errorEl.textContent = err;
       loginBtn.disabled = false;
       onLoginFail?.();
+      startLoginBgm().catch(() => {});  // 로그인 실패 시 로그인 BGM 재시작
       return;
     }
     hideLoginScreen();

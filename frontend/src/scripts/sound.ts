@@ -1,10 +1,14 @@
 import bgmMp3 from '../assets/audio/bgm/bgm_ingame.mp3';
 import bgmOgg from '../assets/audio/bgm/bgm_ingame.ogg';
+import loginBgmOgg from '../assets/audio/bgm/login_login.ogg';
 import reelStopMp3 from '../assets/audio/reel/reel_stop.mp3';
 import reelStopOgg from '../assets/audio/reel/reel_stop.ogg';
+import spinButtonOgg from '../assets/audio/reel/spin_button.ogg';
 import buttonMp3 from '../assets/audio/ui/button.mp3';
 import buttonOgg from '../assets/audio/ui/button.ogg';
 import minigameBgmOgg from '../assets/audio/minigame/bgm_minigame.ogg';
+import obtainButtonOgg from '../assets/audio/minigame/obtain_button.ogg';
+import fortuneCookieBgmOgg from '../assets/audio/fortune/fortune_cookie.ogg';
 
 // ── Web Audio API BGM ─────────────────────────────────────────────────────────
 // HTML Audio의 loop=true는 파일 끝에서 처음으로 seek하는 방식이라
@@ -56,6 +60,19 @@ async function loadReelStopBuffer(): Promise<void> {
 }
 
 loadReelStopBuffer().catch(() => {});
+
+// ── 스핀 버튼 효과음 ─────────────────────────────────────────────
+let spinButtonBuffer: AudioBuffer | null = null;
+
+async function loadSpinButtonBuffer(): Promise<void> {
+  if (spinButtonBuffer) return;
+  const ac = getCtx();
+  const res = await fetch(spinButtonOgg);
+  const raw = await res.arrayBuffer();
+  spinButtonBuffer = await ac.decodeAudioData(raw);
+}
+
+loadSpinButtonBuffer().catch(() => {});
 
 // ── 버튼 클릭 효과음 ─────────────────────────────────────────────
 let buttonBuffer: AudioBuffer | null = null;
@@ -152,6 +169,42 @@ export function isBgmEnabled(): boolean {
   return isPlaying;
 }
 
+// ── 로그인 BGM ───────────────────────────────────────────────────────────────
+let loginBgmBuffer: AudioBuffer | null = null;
+let loginBgmSource: AudioBufferSourceNode | null = null;
+let isLoginBgmPlaying = false;
+
+async function loadLoginBgmBuffer(): Promise<void> {
+  if (loginBgmBuffer) return;
+  const ac = getCtx();
+  const res = await fetch(loginBgmOgg);
+  const raw = await res.arrayBuffer();
+  loginBgmBuffer = await ac.decodeAudioData(raw);
+}
+
+loadLoginBgmBuffer().catch(() => {});
+
+export async function startLoginBgm(): Promise<void> {
+  if (isLoginBgmPlaying) return;
+  const ac = getCtx();
+  if (ac.state === 'suspended') await ac.resume();
+  await loadLoginBgmBuffer();
+  if (!gainNode || !loginBgmBuffer) return;
+  loginBgmSource = ac.createBufferSource();
+  loginBgmSource.buffer = loginBgmBuffer;
+  loginBgmSource.loop = true;
+  loginBgmSource.connect(gainNode);
+  loginBgmSource.start(0);
+  isLoginBgmPlaying = true;
+}
+
+export function stopLoginBgm(): void {
+  loginBgmSource?.stop();
+  loginBgmSource?.disconnect();
+  loginBgmSource = null;
+  isLoginBgmPlaying = false;
+}
+
 // ── 미니게임 BGM ─────────────────────────────────────────────────────────────
 
 let mgBuffer: AudioBuffer | null = null;
@@ -167,6 +220,55 @@ async function loadMgBuffer(): Promise<void> {
 }
 
 loadMgBuffer().catch(() => {});
+
+// ── 획득 버튼 효과음 ─────────────────────────────────────────────
+let obtainButtonBuffer: AudioBuffer | null = null;
+
+async function loadObtainButtonBuffer(): Promise<void> {
+  if (obtainButtonBuffer) return;
+  const ac = getCtx();
+  const res = await fetch(obtainButtonOgg);
+  const raw = await res.arrayBuffer();
+  obtainButtonBuffer = await ac.decodeAudioData(raw);
+}
+
+loadObtainButtonBuffer().catch(() => {});
+
+// ── 포춘쿠키 BGM ─────────────────────────────────────────────────────────────
+let fcBgmBuffer: AudioBuffer | null = null;
+let fcBgmSource: AudioBufferSourceNode | null = null;
+let isFcBgmPlaying = false;
+
+async function loadFcBgmBuffer(): Promise<void> {
+  if (fcBgmBuffer) return;
+  const ac = getCtx();
+  const res = await fetch(fortuneCookieBgmOgg);
+  const raw = await res.arrayBuffer();
+  fcBgmBuffer = await ac.decodeAudioData(raw);
+}
+
+loadFcBgmBuffer().catch(() => {});
+
+export async function startFortuneCookieBgm(): Promise<void> {
+  if (isFcBgmPlaying) return;
+  const ac = getCtx();
+  if (ac.state === 'suspended') await ac.resume();
+  await loadFcBgmBuffer();
+  if (!gainNode || !fcBgmBuffer) return;
+  fcBgmSource = ac.createBufferSource();
+  fcBgmSource.buffer = fcBgmBuffer;
+  fcBgmSource.loop = true;
+  fcBgmSource.connect(gainNode);
+  fcBgmSource.start(0);
+  isFcBgmPlaying = true;
+}
+
+export function stopFortuneCookieBgm(): void {
+  fcBgmSource?.stop();
+  fcBgmSource?.disconnect();
+  fcBgmSource = null;
+  isFcBgmPlaying = false;
+}
 
 export async function startMinigameBgm(): Promise<void> {
   if (isMgPlaying) return;
@@ -198,11 +300,25 @@ export function playClick(): void {
   s.connect(gainNode);
   s.start();
 }
+export function playSpinButton(): void {
+  if (!ctx || !gainNode || !spinButtonBuffer) return;
+  const s = ctx.createBufferSource();
+  s.buffer = spinButtonBuffer;
+  s.connect(gainNode);
+  s.start();
+}
 export function playReelSpin(): void {}
 export function playReelStop(): void {
   if (!ctx || !gainNode || !reelStopBuffer) return;
   const s = ctx.createBufferSource();
   s.buffer = reelStopBuffer;
+  s.connect(gainNode);
+  s.start();
+}
+export function playObtain(): void {
+  if (!ctx || !gainNode || !obtainButtonBuffer) return;
+  const s = ctx.createBufferSource();
+  s.buffer = obtainButtonBuffer;
   s.connect(gainNode);
   s.start();
 }
