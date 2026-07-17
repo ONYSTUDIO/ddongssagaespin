@@ -3,8 +3,14 @@ import '../styles/spinGuide.css';
 const GUIDE_KEY = 'ddong_spin_guide_shown';
 
 let active = false;
+let blocked = false;
 let clickHandler: ((e: MouseEvent) => void) | null = null;
 let confirmedFromGuide = false;
+
+export function setSpinGuideBlocked(v: boolean): void {
+  blocked = v;
+  if (v) hideSpinGuide();
+}
 
 // 가이드에서 스핀 버튼을 클릭해 진입했는지 여부를 소비 방식으로 반환
 export function consumeSpinGuideConfirm(): boolean {
@@ -22,7 +28,7 @@ export function isSpinGuideActive(): boolean {
 }
 
 export function showSpinGuide(): void {
-  if (active) return;
+  if (blocked || active) return;
 
   const overlay = document.getElementById('spinGuideOverlay');
   const bubble  = document.getElementById('spinGuideBubble');

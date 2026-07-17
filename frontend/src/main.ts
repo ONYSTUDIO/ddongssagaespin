@@ -17,8 +17,8 @@ import { startBgm, stopBgm, initBgmBtn, playReelStop, playSpinButton, playHit } 
 import { initRedDots, markSpinRecordUpdated, updateProfileRedDot } from './scripts/redDot';
 import { getCharacterSrc, setOnCodexCloseCallback } from './scripts/characterCodex';
 import { initProfilePopup } from './scripts/profile';
-import { consumeSpinGuideConfirm, showSpinGuide, hideSpinGuide } from './scripts/spinGuide';
-import { showFortuneCookieIconGuide, hideFortuneGuide, showMinigameIconGuide, showCodexGuide, showRankingGuide, showProfileGuide, setOnFortuneChainDoneCallback } from './scripts/fortuneGuide';
+import { consumeSpinGuideConfirm, showSpinGuide, hideSpinGuide, setSpinGuideBlocked } from './scripts/spinGuide';
+import { showFortuneCookieIconGuide, hideFortuneGuide, showMinigameIconGuide, showCodexGuide, showRankingGuide, showProfileGuide, setOnFortuneChainDoneCallback, setFortuneGuidesBlocked } from './scripts/fortuneGuide';
 import { fetchGuideStep, saveGuideStep, GUIDE_STEP } from './scripts/onboardingGuide';
 import { setOnMinigameCloseCallback } from './scripts/minigame01';
 
@@ -46,6 +46,7 @@ let reelCancelFns: Array<() => void> = [];
 let pendingPopupTimer: ReturnType<typeof setTimeout> | null = null;
 let currentUserId: string | null = null;    // 로그인 사용자 ID (가이드 step 저장용)
 let pendingFortuneGuide = false;            // 다음 스핀 완료 시 포춘쿠키 가이드 실행 예약
+let sessionGen = 0;                         // 로그아웃 시 증가 → onLoginSuccess 비동기 체인 무효화
 
 // ── 스핀 부족 안내 팝업 ───────────────────────────────────────────
 function showNoSpinPopup(): void {
@@ -125,6 +126,11 @@ async function setHudUser(): Promise<void> {
 
 // ── 로그인 성공 후 처리 ───────────────────────────────────────────
 async function onLoginSuccess(): Promise<void> {
+  // 세션 세대 — 로그아웃 시 증가해 이 비동기 체인을 무효화
+  setFortuneGuidesBlocked(false);
+  setSpinGuideBlocked(false);
+  const gen = ++sessionGen;
+
   setHudUser();
   startBgm();
   isInitializing = true;
@@ -138,6 +144,8 @@ async function onLoginSuccess(): Promise<void> {
     supabase.auth.getUser(),
   ]);
 
+  if (gen !== sessionGen) return;
+
   updateSpinCountUI(count);
   currentUserId = authUser?.id ?? null;
 
@@ -146,18 +154,24 @@ async function onLoginSuccess(): Promise<void> {
     guideStep = await fetchGuideStep(currentUserId);
   }
 
+  if (gen !== sessionGen) return;
+
   // step 재진입 시 해당 가이드를 직접 시작하는 헬퍼들
   const uid = currentUserId;
   const startFortuneGuide = () => {
+    if (gen !== sessionGen) return;
     setOnFortuneChainDoneCallback(() => {
+      if (gen !== sessionGen) return;
       if (uid) saveGuideStep(uid, GUIDE_STEP.MINIGAME).catch(() => {});
       startMinigameGuide();
     });
     setTimeout(() => showFortuneCookieIconGuide(), 450);
   };
   const startMinigameGuide = () => {
+    if (gen !== sessionGen) return;
     // 미니게임 팝업 닫힐 때 신규 캐릭터 획득 여부로 다음 step 결정 후 다음 가이드 실행
     setOnMinigameCloseCallback((charObtained) => {
+      if (gen !== sessionGen) return;
       const nextStep = charObtained ? GUIDE_STEP.CODEX : GUIDE_STEP.RANKING;
       if (uid) saveGuideStep(uid, nextStep).catch(() => {});
       if (charObtained) startCodexGuide();
@@ -166,25 +180,32 @@ async function onLoginSuccess(): Promise<void> {
     setTimeout(() => showMinigameIconGuide(), 450);
   };
   const startCodexGuide = () => {
+    if (gen !== sessionGen) return;
     setTimeout(() => showCodexGuide(() => {
+      if (gen !== sessionGen) return;
       if (uid) saveGuideStep(uid, GUIDE_STEP.RANKING).catch(() => {});
       setOnCodexCloseCallback(() => startRankingGuide());
     }), 450);
   };
   const startRankingGuide = () => {
+    if (gen !== sessionGen) return;
     setTimeout(() => showRankingGuide(() => {
+      if (gen !== sessionGen) return;
       if (uid) saveGuideStep(uid, GUIDE_STEP.PROFILE).catch(() => {});
       setOnRankingPopupCloseCallback(() => startProfileGuide());
     }), 450);
   };
   const startProfileGuide = () => {
+    if (gen !== sessionGen) return;
     setTimeout(() => showProfileGuide(() => {
+      if (gen !== sessionGen) return;
       if (uid) saveGuideStep(uid, GUIDE_STEP.DONE).catch(() => {});
     }), 450);
   };
 
   // 일일 보상 팝업 초기화 — 게임 시작 버튼 확인 후 해당 step 가이드 실행
   initDailyReward((newCount) => {
+    if (gen !== sessionGen) return;
     updateSpinCountUI(newCount);
     if      (guideStep === GUIDE_STEP.SPIN)     setTimeout(() => showSpinGuide(), 450);
     else if (guideStep === GUIDE_STEP.FORTUNE)  startFortuneGuide();
@@ -194,6 +215,8 @@ async function onLoginSuccess(): Promise<void> {
     else if (guideStep === GUIDE_STEP.PROFILE)  startProfileGuide();
   });
   await checkAndShowDailyReward();
+
+  if (gen !== sessionGen) return;
 
   // 일일 보상 팝업이 없는 경우: 해당 step 가이드 즉시 진행
   const needsGuide = guideStep === GUIDE_STEP.FORTUNE
@@ -233,7 +256,45 @@ initLogin(
   () => stopBgm(),   // 로그인 실패 시 BGM 중단
 );
 initPopup();
-initMeta();
+initMeta(() => {
+  // 세션 세대 증가 — onLoginSuccess 비동기 체인과 가이드 클로저 무효화
+  sessionGen++;
+  setFortuneGuidesBlocked(true);
+  setSpinGuideBlocked(true);
+  // null out guide callbacks so no chain resumes after logout
+  setOnRankingPopupCloseCallback(() => {});
+  setOnCodexCloseCallback(() => {});
+  setOnMinigameCloseCallback(() => {});
+  setOnFortuneChainDoneCallback(() => {});
+  pendingFortuneGuide = false;
+  // hide guide overlays (redundant with setFortuneGuidesBlocked but ensures immediate DOM update)
+  hideSpinGuide();
+  hideFortuneGuide();
+  // cancel in-flight reel animations
+  reelCancelFns.forEach(fn => fn());
+  reelCancelFns = [];
+  isReelAnimating = false;
+  isSkipRequested = false;
+  // clear pending hit-effect timer
+  if (pendingPopupTimer !== null) {
+    clearTimeout(pendingPopupTimer);
+    pendingPopupTimer = null;
+  }
+  // clear hit overlay and reel highlights
+  const hitOverlay = document.getElementById('hitSymbolOverlay');
+  if (hitOverlay) hitOverlay.innerHTML = '';
+  hitLineEl.classList.remove('active');
+  [reel1, reel2, reel3].forEach(r => {
+    r.classList.remove('winner', 'jackpot');
+    r.querySelectorAll<HTMLElement>('.reel-symbol').forEach(s => { s.style.opacity = ''; });
+  });
+  // reset spin state
+  isSpinning = false;
+  btn.disabled = false;
+  // hide result popup and no-spin popup
+  hideResultPopup();
+  hideNoSpinPopup();
+});
 initBgmBtn();
 
 // 포춘쿠키 보상 등 외부에서 스핀 지급 시 UI 갱신

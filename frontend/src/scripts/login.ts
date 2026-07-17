@@ -79,14 +79,23 @@ export function initLogin(
   });
   getEl<HTMLImageElement>('loginBtnImg').src = loginBtnSrc;
 
+  // 자동재생 정책 대응: getSession보다 먼저 동기 등록
+  // 로그인 버튼 클릭은 스킵 — 어차피 직후 stopLoginBgm()으로 취소됨
+  const unlockLoginBgm = (e: Event) => {
+    if ((e.target as Node) === loginBtn || loginBtn.contains(e.target as Node)) return;
+    screen.removeEventListener('pointerdown', unlockLoginBgm);
+    startLoginBgm().catch(() => {});
+  };
+  screen.addEventListener('pointerdown', unlockLoginBgm);
+
   // 기존 세션 확인 → 있으면 바로 게임 화면으로
   supabase.auth.getSession().then(({ data: { session } }) => {
-    if (session) { hideLoginScreen(); onLoginSuccess?.(); }
-    else {
-      // 브라우저 자동재생 정책: getSession 콜백은 사용자 제스처 컨텍스트가 없어 차단될 수 있음
-      // 즉시 시도 (일부 데스크톱 브라우저는 허용) + 첫 상호작용 시 재시도
-      startLoginBgm().catch(() => {});
-      screen.addEventListener('pointerdown', () => startLoginBgm().catch(() => {}), { once: true });
+    if (session) {
+      screen.removeEventListener('pointerdown', unlockLoginBgm);
+      hideLoginScreen();
+      onLoginSuccess?.();
+    } else {
+      startLoginBgm().catch(() => {}); // 즉시 시도 (일부 데스크톱 브라우저 허용)
     }
   });
 

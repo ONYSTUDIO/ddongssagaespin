@@ -33,11 +33,13 @@ import {
   showFortuneCookiePopup,
   showFortuneCookieLimitPopup,
   openFortuneCookieCreatePopup,
+  forceHideAllFortuneCookiePopups,
 } from './fortuneCookie';
 import { ensureFortuneCookieDailyState } from './fortuneCookieDaily';
-import { initHistory, showHistoryPopup } from './history';
-import { initMinigame01, showMinigame01Popup } from './minigame01';
-import { initCharacterCodex } from './characterCodex';
+import { initHistory, showHistoryPopup, hideHistoryPopup } from './history';
+import { initMinigame01, showMinigame01Popup, forceHideMinigame01Popup } from './minigame01';
+import { initCharacterCodex, hideCharacterCodexPopup } from './characterCodex';
+import { hideProfilePopup } from './profile';
 import { markHistorySeen, markRankingSeen } from './redDot';
 
 const MOCK_RANKING: RankEntry[] = [
@@ -150,7 +152,7 @@ function alignSidebarToMachine(): void {
 }
 
 // ── Public API ─────────────────────────────────────────────────────
-export function initMeta(): void {
+export function initMeta(onBeforeLogout?: () => void): void {
   (document.getElementById('metaIconFortune')  as HTMLImageElement).src = fortuneCookieSrc;
   (document.getElementById('metaIconRanking')  as HTMLImageElement).src = rankingSrc;
   (document.getElementById('metaIconSupport')  as HTMLImageElement).src = supportSrc;
@@ -205,6 +207,13 @@ export function initMeta(): void {
 
   document.getElementById('metaBtnLogout')?.addEventListener('click', async () => {
     playClick();
+    onBeforeLogout?.();
+    forceHideAllFortuneCookiePopups();
+    closeRankingPopup();
+    hideHistoryPopup();
+    forceHideMinigame01Popup();
+    hideCharacterCodexPopup();
+    hideProfilePopup();
     stopBgm();
     await supabase.auth.signOut();
     showLoginScreen();

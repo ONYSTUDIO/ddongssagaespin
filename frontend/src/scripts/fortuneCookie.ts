@@ -321,6 +321,27 @@ export function closeFortuneCookieCreatePopup(): void {
   cb?.();
 }
 
+// 로그아웃 시 호출 — FC BGM·타이머·콜백 전부 즉시 초기화, 팝업 DOM 닫기
+// immediateFcBgmStop()과 달리 ingame BGM 복원 없음 (로그아웃이므로 필요 없음)
+export function forceHideAllFortuneCookiePopups(): void {
+  if (stopFcBgmTimer !== null) {
+    clearTimeout(stopFcBgmTimer);
+    stopFcBgmTimer = null;
+  }
+  stopFortuneCookieBgm();
+  isFcBgmActive = false;
+  resumeIngameBgmFortune = false;
+  onPopupOpenCallback     = null;
+  onResultActionsCallback = null;
+  onCreateCloseCallback   = null;
+  for (const id of ['fortuneCookieOverlay', 'fcLimitOverlay', 'fcCreateOverlay'] as const) {
+    const el = document.getElementById(id);
+    if (!el) continue;
+    el.classList.remove('fc-open', 'fc-create-open');
+    el.setAttribute('aria-hidden', 'true');
+  }
+}
+
 // ── 메시지 유효성 검사 ────────────────────────────────────────────────────────
 function validateFortuneCookieMessage(text: string): string | null {
   if (!text.trim()) return '메세지를 입력해주세요.';

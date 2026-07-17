@@ -24,6 +24,7 @@ let buffer: AudioBuffer | null = null;
 let isPlaying = false;
 let pauseOffset = 0;  // 일시정지 시점의 재생 위치 (초)
 let startedAt = 0;    // ctx.currentTime 기준 소스 시작 시각
+let bgmGen = 0;       // stopBgm() 호출 시 증가 → 진행 중인 startBgm() 취소
 
 function getCtx(): AudioContext {
   if (!ctx) {
@@ -148,9 +149,12 @@ function syncBtn(): void {
 // ── 공개 API ─────────────────────────────────────────────────────────────────
 
 export async function startBgm(): Promise<void> {
+  const gen = ++bgmGen;
   const ac = getCtx();
   if (ac.state === 'suspended') await ac.resume();
+  if (gen !== bgmGen) return; // stopBgm()에 의해 취소됨
   await loadBuffer();
+  if (gen !== bgmGen) return;
   if (!isPlaying) {
     startSource(pauseOffset);
     syncBtn();
@@ -158,6 +162,7 @@ export async function startBgm(): Promise<void> {
 }
 
 export function stopBgm(): void {
+  bgmGen++; // 진행 중인 startBgm() async 체인 무효화
   stopSource();
   pauseOffset = 0;
   syncBtn();
@@ -201,6 +206,7 @@ export function isBgmEnabled(): boolean {
 let loginBgmBuffer: AudioBuffer | null = null;
 let loginBgmSource: AudioBufferSourceNode | null = null;
 let isLoginBgmPlaying = false;
+let loginBgmGen = 0; // stopLoginBgm() 호출 시 증가 → 진행 중인 startLoginBgm() 취소
 
 async function loadLoginBgmBuffer(): Promise<void> {
   if (loginBgmBuffer) return;
@@ -214,9 +220,12 @@ loadLoginBgmBuffer().catch(() => {});
 
 export async function startLoginBgm(): Promise<void> {
   if (isLoginBgmPlaying) return;
+  const gen = ++loginBgmGen;
   const ac = getCtx();
   if (ac.state === 'suspended') await ac.resume();
+  if (gen !== loginBgmGen) return; // stopLoginBgm()에 의해 취소됨
   await loadLoginBgmBuffer();
+  if (gen !== loginBgmGen) return;
   if (!gainNode || !loginBgmBuffer) return;
   loginBgmSource = ac.createBufferSource();
   loginBgmSource.buffer = loginBgmBuffer;
@@ -227,6 +236,7 @@ export async function startLoginBgm(): Promise<void> {
 }
 
 export function stopLoginBgm(): void {
+  loginBgmGen++; // 진행 중인 startLoginBgm() async 체인 무효화
   loginBgmSource?.stop();
   loginBgmSource?.disconnect();
   loginBgmSource = null;

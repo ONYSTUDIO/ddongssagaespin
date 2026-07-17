@@ -6,9 +6,15 @@ import {
 } from './fortuneCookie';
 
 let active = false;
+let blocked = false;
 let clickHandler: ((e: MouseEvent) => void) | null = null;
 let onGuideComplete: (() => void) | null = null;
 let onFortuneChainDone: (() => void) | null = null;
+
+export function setFortuneGuidesBlocked(v: boolean): void {
+  blocked = v;
+  if (v) hideFortuneGuide();
+}
 
 export function setOnFortuneChainDoneCallback(cb: () => void): void {
   onFortuneChainDone = cb;
@@ -43,6 +49,7 @@ function showGuide(
   onConfirm: () => void,
   position: 'above' | 'below' = 'above',
 ): void {
+  if (blocked) return;
   hideFortuneGuide();
 
   const overlay = document.getElementById('fortuneGuideOverlay');

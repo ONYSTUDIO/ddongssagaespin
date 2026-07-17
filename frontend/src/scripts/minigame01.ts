@@ -435,6 +435,17 @@ export function hideMinigame01Popup(): void {
   if (cb) cb(charObtainedInSession);
 }
 
+// 로그아웃 시 호출 — ingame BGM 복원 없이 즉시 닫기
+export function forceHideMinigame01Popup(): void {
+  onMinigameCloseCallback = null;
+  stopMinigameBgm();
+  resumeIngameBgm = false;
+  const overlay = document.getElementById('minigame01Overlay');
+  if (!overlay) return;
+  overlay.classList.remove('mg01-open');
+  overlay.setAttribute('aria-hidden', 'true');
+}
+
 export function initMinigame01(): void {
   getEl('mg01CloseBtn').addEventListener('click', () => { playClick(); hideMinigame01Popup(); });
   getEl('mg01StartBtn').addEventListener('click', () => {
