@@ -32,6 +32,12 @@ export function showLoginScreen(): void {
 
 export function hideLoginScreen(): void {
   stopLoginBgm();
+  const meta = document.querySelector('meta[name="viewport"]') as HTMLMetaElement | null;
+  if (meta) {
+    meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0';
+    requestAnimationFrame(() => { meta.content = 'width=device-width, initial-scale=1.0'; });
+  }
+  window.scrollTo(0, 0);
   const screen = getEl('loginScreen');
   screen.classList.add('login-screen--out');
   screen.setAttribute('aria-hidden', 'true');

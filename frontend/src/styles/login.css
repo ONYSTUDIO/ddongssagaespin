@@ -154,7 +154,7 @@
   border: none;
   outline: none;
   color: rgba(255, 220, 140, 0.95);
-  font-size: clamp(0.72rem, 3vw, 0.88rem);
+  font-size: 16px; /* 16px 미만이면 iOS Safari가 포커스 시 자동 확대함 */
   font-family: inherit;
   caret-color: #ffd700;
 }

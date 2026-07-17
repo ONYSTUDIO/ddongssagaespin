@@ -222,7 +222,7 @@ export async function startLoginBgm(): Promise<void> {
   if (isLoginBgmPlaying) return;
   const gen = ++loginBgmGen;
   const ac = getCtx();
-  if (ac.state === 'suspended') ac.resume().catch(() => {});
+  if (ac.state === 'suspended') await ac.resume();
   if (gen !== loginBgmGen) return; // stopLoginBgm()에 의해 취소됨
   await loadLoginBgmBuffer();
   if (gen !== loginBgmGen) return;
