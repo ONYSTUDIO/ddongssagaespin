@@ -26,7 +26,9 @@
   padding: 14px 24px;
   border-radius: 16px;
   border: 1px solid rgba(255, 215, 0, 0.38);
-  white-space: nowrap;
+  white-space: normal;
+  max-width: min(320px, calc(100vw - 32px));
+  word-break: keep-all;
   box-shadow:
     0 0 28px rgba(120, 0, 255, 0.35),
     0 4px 20px rgba(0, 0, 0, 0.6);
