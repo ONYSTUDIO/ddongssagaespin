@@ -1,0 +1,390 @@
+/* ===== 후원 팝업 오버레이 ===== */
+.support-popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 0, 20, 0.82);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 250;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.support-popup-overlay.support-popup-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ===== 팝업 카드 ===== */
+.support-popup-card {
+  position: relative;
+  width: min(95vw, 480px);
+  max-height: 92dvh;
+  background: rgba(16, 0, 40, 0.96);
+  border: 1px solid rgba(255, 215, 0, 0.38);
+  border-radius: 22px;
+  padding: 28px 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  backdrop-filter: blur(14px);
+  box-shadow:
+    0 0 56px rgba(120, 0, 255, 0.3),
+    0 4px 36px rgba(0, 0, 0, 0.65);
+  transform: scale(0.88);
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.support-popup-open .support-popup-card {
+  transform: scale(1);
+}
+
+/* ===== 닫기 버튼 ===== */
+.support-popup-close {
+  position: absolute;
+  top: -13px;
+  right: -13px;
+  width: 32px;
+  height: 32px;
+  background: rgba(20, 0, 40, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 50%;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.support-popup-close:hover {
+  background: rgba(70, 0, 120, 0.95);
+  color: #fff;
+}
+
+/* ===== 헤더 영역 ===== */
+.support-popup-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.support-popup-img {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.4));
+}
+
+.support-popup-header-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.support-popup-title {
+  color: #ffd700;
+  font-size: 1.35rem;
+  font-weight: bold;
+  text-align: center;
+  letter-spacing: 1px;
+  text-shadow: 0 0 14px rgba(255, 215, 0, 0.55);
+  margin-bottom: 10px;
+}
+
+.support-popup-desc {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.95rem;
+  line-height: 1.7;
+  text-align: center;
+}
+
+/* ===== 상품 그리드 ===== */
+.support-product-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* ===== 상품 카드 ===== */
+.support-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 16px 12px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 215, 0, 0.18);
+  border-radius: 14px;
+  transition: background 0.2s, border-color 0.2s, transform 0.15s;
+}
+
+.support-card:hover {
+  background: rgba(255, 215, 0, 0.06);
+  border-color: rgba(255, 215, 0, 0.38);
+  transform: translateY(-2px);
+}
+
+.support-card-emoji {
+  font-size: 2.2rem;
+  line-height: 1;
+}
+
+.support-card-name {
+  color: #ffd700;
+  font-size: 1rem;
+  font-weight: bold;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+
+.support-card-amount {
+  color: #fff;
+  font-size: 1.4rem;
+  font-weight: bold;
+  text-align: center;
+}
+
+.support-card-desc {
+  color: rgba(255, 255, 255, 0.52);
+  font-size: 0.88rem;
+  text-align: center;
+  line-height: 1.5;
+  min-height: 2em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===== 직접 입력 카드 ===== */
+.support-card--custom .support-card-amount {
+  display: none;
+}
+
+.support-card-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  justify-content: center;
+}
+
+.support-card-input {
+  width: 110px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 1rem;
+  padding: 7px 10px;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.2s;
+  -webkit-appearance: none;
+}
+
+.support-card-input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 0.88rem;
+}
+
+.support-card-input:focus {
+  border-color: rgba(255, 215, 0, 0.7);
+}
+
+/* 숫자 인풋 화살표 제거 */
+.support-card-input::-webkit-outer-spin-button,
+.support-card-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+.support-card-input[type=number]               { -moz-appearance: textfield; }
+
+.support-card-input-unit {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+/* ===== 황금똥 보내기 버튼 ===== */
+.support-card-btn {
+  margin-top: auto;
+  width: 100%;
+  padding: 11px 0;
+  background: linear-gradient(135deg, rgba(180, 80, 255, 0.45), rgba(100, 0, 200, 0.55));
+  border: 1px solid rgba(255, 215, 0, 0.42);
+  border-radius: 10px;
+  color: #ffd700;
+  font-size: 0.95rem;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  -webkit-tap-highlight-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.support-btn-icon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.5));
+}
+
+.support-card-btn:hover {
+  background: linear-gradient(135deg, rgba(200, 100, 255, 0.6), rgba(120, 0, 240, 0.7));
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.22);
+  transform: scale(1.03);
+}
+
+.support-card-btn:active {
+  transform: scale(0.96);
+}
+
+.support-card-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+  transform: none;
+}
+
+/* ===== 후원 완료 팝업 ===== */
+.support-complete-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 0, 20, 0.85);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.support-complete-overlay.support-complete-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.support-complete-card {
+  position: relative;
+  width: min(90vw, 360px);
+  background: rgba(16, 0, 40, 0.97);
+  border: 1px solid rgba(255, 215, 0, 0.45);
+  border-radius: 24px;
+  padding: 36px 24px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  backdrop-filter: blur(14px);
+  box-shadow:
+    0 0 60px rgba(120, 0, 255, 0.35),
+    0 4px 36px rgba(0, 0, 0, 0.7);
+  transform: scale(0.88);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.support-complete-open .support-complete-card {
+  transform: scale(1);
+}
+
+/* ── 캐릭터 애니메이션 ── */
+.support-complete-anim-wrap {
+  position: relative;
+  width: 110px;
+  height: 110px;
+  animation: support-complete-bounce 0.9s ease-in-out infinite;
+}
+
+.support-complete-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.55));
+}
+
+/* 두 이미지를 0.5s 간격으로 하드 컷 전환 → GIF 프레임 효과 */
+.support-complete-img--1 {
+  animation: jjajang-frame-on  1s steps(1) infinite;
+}
+.support-complete-img--2 {
+  animation: jjajang-frame-off 1s steps(1) infinite;
+}
+
+@keyframes jjajang-frame-on {
+  0%,  49.9% { opacity: 1; }
+  50%, 100%  { opacity: 0; }
+}
+@keyframes jjajang-frame-off {
+  0%,  49.9% { opacity: 0; }
+  50%, 100%  { opacity: 1; }
+}
+
+@keyframes support-complete-bounce {
+  0%, 100% { transform: translateY(0);    }
+  50%       { transform: translateY(-10px); }
+}
+
+/* ── 텍스트 ── */
+.support-complete-title {
+  color: #ffd700;
+  font-size: 1.25rem;
+  font-weight: bold;
+  text-align: center;
+  text-shadow: 0 0 16px rgba(255, 215, 0, 0.6);
+  letter-spacing: 1px;
+}
+
+.support-complete-msg {
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 0.95rem;
+  line-height: 1.8;
+  text-align: center;
+}
+
+/* ── 확인 버튼 ── */
+.support-complete-btn {
+  margin-top: 4px;
+  width: 100%;
+  padding: 12px 0;
+  background: linear-gradient(135deg, rgba(180, 80, 255, 0.5), rgba(100, 0, 200, 0.6));
+  border: 1px solid rgba(255, 215, 0, 0.5);
+  border-radius: 12px;
+  color: #ffd700;
+  font-size: 1rem;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.support-complete-btn:hover {
+  background: linear-gradient(135deg, rgba(200, 100, 255, 0.65), rgba(120, 0, 240, 0.75));
+  box-shadow: 0 0 14px rgba(255, 215, 0, 0.28);
+  transform: scale(1.03);
+}
+
+.support-complete-btn:active { transform: scale(0.96); }
+
+/* ===== 후원 아이콘 클릭 pulse 애니메이션 ===== */
+@keyframes support-icon-pulse {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.28); }
+  70%  { transform: scale(0.96); }
+  100% { transform: scale(1); }
+}
+
+.support-icon-pulse {
+  animation: support-icon-pulse 0.28s ease forwards;
+}

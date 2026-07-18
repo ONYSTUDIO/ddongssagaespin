@@ -40,6 +40,7 @@ import { initHistory, showHistoryPopup, hideHistoryPopup } from './history';
 import { initMinigame01, showMinigame01Popup, forceHideMinigame01Popup } from './minigame01';
 import { initCharacterCodex, hideCharacterCodexPopup } from './characterCodex';
 import { hideProfilePopup } from './profile';
+import { initSupport, showSupportPopup, hideSupportPopup, hideSupportCompletePopup } from './support';
 import { markHistorySeen, markRankingSeen } from './redDot';
 
 const MOCK_RANKING: RankEntry[] = [
@@ -47,21 +48,10 @@ const MOCK_RANKING: RankEntry[] = [
   { username: 'hey',       best_score: 95, profile_grade: 1, profile_character_id: 1001 },
 ];
 
-// ── Toast ──────────────────────────────────────────────────────────
-let toastTimer: ReturnType<typeof setTimeout> | null = null;
 let onRankingPopupCloseCallback: (() => void) | null = null;
 
 export function setOnRankingPopupCloseCallback(cb: () => void): void {
   onRankingPopupCloseCallback = cb;
-}
-
-function showToast(msg: string): void {
-  const el = document.getElementById('metaToast');
-  if (!el) return;
-  el.textContent = msg;
-  el.classList.add('meta-toast--visible');
-  if (toastTimer) clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('meta-toast--visible'), 2500);
 }
 
 // ── Ranking popup ──────────────────────────────────────────────────
@@ -163,6 +153,7 @@ export function initMeta(onBeforeLogout?: () => void): void {
   initHistory();
   initMinigame01();
   initCharacterCodex();
+  initSupport();
 
   document.getElementById('metaBtnFortune')?.addEventListener('click', async () => {
     playClick();
@@ -191,7 +182,7 @@ export function initMeta(onBeforeLogout?: () => void): void {
 
   document.getElementById('metaBtnSupport')?.addEventListener('click', () => {
     playClick();
-    showToast('후원 기능 준비중입니다 🎁');
+    showSupportPopup();
   });
 
   document.getElementById('metaBtnHistory')?.addEventListener('click', () => {
@@ -214,6 +205,8 @@ export function initMeta(onBeforeLogout?: () => void): void {
     forceHideMinigame01Popup();
     hideCharacterCodexPopup();
     hideProfilePopup();
+    hideSupportPopup();
+    hideSupportCompletePopup();
     stopBgm();
     await supabase.auth.signOut();
     showLoginScreen();

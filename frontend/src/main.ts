@@ -21,6 +21,8 @@ import { consumeSpinGuideConfirm, showSpinGuide, hideSpinGuide, setSpinGuideBloc
 import { showFortuneCookieIconGuide, hideFortuneGuide, showMinigameIconGuide, showCodexGuide, showRankingGuide, showProfileGuide, setOnFortuneChainDoneCallback, setFortuneGuidesBlocked } from './scripts/fortuneGuide';
 import { fetchGuideStep, saveGuideStep, GUIDE_STEP } from './scripts/onboardingGuide';
 import { setOnMinigameCloseCallback } from './scripts/minigame01';
+import { checkPaymentResult, showPaymentResultToast } from './scripts/paymentResult';
+import { showSupportCompletePopup } from './scripts/support';
 
 import spinOnSrc       from './assets/images/buttons/btn_spin_on.png';
 import spinOffSrc      from './assets/images/buttons/btn_spin_off.png';
@@ -247,6 +249,16 @@ async function onLoginSuccess(): Promise<void> {
     updateSpinCountUI(count);
   }
 }
+
+// PG redirect 복귀 처리 — 로그인보다 먼저 실행하여 URL 파라미터 정리
+checkPaymentResult().then(result => {
+  if (!result) return;
+  if (result.success) {
+    showSupportCompletePopup();
+  } else {
+    showPaymentResultToast(result);
+  }
+}).catch(() => {});
 
 initStars();
 initProfilePopup();
