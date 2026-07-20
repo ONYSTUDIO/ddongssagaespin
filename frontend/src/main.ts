@@ -336,6 +336,17 @@ btn.addEventListener('touchend', (e) => {
   lastTapTime = now;
 }, { passive: false });
 
+// ── 스핀 중 UI 잠금 ──────────────────────────────────────────────
+const SPIN_UI_SELECTOR = '.meta-btn, .hud-btn, .hud-profile-btn';
+
+function disableSpinUI(): void {
+  document.querySelectorAll<HTMLButtonElement>(SPIN_UI_SELECTOR).forEach(b => { b.disabled = true; });
+}
+
+function enableSpinUI(): void {
+  document.querySelectorAll<HTMLButtonElement>(SPIN_UI_SELECTOR).forEach(b => { b.disabled = false; });
+}
+
 // ── SPIN 함수 ─────────────────────────────────────────────────────
 async function spin(): Promise<void> {
   // 스핀 가이드에서 진입하는 경우: step 1 저장 + 포춘쿠키 가이드 예약
@@ -348,6 +359,7 @@ async function spin(): Promise<void> {
   if (isSpinning) return;
   if (noSpinMode) { showNoSpinPopup(); return; }
   isSpinning = true;
+  disableSpinUI();
   playSpinButton();
 
   // 이전 스핀의 지연 팝업 타이머가 살아 있으면 취소
@@ -399,6 +411,7 @@ async function spin(): Promise<void> {
     btn.disabled = false;
     if (!spinConsumed || remaining > 0) setBtnState('on');
     else setBtnState('off');
+    enableSpinUI();
   }
 
   function enableSpinBtnAndGuide(): void {
@@ -549,6 +562,7 @@ async function spin(): Promise<void> {
     reelCancelFns = [];
     isReelAnimating = false;
     isSpinning = false;
+    enableSpinUI();
     updateSpinCountUI(0);
     return;
   }

@@ -674,3 +674,14 @@
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
+
+/* ===== 스핀 중 비활성화 ===== */
+.meta-btn:disabled,
+.hud-btn:disabled,
+.hud-profile-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+  pointer-events: none;
+  transform: none !important;
+  box-shadow: none !important;
+}
