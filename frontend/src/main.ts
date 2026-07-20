@@ -329,7 +329,7 @@ btn.addEventListener('dblclick', handleSkip);
 let lastTapTime = 0;
 btn.addEventListener('touchend', (e) => {
   const now = Date.now();
-  if (now - lastTapTime < 350) {
+  if (now - lastTapTime < 350 && isReelAnimating && !isSkipRequested) {
     handleSkip();
     e.preventDefault();
   }
