@@ -388,13 +388,16 @@ async function spin(): Promise<void> {
 
   // consumeSpin() 완료 후 채워짐 — enableSpinBtn 클로저가 참조
   let remaining = 0;
+  let spinConsumed = false; // consumeSpin() 완료 전 noSpinMode 오염 방지
 
   // 연출 종료 후 버튼 활성화
   function enableSpinBtn(): void {
     isSpinning = false;
-    noSpinMode = remaining <= 0;
+    if (spinConsumed) {
+      noSpinMode = remaining <= 0;
+    }
     btn.disabled = false;
-    if (remaining > 0) setBtnState('on');
+    if (!spinConsumed || remaining > 0) setBtnState('on');
     else setBtnState('off');
   }
 
@@ -550,6 +553,7 @@ async function spin(): Promise<void> {
     return;
   }
   remaining = rem;
+  spinConsumed = true;
   updateSpinCountUI(remaining);
   // 네트워크 지연으로 애니메이션이 이미 끝난 경우 버튼 상태 보정
   if (!isSpinning) {
