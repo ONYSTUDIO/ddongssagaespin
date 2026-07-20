@@ -86,9 +86,8 @@ export function initLogin(
   getEl<HTMLImageElement>('loginBtnImg').src = loginBtnSrc;
 
   // 자동재생 정책 대응: getSession보다 먼저 동기 등록
-  // 로그인 버튼 클릭은 스킵 — 어차피 직후 stopLoginBgm()으로 취소됨
-  const unlockLoginBgm = (e: Event) => {
-    if ((e.target as Node) === loginBtn || loginBtn.contains(e.target as Node)) return;
+  // loginBtn 클릭도 포함 — click 핸들러의 stopLoginBgm()이 즉시 취소하므로 BGM은 안 들리지만 AudioContext가 잠금 해제됨
+  const unlockLoginBgm = () => {
     screen.removeEventListener('pointerdown', unlockLoginBgm);
     startLoginBgm().catch(() => {});
   };

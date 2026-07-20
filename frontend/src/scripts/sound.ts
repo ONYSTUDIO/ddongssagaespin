@@ -32,6 +32,7 @@ function getCtx(): AudioContext {
     gainNode = ctx.createGain();
     gainNode.gain.value = 0.7;
     gainNode.connect(ctx.destination);
+    if (import.meta.env.DEV) ctx.resume().catch(() => {});
   }
   return ctx;
 }
