@@ -9,7 +9,8 @@
   },
   "devDependencies": {
     "typescript": "^6.0.3",
-    "vite": "^8.0.16"
+    "vite": "^8.0.16",
+    "vite-plugin-imagemin": "^0.6.1"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.108.2",
