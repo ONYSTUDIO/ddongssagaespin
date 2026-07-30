@@ -2,7 +2,8 @@ import '../styles/meta.css';
 
 import fortuneCookieSrc from '../assets/images/meta/icons/icon_fortune_cookie.png';
 import rankingSrc        from '../assets/images/meta/icons/meta_ranking.png';
-import supportSrc        from '../assets/images/meta/icons/meta_support_gift.png';
+// import supportSrc        from '../assets/images/meta/icons/meta_support_gift.png';
+import issueSrc          from '../assets/images/meta/icons/meta_issue.png';
 import historySrc        from '../assets/images/meta/icons/meta_my_history_2.png';
 import minigameSrc       from '../assets/images/meta/icons/meta_minigame_01.png';
 
@@ -40,7 +41,7 @@ import { initHistory, showHistoryPopup, hideHistoryPopup } from './history';
 import { initMinigame01, showMinigame01Popup, forceHideMinigame01Popup } from './minigame01';
 import { initCharacterCodex, hideCharacterCodexPopup } from './characterCodex';
 import { hideProfilePopup } from './profile';
-import { initSupport, showSupportPopup, hideSupportPopup, hideSupportCompletePopup } from './support';
+// import { initSupport, showSupportPopup, hideSupportPopup, hideSupportCompletePopup } from './support';
 import { markHistorySeen, markRankingSeen } from './redDot';
 
 const MOCK_RANKING: RankEntry[] = [
@@ -145,7 +146,8 @@ function alignSidebarToMachine(): void {
 export function initMeta(onBeforeLogout?: () => void): void {
   (document.getElementById('metaIconFortune')  as HTMLImageElement).src = fortuneCookieSrc;
   (document.getElementById('metaIconRanking')  as HTMLImageElement).src = rankingSrc;
-  (document.getElementById('metaIconSupport')  as HTMLImageElement).src = supportSrc;
+  // (document.getElementById('metaIconSupport')  as HTMLImageElement).src = supportSrc;
+  (document.getElementById('metaIconSupport')  as HTMLImageElement).src = issueSrc;
   (document.getElementById('metaIconHistory')  as HTMLImageElement).src = historySrc;
   (document.getElementById('metaIconMinigame') as HTMLImageElement).src = minigameSrc;
 
@@ -153,7 +155,7 @@ export function initMeta(onBeforeLogout?: () => void): void {
   initHistory();
   initMinigame01();
   initCharacterCodex();
-  initSupport();
+  // initSupport();
 
   document.getElementById('metaBtnFortune')?.addEventListener('click', async () => {
     playClick();
@@ -180,9 +182,13 @@ export function initMeta(onBeforeLogout?: () => void): void {
     openRankingPopup();
   });
 
+  // document.getElementById('metaBtnSupport')?.addEventListener('click', () => {
+  //   playClick();
+  //   showSupportPopup();
+  // });
   document.getElementById('metaBtnSupport')?.addEventListener('click', () => {
     playClick();
-    showSupportPopup();
+    window.open('https://docs.google.com/spreadsheets/d/1R0o6ANhMEjW7F45XFKJAiZ-aBfXelXWb268JBH8Kvz8/edit?gid=0#gid=0', '_blank');
   });
 
   document.getElementById('metaBtnHistory')?.addEventListener('click', () => {
@@ -205,8 +211,8 @@ export function initMeta(onBeforeLogout?: () => void): void {
     forceHideMinigame01Popup();
     hideCharacterCodexPopup();
     hideProfilePopup();
-    hideSupportPopup();
-    hideSupportCompletePopup();
+    // hideSupportPopup();
+    // hideSupportCompletePopup();
     stopBgm();
     await supabase.auth.signOut();
     showLoginScreen();
