@@ -1,0 +1,99 @@
+/* ===== 게임 로딩 오버레이 ===== */
+.game-loader {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 0, 20, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 0.4s ease;
+}
+
+.game-loader--out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.game-loader-inner {
+  width: min(80vw, 320px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+/* ── 움짤 이미지 ── */
+.game-loader-anim {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  animation: loader-bounce 0.9s ease-in-out infinite;
+}
+
+.game-loader-anim-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.45));
+}
+
+.game-loader-anim-img--1 {
+  animation: loader-frame-on 0.8s steps(1) infinite;
+}
+
+.game-loader-anim-img--2 {
+  animation: loader-frame-off 0.8s steps(1) infinite;
+}
+
+@keyframes loader-frame-on {
+  0%,  49.9% { opacity: 1; }
+  50%, 100%  { opacity: 0; }
+}
+
+@keyframes loader-frame-off {
+  0%,  49.9% { opacity: 0; }
+  50%, 100%  { opacity: 1; }
+}
+
+@keyframes loader-bounce {
+  0%, 100% { transform: translateY(0);   }
+  50%      { transform: translateY(-8px); }
+}
+
+/* ── 텍스트 / 게이지 ── */
+.game-loader-title {
+  color: #ffd700;
+  font-size: 0.88rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-shadow: 0 0 12px rgba(255, 215, 0, 0.5);
+}
+
+.game-loader-track {
+  width: 100%;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 215, 0, 0.28);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.game-loader-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #1a56ff, #00d0ff);
+  border-radius: 6px;
+  transition: width 0.15s ease;
+}
+
+.game-loader-pct {
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 0.9rem;
+}

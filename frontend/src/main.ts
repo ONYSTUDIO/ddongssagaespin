@@ -1,12 +1,12 @@
 import './styles/main.css';
 import { initLogin } from './scripts/login';
 import { supabase } from './scripts/supabase';
-import { getRandomItem, SlotItem } from './scripts/game';
+import { getRandomItem, SlotItem, SLOT_ITEMS } from './scripts/game';
 import { judgeResult } from './scripts/rules';
 import { initReel, animateReel, nudgeReel, WIN_IDX } from './scripts/reel';
 import { showResult } from './scripts/effects';
 import { buildFortuneResult, loadFortuneMessages } from './scripts/fortune';
-import { initPopup, showResultPopup, hideResultPopup } from './scripts/popup';
+import { initPopup, showResultPopup, hideResultPopup, getPopupPreloadSrcs } from './scripts/popup';
 import { saveScore } from './scripts/ranking';
 import { initMeta, setOnRankingPopupCloseCallback } from './scripts/meta';
 import { initDailyReward, checkAndShowDailyReward } from './scripts/dailyReward';
@@ -15,7 +15,7 @@ import { saveSlotFortuneLog } from './scripts/history';
 import { initStars } from './scripts/stars';
 import { startBgm, stopBgm, initBgmBtn, playReelStop, playSpinButton, playHit } from './scripts/sound';
 import { initRedDots, markSpinRecordUpdated, updateProfileRedDot } from './scripts/redDot';
-import { getCharacterSrc, setOnCodexCloseCallback } from './scripts/characterCodex';
+import { getCharacterSrc, setOnCodexCloseCallback, getCharacterPreloadSrcs } from './scripts/characterCodex';
 import { initProfilePopup } from './scripts/profile';
 import { consumeSpinGuideConfirm, showSpinGuide, hideSpinGuide, setSpinGuideBlocked } from './scripts/spinGuide';
 import { showFortuneCookieIconGuide, hideFortuneGuide, showMinigameIconGuide, showCodexGuide, showRankingGuide, showProfileGuide, setOnFortuneChainDoneCallback, setFortuneGuidesBlocked } from './scripts/fortuneGuide';
@@ -23,6 +23,7 @@ import { fetchGuideStep, saveGuideStep, GUIDE_STEP } from './scripts/onboardingG
 import { setOnMinigameCloseCallback } from './scripts/minigame01';
 import { checkPaymentResult, showPaymentResultToast } from './scripts/paymentResult';
 import { showSupportCompletePopup } from './scripts/support';
+import { showLoader, setLoaderProgress, hideLoader, preloadImages } from './scripts/loader';
 
 import spinOnSrc       from './assets/images/buttons/btn_spin_on.png';
 import spinOffSrc      from './assets/images/buttons/btn_spin_off.png';
@@ -133,6 +134,20 @@ async function onLoginSuccess(): Promise<void> {
   setSpinGuideBlocked(false);
   const gen = ++sessionGen;
 
+  showLoader();
+
+  const imageSrcs = [...new Set([
+    spinOnSrc, spinOffSrc, spinFocusSrc, machineFrameSrc,
+    ...SLOT_ITEMS.map(i => i.src),
+    ...getPopupPreloadSrcs(),
+    ...getCharacterPreloadSrcs(),
+  ])];
+  let imagesLoaded = 0;
+  const imagePromise = preloadImages(imageSrcs, () => {
+    imagesLoaded++;
+    setLoaderProgress((imagesLoaded / imageSrcs.length) * 70);
+  });
+
   setHudUser();
   startBgm();
   isInitializing = true;
@@ -146,8 +161,9 @@ async function onLoginSuccess(): Promise<void> {
     supabase.auth.getUser(),
   ]);
 
-  if (gen !== sessionGen) return;
+  if (gen !== sessionGen) { hideLoader(); return; }
 
+  setLoaderProgress(85);
   updateSpinCountUI(count);
   currentUserId = authUser?.id ?? null;
 
@@ -155,6 +171,14 @@ async function onLoginSuccess(): Promise<void> {
   if (currentUserId) {
     guideStep = await fetchGuideStep(currentUserId);
   }
+
+  if (gen !== sessionGen) { hideLoader(); return; }
+
+  setLoaderProgress(95);
+  await imagePromise;
+  setLoaderProgress(100);
+  await new Promise<void>(resolve => setTimeout(resolve, 250));
+  await hideLoader();
 
   if (gen !== sessionGen) return;
 

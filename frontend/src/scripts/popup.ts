@@ -81,6 +81,19 @@ export function getCardAssetsByGrade(grade: Grade): CardAssets {
   return CARD_ASSETS[grade];
 }
 
+export function getPopupPreloadSrcs(): string[] {
+  return [
+    particleSrc,
+    corgiFrame1, corgiFrame2, corgiFrame3, corgiFrame4, corgiFrame5,
+    cardPurpleBack, cardPurpleFront,
+    cardRedBack, cardRedFront,
+    cardOrangeBack, cardOrangeFront,
+    cardGreenBack, cardGreenFront,
+    cardGrayBack, cardGrayFront,
+    ...Object.values(SYMBOL_SRCS),
+  ];
+}
+
 // ── 내부 유틸 ─────────────────────────────────────────────────────────────────
 
 let pending: ReturnType<typeof setTimeout>[] = [];

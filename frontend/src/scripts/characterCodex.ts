@@ -31,6 +31,10 @@ export function getCharacterSrc(charId: number): string {
   return DOG_IMAGES[charId] ?? DOG_IMAGES[1001];
 }
 
+export function getCharacterPreloadSrcs(): string[] {
+  return Object.values(DOG_IMAGES);
+}
+
 const DEFINED_CHARACTERS = [1001, 1002, 1003, 1004, 1005, 1006, 1007];
 const TOTAL_SLOTS        = 9;
 const FRAGMENT_CAP       = 10;
