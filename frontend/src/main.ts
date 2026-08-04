@@ -1,5 +1,5 @@
 import './styles/main.css';
-import { initLogin } from './scripts/login';
+import { initLogin, LOGIN_PRELOAD_SRCS } from './scripts/login';
 import { supabase } from './scripts/supabase';
 import { getRandomItem, SlotItem, SLOT_ITEMS } from './scripts/game';
 import { judgeResult } from './scripts/rules';
@@ -23,7 +23,7 @@ import { fetchGuideStep, saveGuideStep, GUIDE_STEP } from './scripts/onboardingG
 import { setOnMinigameCloseCallback } from './scripts/minigame01';
 import { checkPaymentResult, showPaymentResultToast } from './scripts/paymentResult';
 import { showSupportCompletePopup } from './scripts/support';
-import { showLoader, setLoaderProgress, hideLoader, preloadImages } from './scripts/loader';
+import { showLoader, setLoaderProgress, hideLoader, preloadImages, getLoaderPreloadSrcs } from './scripts/loader';
 
 import spinOnSrc       from './assets/images/buttons/btn_spin_on.png';
 import spinOffSrc      from './assets/images/buttons/btn_spin_off.png';
@@ -274,6 +274,9 @@ async function onLoginSuccess(): Promise<void> {
   }
 }
 
+// 페이지 최초 진입 즉시 로딩 화면 표시 (로그인 / 세션 복귀 공통)
+showLoader('잠시만요...');
+
 // PG redirect 복귀 처리 — 로그인보다 먼저 실행하여 URL 파라미터 정리
 checkPaymentResult().then(result => {
   if (!result) return;
@@ -288,8 +291,21 @@ initStars();
 initProfilePopup();
 initLogin(
   onLoginSuccess,
-  () => startBgm(),  // await 전 동기 구간 호출 → 웹/Android/iOS 모두 user gesture로 인정
-  () => stopBgm(),   // 로그인 실패 시 BGM 중단
+  () => { showLoader('로그인 중...'); startBgm(); },  // await 전 동기 구간 호출 → 웹/Android/iOS 모두 user gesture로 인정
+  () => { stopBgm(); hideLoader(); },   // 로그인 실패 시 BGM 중단 + 로더 숨김
+  () => {
+    // 세션 없음 → 로그인 리소스 프리로드 후 로더 숨김
+    const srcs = [...LOGIN_PRELOAD_SRCS, ...getLoaderPreloadSrcs()];
+    let loaded = 0;
+    preloadImages(srcs, () => {
+      loaded++;
+      setLoaderProgress((loaded / srcs.length) * 100);
+    }).then(async () => {
+      setLoaderProgress(100);
+      await new Promise<void>(resolve => setTimeout(resolve, 250));
+      await hideLoader();
+    });
+  },
 );
 initPopup();
 initMeta(() => {

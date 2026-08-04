@@ -7,6 +7,8 @@ import corgiSrc    from '../assets/images/popup/login/main_corgi.png';
 import { supabase } from './supabase';
 import { playClick, startLoginBgm, stopLoginBgm } from './sound';
 
+export const LOGIN_PRELOAD_SRCS = [popupBgSrc, inputBgSrc, loginBtnSrc, corgiSrc];
+
 function getEl<T extends HTMLElement>(id: string): T {
   return document.getElementById(id) as T;
 }
@@ -70,6 +72,7 @@ export function initLogin(
   onLoginSuccess?: () => void,
   onLoginAttempt?: () => void,
   onLoginFail?: () => void,
+  onNoSession?: () => void,
 ): void {
   const screen   = getEl('loginScreen');
   const loginBtn = getEl<HTMLButtonElement>('loginBtn');
@@ -101,6 +104,7 @@ export function initLogin(
       onLoginSuccess?.();
     } else {
       startLoginBgm().catch(() => {}); // 즉시 시도 (일부 데스크톱 브라우저 허용)
+      onNoSession?.();
     }
   });
 

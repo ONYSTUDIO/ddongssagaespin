@@ -5,6 +5,7 @@ import jjajang2Src from '../assets/images/meta/support_gift/jjajang_2.png';
 let loaderEl: HTMLDivElement | null = null;
 let barEl: HTMLDivElement | null = null;
 let pctEl: HTMLSpanElement | null = null;
+let loaderGen = 0;
 
 function ensureLoader(): HTMLDivElement {
   if (loaderEl) return loaderEl;
@@ -56,10 +57,17 @@ function ensureLoader(): HTMLDivElement {
   return el;
 }
 
-export function showLoader(): void {
+export function showLoader(title = '게임 준비 중...'): void {
+  loaderGen++;
   const el = ensureLoader();
+  const titleEl = el.querySelector('.game-loader-title') as HTMLElement | null;
+  if (titleEl) titleEl.textContent = title;
   el.classList.remove('game-loader--out');
   setLoaderProgress(0);
+}
+
+export function getLoaderPreloadSrcs(): string[] {
+  return [jjajang1Src, jjajang2Src];
 }
 
 export function setLoaderProgress(pct: number): void {
@@ -72,8 +80,10 @@ export function hideLoader(): Promise<void> {
   return new Promise(resolve => {
     if (!loaderEl) { resolve(); return; }
     const el = loaderEl;
+    const gen = loaderGen;
     el.classList.add('game-loader--out');
     setTimeout(() => {
+      if (loaderGen !== gen) { resolve(); return; } // showLoader가 다시 호출됨 → 무효화
       el.remove();
       if (loaderEl === el) { loaderEl = null; barEl = null; pctEl = null; }
       resolve();
